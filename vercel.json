@@ -1,9 +1,12 @@
 {
-  "version": 2,
-  "functions": {
-    "api/proxy.js": { "runtime": "nodejs22.x" }
-  },
   "rewrites": [
-    { "source": "/api/(.*)", "destination": "/api/proxy?action=$1" }
+    {
+      "source": "/api/(.*)",
+      "destination": "/api/proxy?action=$1"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/frontend/$1"
+    }
   ]
 }
