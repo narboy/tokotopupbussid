@@ -111,7 +111,45 @@ function render(){
 }
 
 async function loginSubmit(){try{setLoading(true); const d=await api('login',{email:$('#email').value,password:$('#password').value}); state.token=d.token; state.user=d.user; localStorage.setItem('kp_token',state.token); await loadUserData(); navigate(state.user.role==='admin'?'admin-dashboard':'home'); toast('Login berhasil.');}catch(e){toast(e.message,'error');}finally{setLoading(false);}}
-async function registerSubmit(){try{setLoading(true); await api('register',{name:$('#name').value,email:$('#email').value,password:$('#password').value}); toast('Registrasi berhasil. Silakan login.'); navigate('login');}catch(e){toast(e.message,'error');}finally{setLoading(false);}}
+async async function registerSubmit() {
+  try {
+    setLoading(true);
+
+    const name = $('#name').value.trim();
+    const email = $('#email').value.trim();
+    const password = $('#password').value;
+
+    if (!name) {
+      throw new Error('Nama wajib diisi.');
+    }
+
+    if (!email) {
+      throw new Error('Email wajib diisi.');
+    }
+
+    if (!password) {
+      throw new Error('Password wajib diisi.');
+    }
+
+    if (password.length < 8) {
+      throw new Error('Password minimal 8 karakter.');
+    }
+
+    await api('register', {
+      name: name,
+      email: email,
+      password: password
+    });
+
+    toast('Registrasi berhasil. Silakan login.');
+    navigate('login');
+
+  } catch (e) {
+    toast(e.message || 'Registrasi gagal.', 'error');
+  } finally {
+    setLoading(false);
+  }
+}
 async function logout(){try{if(state.token) await api('logout');}catch(e){} state.token='';state.user=null;localStorage.removeItem('kp_token');navigate('home');}
 function startCheckout(id){ if(!state.user){toast('Silakan login terlebih dahulu.','error'); navigate('login'); return;} state.selectedProduct=state.products.find(x=>x.productId===id); navigate('checkout'); }
 async function createCheckout(){try{const d=await api('checkout',{productId:state.selectedProduct.productId,paymentMethod:$('#paymentMethod').value}); state.selectedProduct=null; navigate('history'); const t=d.transaction; setTimeout(()=>{document.body.insertAdjacentHTML('beforeend',transactionModal(t));},100); await refresh();}catch(e){toast(e.message,'error');}}
