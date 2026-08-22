@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # KoinPlay Store — Toko Koin Game
 
 Starter kit aplikasi toko digital untuk BUSSID, BUSSIN, dan TRUCKSID.
@@ -58,3 +59,6 @@ Untuk frontend, Vercel proxy membuat URL yang lebih nyaman seperti `/api/product
 - User: `user@demo.com` / `User123!`
 
 Segera ganti kredensial demo setelah instalasi.
+=======
+# tokotopupbussid
+>>>>>>> b52bf74e594dd8f90061545e30e9cbfe11b6e044
