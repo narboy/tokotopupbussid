@@ -1,4 +1,4 @@
-const API_URL = 'GANTI_DENGAN_URL_APPS_SCRIPT'; // WAJIB DIGANTI
+const API_URL = 'https://script.google.com/macros/s/AKfycbzkycHTygKrJH-Xkz_swkxrFf7iDR27fsreuPM0M9RccaWfjXb5a5s8C2HXvRe0doRfTw/exec'; // WAJIB DIGANTI
 
 function getToken() { return localStorage.getItem('ub_token') || ''; }
 function setToken(token) { if (token) localStorage.setItem('ub_token', token); else localStorage.removeItem('ub_token'); }
