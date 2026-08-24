@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>UB STORE - Top Up Koin Game</title>
+  <meta
+    name="description"
+    content="Top up koin BUSSID, TRUCKSID, dan BUSSIN di UB STORE."
+  >
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif']
+          },
+          boxShadow: {
+            glow: '0 0 40px rgba(99,102,241,.15)'
+          }
+        }
+      }
+    };
+  </script>
+
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <style>
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      background:
+        radial-gradient(circle at top left, rgba(99,102,241,.12), transparent 30%),
+        radial-gradient(circle at top right, rgba(34,211,238,.09), transparent 25%),
+        #050816;
+    }
+
+    .glass {
+      background: rgba(15, 23, 42, .72);
+      backdrop-filter: blur(18px);
+      border: 1px solid rgba(148,163,184,.12);
+    }
+
+    .grid-bg {
+      background-image:
+        linear-gradient(rgba(148,163,184,.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(148,163,184,.04) 1px, transparent 1px);
+      background-size: 36px 36px;
+    }
+
+    .scrollbar-hide::-webkit-scrollbar {
+      display: none;
+    }
+
+    .scrollbar-hide {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+
+    .modal-backdrop {
+      background: rgba(2,6,23,.75);
+      backdrop-filter: blur(8px);
+    }
+  </style>
+</head>
+
+<body class="min-h-screen text-slate-100 font-sans">
+
+  <div id="app" class="min-h-screen"></div>
+
+  <!-- Konfigurasi API HARUS dimuat sebelum app.js -->
+  <script src="./config.js"></script>
+  <script src="./app.js"></script>
+</body>
+</html>
