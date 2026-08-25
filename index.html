@@ -59,27 +59,27 @@
     @keyframes pulseDot { 0%,100%{box-shadow:0 0 0 0 rgba(34,197,94,.45)} 50%{box-shadow:0 0 0 8px rgba(34,197,94,0)} }
     .slide { animation: fadeSlide .45s ease; }
     @keyframes fadeSlide { from{opacity:.3; transform:scale(.98)} to{opacity:1; transform:scale(1)} }
-
-    .app-loader { transition: opacity .28s ease, visibility .28s ease; }
+    .app-loader { opacity:1; visibility:visible; transition:opacity .35s ease, visibility .35s ease; }
     .app-loader.hide { opacity:0; visibility:hidden; pointer-events:none; }
-    .loader-ring { width:52px; height:52px; border:3px solid rgba(255,255,255,.12); border-top-color:#7c5cff; border-right-color:#20d9ff; border-radius:999px; animation:spin .8s linear infinite; }
-    .mini-spinner { width:18px; height:18px; border:2px solid rgba(255,255,255,.2); border-top-color:currentColor; border-radius:50%; display:inline-block; animation:spin .7s linear infinite; }
+    .loader-ring { width:42px; height:42px; border:3px solid rgba(255,255,255,.12); border-top-color:#7c5cff; border-right-color:#20d9ff; border-radius:999px; animation:spin .8s linear infinite; }
+    .loader-bar { overflow:hidden; height:3px; border-radius:999px; background:rgba(255,255,255,.08); }
+    .loader-bar::after { content:""; display:block; width:42%; height:100%; border-radius:inherit; background:linear-gradient(90deg,#7c5cff,#20d9ff); animation:loadBar 1.2s ease-in-out infinite; }
     @keyframes spin { to { transform:rotate(360deg); } }
-    .skeleton { position:relative; overflow:hidden; background:rgba(255,255,255,.055); }
-    .skeleton::after { content:""; position:absolute; inset:0; transform:translateX(-100%); background:linear-gradient(90deg,transparent,rgba(255,255,255,.09),transparent); animation:shimmer 1.2s infinite; }
-    @keyframes shimmer { 100% { transform:translateX(100%); } }
-
+    @keyframes loadBar { 0%{transform:translateX(-110%)} 100%{transform:translateX(260%)} }
   </style>
 </head>
 <body class="min-h-screen bg-[radial-gradient(circle_at_20%_0%,rgba(124,92,255,.18),transparent_30%),radial-gradient(circle_at_90%_10%,rgba(32,217,255,.10),transparent_25%),#080c18]">
-  <div id="appLoader" class="app-loader fixed inset-0 z-[200] grid place-items-center bg-[#080c18]">
-    <div class="text-center">
-      <div class="loader-ring mx-auto"></div>
-      <p class="mt-5 text-sm font-black">Memuat layanan...</p>
-      <p class="mt-1 text-[11px] text-slate-500">Menyiapkan produk dan informasi toko</p>
+
+  <!-- APP LOADING -->
+  <div id="appLoader" class="app-loader fixed inset-0 z-[200] grid place-items-center bg-[#080c18]/95 px-6 backdrop-blur-xl">
+    <div class="w-full max-w-xs text-center">
+      <div class="mx-auto grid h-16 w-16 place-items-center rounded-3xl bg-gradient-to-br from-primary to-cyanx shadow-glow"><span class="text-2xl font-black">G</span></div>
+      <div class="mx-auto mt-5 loader-ring"></div>
+      <h2 id="appLoaderTitle" class="mt-5 text-base font-black">Menyiapkan layanan</h2>
+      <p id="appLoaderText" class="mt-1 text-xs text-slate-400">Memuat produk, pembayaran, dan informasi toko...</p>
+      <div class="loader-bar mt-5"></div>
     </div>
   </div>
-
 
   <!-- HEADER -->
   <header class="sticky top-0 z-40 border-b border-white/5 bg-[#080c18]/85 backdrop-blur-xl">
@@ -146,9 +146,7 @@
         <div class="mb-3 rounded-2xl border border-primary/20 bg-primary/5 p-3 text-xs text-slate-300">Pilih nominal koin terlebih dahulu, lalu isi data pemain.</div>
         <div class="mt-4">
           <div class="mb-2 flex items-center justify-between"><span class="text-[11px] font-bold text-slate-400">Pilih Nominal Koin</span><span id="selectedGameLabel" class="text-[10px] font-bold text-primary">BUSSID</span></div>
-          <div id="packages" class="grid grid-cols-2 gap-2 sm:grid-cols-4">
-            <div class="skeleton h-20 rounded-2xl"></div><div class="skeleton h-20 rounded-2xl"></div><div class="skeleton h-20 rounded-2xl"></div><div class="skeleton h-20 rounded-2xl"></div>
-          </div>
+          <div id="packages" class="grid grid-cols-2 gap-2 sm:grid-cols-4"></div>
         </div>
 
         
@@ -171,11 +169,13 @@
             <input id="whatsapp" inputmode="tel" required class="w-full rounded-2xl border border-white/10 bg-black/20 px-4 py-3.5 text-sm outline-none transition focus:border-primary" placeholder="08xxxxxxxxxx">
           </label>
         </div>
+
         <div class="mt-4 rounded-2xl border border-white/10 bg-black/20 p-3">
           <div class="flex items-center justify-between text-xs"><span class="text-slate-500">Game</span><b id="summaryGame">BUSSID</b></div>
           <div class="mt-2 flex items-center justify-between text-xs"><span class="text-slate-500">Koin</span><b id="summaryCoins">-</b></div>
           <div class="mt-2 flex items-center justify-between"><span class="text-xs text-slate-500">Total Bayar</span><strong id="summaryPrice" class="text-lg text-primary">Rp0</strong></div>
         </div>
+
         <button
           id="continuePaymentBtn"
           onclick="createOrder()"
@@ -220,7 +220,7 @@
       <button onclick="go('order')" class="nav-btn rounded-2xl py-2 text-center text-slate-400"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 5v14M5 12h14"/></svg></span><small>Order</small></button>
       <button onclick="openModal('statusModal')" class="nav-btn rounded-2xl py-2 text-center text-slate-400"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 5 5"/></svg></span><small>Status</small></button>
       <button onclick="go('faq')" class="nav-btn rounded-2xl py-2 text-center text-slate-400"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="8.5"/><path d="M9.7 9a2.4 2.4 0 1 1 3.8 1.9c-1.1.8-1.5 1.2-1.5 2.4"/><path d="M12 16h.01"/></svg></span><small>FAQ</small></button>
-      <button onclick="openModal('settingsModal')" class="nav-btn rounded-2xl py-2 text-center text-slate-400"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 8.5a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7Z"/><path d="m19 13.5 1.2 1-.9 1.6-1.5-.4a7.6 7.6 0 0 1-1.3 1.3l.4 1.5-1.6.9-1-1.2a7.7 7.7 0 0 1-1.8.3l-.6 1.4h-1.8l-.6-1.4a7.7 7.7 0 0 1-1.8-.3l-1 1.2-1.6-.9.4-1.5a7.6 7.6 0 0 1-1.3-1.3l-1.5.4-.9-1.6 1.2-1a7.4 7.4 0 0 1-.2-1.5c0-.5.1-1 .2-1.5l-1.2-1 .9-1.6 1.5.4A7.6 7.6 0 0 1 6.7 7l-.4-1.5 1.6-.9 1 1.2a7.7 7.7 0 0 1 1.8-.3l.6-1.4h1.8l.6 1.4a7.7 7.7 0 0 1 1.8.3l1-1.2 1.6.9-.4 1.5a7.6 7.6 0 0 1 1.3 1.3l1.5-.4.9 1.6-1.2 1c.1.5.2 1 .2 1.5s-.1 1-.2 1.5Z"/></svg></span><small>Admin</small></button>
+      <button onclick="openAdmin()" class="nav-btn rounded-2xl py-2 text-center text-slate-400"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 8.5a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7Z"/><path d="m19 13.5 1.2 1-.9 1.6-1.5-.4a7.6 7.6 0 0 1-1.3 1.3l.4 1.5-1.6.9-1-1.2a7.7 7.7 0 0 1-1.8.3l-.6 1.4h-1.8l-.6-1.4a7.7 7.7 0 0 1-1.8-.3l-1 1.2-1.6-.9.4-1.5a7.6 7.6 0 0 1-1.3-1.3l-1.5.4-.9-1.6 1.2-1a7.4 7.4 0 0 1-.2-1.5c0-.5.1-1 .2-1.5l-1.2-1 .9-1.6 1.5.4A7.6 7.6 0 0 1 6.7 7l-.4-1.5 1.6-.9 1 1.2a7.7 7.7 0 0 1 1.8-.3l.6-1.4h1.8l.6 1.4a7.7 7.7 0 0 1 1.8.3l1-1.2 1.6.9-.4 1.5a7.6 7.6 0 0 1 1.3 1.3l1.5-.4.9 1.6-1.2 1c.1.5.2 1 .2 1.5s-.1 1-.2 1.5Z"/></svg></span><small>Admin</small></button>
     </div>
   </nav>
 
@@ -299,6 +299,24 @@
 
   <!-- BLOCKED ORDER MODAL -->
   <div id="blockedModal" class="modal fixed inset-0 z-[75] bg-black/70 p-3 backdrop-blur-sm"><div class="modal-card rounded-3xl border border-white/10 bg-[#10172a] p-5 shadow-2xl"><div class="mb-4 flex items-center justify-between"><div><p class="text-xs font-bold text-amber-300">PEMBELIAN DIBLOKIR</p><h3 class="text-xl font-black">Masih Ada Pesanan Aktif</h3></div><button onclick="closeModal('blockedModal')" class="modal-close" aria-label="Tutup">X</button></div><div id="blockedOrderInfo"></div><div class="mt-3 grid grid-cols-2 gap-2"><button onclick="closeModal('blockedModal')" class="rounded-2xl border border-white/10 bg-white/5 py-3.5 text-xs font-black">Tutup</button><button onclick="closeModal('blockedModal');openModal('statusModal');loadLatestOrderStatus()" class="rounded-2xl bg-primary py-3.5 text-xs font-black">Cek Pesanan</button></div></div></div>
+
+
+
+  <!-- ADMIN MODAL -->
+  <div id="adminModal" class="modal fixed inset-0 z-[80] bg-black/70 p-3 backdrop-blur-sm">
+    <div class="modal-card rounded-3xl border border-white/10 bg-[#10172a] p-5 shadow-2xl">
+      <div class="mb-5 flex items-center justify-between">
+        <div>
+          <p class="text-xs font-bold text-primary">ADMIN PANEL</p>
+          <h3 class="text-xl font-black">Manajemen Pesanan</h3>
+        </div>
+        <button onclick="closeModal('adminModal')" class="modal-close" aria-label="Tutup">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m7 7 10 10M17 7 7 17"/></svg>
+        </button>
+      </div>
+      <div id="adminContent"></div>
+    </div>
+  </div>
 
   <!-- SETTINGS MODAL -->
   <div id="settingsModal" class="modal fixed inset-0 z-[70] bg-black/70 p-3 backdrop-blur-sm">
@@ -394,11 +412,11 @@ let selectedProduct = null;
 let currentOrder = null;
 let chosenPayment = null;
 let testiIndex = 0;
+let adminSession = null;
 
 const ACTIVE_STATUSES = [
   "Menunggu Pembayaran",
-  "Menunggu Verifikasi",
-  "Diproses"
+  "Menunggu Verifikasi"
 ];
 
 
@@ -478,7 +496,7 @@ function setLoading(button, loading, text) {
     button.dataset.originalText = button.innerHTML;
     button.disabled = true;
     button.classList.add("opacity-60", "cursor-not-allowed");
-    button.innerHTML = `<span class="mini-spinner"></span><span>${text || "Memproses..."}</span>`;
+    button.innerHTML = text || "Memproses...";
   } else {
     button.disabled = false;
     button.classList.remove("opacity-60", "cursor-not-allowed");
@@ -489,35 +507,12 @@ function setLoading(button, loading, text) {
 }
 
 
-function showAppLoader(show) {
+function setAppLoading(loading, text) {
   const loader = document.getElementById("appLoader");
+  const label = document.getElementById("appLoaderText");
   if (!loader) return;
-  loader.classList.toggle("hide", !show);
-}
-
-function loadingHtml(label = "Memuat data...") {
-  return `<div class="flex items-center justify-center gap-3 py-3 text-xs text-slate-400"><span class="mini-spinner"></span><span>${escapeHtml(label)}</span></div>`;
-}
-
-function isOrderOpenForNewPurchase(status) {
-  return ["Diproses", "Selesai", "Ditolak", "Dibatalkan"]
-    .includes(String(status || "").trim());
-}
-
-function resetOrderForm() {
-  selectedProduct = null;
-  chosenPayment = null;
-  document.getElementById("playerName").value = "";
-  document.getElementById("gameId").value = "";
-  document.getElementById("whatsapp").value = "";
-  selectGame(selectedGame);
-}
-
-function orderAgain() {
-  closeModal("statusModal");
-  resetOrderForm();
-  go("order");
-  toast("Anda dapat membuat pesanan baru.");
+  if (text && label) label.textContent = text;
+  loader.classList.toggle("hide", !loading);
 }
 
 // ==================================================
@@ -582,12 +577,226 @@ async function apiPost(payload) {
 }
 
 
+
+// ==================================================
+// ADMIN PANEL
+// ==================================================
+
+function getAdminToken() {
+  return localStorage.getItem("admin_token") || "";
+}
+
+function saveAdminSession(data) {
+  adminSession = data.admin;
+  localStorage.setItem("admin_token", data.token);
+  localStorage.setItem("admin_data", JSON.stringify(data.admin));
+}
+
+function clearAdminSession() {
+  adminSession = null;
+  localStorage.removeItem("admin_token");
+  localStorage.removeItem("admin_data");
+}
+
+function openAdmin() {
+  openModal("adminModal");
+  checkAdminSession();
+}
+
+async function checkAdminSession() {
+  const token = getAdminToken();
+  if (!token) {
+    renderAdminLogin();
+    return;
+  }
+
+  try {
+    const data = await apiGet("adminProfile", { token });
+    if (!data.success) {
+      clearAdminSession();
+      renderAdminLogin();
+      return;
+    }
+    adminSession = data.admin;
+    renderAdminPanel();
+  } catch (error) {
+    clearAdminSession();
+    renderAdminLogin();
+  }
+}
+
+function renderAdminLogin() {
+  const el = document.getElementById("adminContent");
+  el.innerHTML = `
+    <div class="space-y-3">
+      <div>
+        <label class="mb-1.5 block text-[11px] font-bold text-slate-400">Username</label>
+        <input id="adminUsername" class="w-full rounded-2xl border border-white/10 bg-black/20 px-4 py-3.5 text-sm outline-none focus:border-primary" placeholder="Username admin">
+      </div>
+      <div>
+        <label class="mb-1.5 block text-[11px] font-bold text-slate-400">Password</label>
+        <input id="adminPassword" type="password" class="w-full rounded-2xl border border-white/10 bg-black/20 px-4 py-3.5 text-sm outline-none focus:border-primary" placeholder="Password admin">
+      </div>
+      <button id="adminLoginBtn" onclick="loginAdmin()" class="w-full rounded-2xl bg-gradient-to-r from-primary to-[#5d8dff] py-4 text-sm font-black shadow-glow">
+        Masuk ke Panel Admin
+      </button>
+    </div>`;
+}
+
+async function loginAdmin() {
+  const username = document.getElementById("adminUsername").value.trim();
+  const password = document.getElementById("adminPassword").value;
+  const button = document.getElementById("adminLoginBtn");
+
+  if (!username || !password) {
+    toast("Username dan password wajib diisi.");
+    return;
+  }
+
+  try {
+    setLoading(button, true, "Masuk...");
+    const data = await apiPost({ action: "adminLogin", username, password });
+    if (!data.success) throw new Error(data.message || "Login admin gagal");
+    saveAdminSession(data);
+    toast("Login admin berhasil");
+    renderAdminPanel();
+  } catch (error) {
+    toast(error.message || "Login admin gagal");
+  } finally {
+    setLoading(button, false);
+  }
+}
+
+async function logoutAdmin() {
+  const token = getAdminToken();
+  try {
+    if (token) await apiPost({ action: "adminLogout", token });
+  } catch (error) {
+    console.error(error);
+  }
+  clearAdminSession();
+  renderAdminLogin();
+  toast("Admin berhasil logout");
+}
+
+async function renderAdminPanel() {
+  const el = document.getElementById("adminContent");
+  const token = getAdminToken();
+  el.innerHTML = `<div class="py-8 text-center text-xs text-slate-400">Memuat pesanan...</div>`;
+
+  try {
+    const data = await apiGet("adminOrders", { token });
+    if (!data.success) {
+      clearAdminSession();
+      renderAdminLogin();
+      return;
+    }
+
+    const activeOrders = (data.orders || []).filter(order =>
+      ACTIVE_STATUSES.includes(order.status)
+    );
+
+    el.innerHTML = `
+      <div class="mb-4 rounded-2xl border border-primary/20 bg-primary/5 p-4">
+        <div class="flex items-center justify-between gap-3">
+          <div>
+            <p class="text-[10px] text-slate-500">LOGIN SEBAGAI</p>
+            <b class="text-sm">${escapeHtml(data.admin.username)}</b>
+            <p class="mt-1 text-[10px] text-slate-500">${escapeHtml(data.admin.role || "admin")}</p>
+          </div>
+          <button onclick="logoutAdmin()" class="rounded-xl border border-red-400/20 bg-red-400/5 px-3 py-2 text-[10px] font-bold text-red-300">Logout</button>
+        </div>
+      </div>
+
+      <div class="mb-3 flex items-center justify-between">
+        <div>
+          <p class="text-[10px] text-slate-500">PESANAN AKTIF</p>
+          <h4 class="text-lg font-black">${activeOrders.length} Pesanan</h4>
+        </div>
+        <button onclick="renderAdminPanel()" class="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-[10px] font-bold">Refresh</button>
+      </div>
+
+      <div class="space-y-3">
+        ${activeOrders.length
+          ? activeOrders.map(renderAdminOrder).join("")
+          : `<div class="rounded-2xl border border-white/10 bg-black/20 p-6 text-center text-xs text-slate-500">Tidak ada pesanan aktif.</div>`
+        }
+      </div>`;
+  } catch (error) {
+    el.innerHTML = `<div class="rounded-2xl border border-red-400/20 bg-red-400/5 p-4 text-xs text-red-200">${escapeHtml(error.message || "Gagal memuat pesanan.")}</div>`;
+  }
+}
+
+function renderAdminOrder(order) {
+  const statusClass = order.status === "Diproses"
+    ? "bg-cyan-400/10 text-cyan-300"
+    : order.status === "Menunggu Verifikasi"
+      ? "bg-violet-400/10 text-violet-300"
+      : "bg-amber-400/10 text-amber-300";
+
+  const actions = order.status === "Menunggu Pembayaran"
+    ? `<button onclick="adminUpdateOrder('${escapeHtml(order.code)}','Dibatalkan')" class="rounded-xl border border-white/10 bg-white/5 py-3 text-[10px] font-black">Batalkan</button>`
+    : order.status === "Menunggu Verifikasi"
+      ? `<button onclick="adminUpdateOrder('${escapeHtml(order.code)}','Diproses')" class="rounded-xl bg-cyan-500/10 py-3 text-[10px] font-black text-cyan-300">Setujui & Proses</button>
+         <button onclick="adminUpdateOrder('${escapeHtml(order.code)}','Ditolak')" class="rounded-xl bg-red-500/10 py-3 text-[10px] font-black text-red-300">Tolak</button>`
+      : `<button onclick="adminUpdateOrder('${escapeHtml(order.code)}','Selesai')" class="rounded-xl bg-emerald-500/10 py-3 text-[10px] font-black text-emerald-300">Selesaikan</button>
+         <button onclick="adminUpdateOrder('${escapeHtml(order.code)}','Dibatalkan')" class="rounded-xl border border-white/10 bg-white/5 py-3 text-[10px] font-black">Batalkan</button>`;
+
+  return `
+    <div class="rounded-2xl border border-white/10 bg-black/20 p-4">
+      <div class="flex items-start justify-between gap-3">
+        <div>
+          <b class="text-xs text-cyanx">${escapeHtml(order.code)}</b>
+          <p class="mt-1 text-sm font-black">${escapeHtml(order.name)}</p>
+        </div>
+        <span class="rounded-full ${statusClass} px-2.5 py-1 text-[9px] font-black">${escapeHtml(order.status)}</span>
+      </div>
+
+      <div class="mt-4 grid grid-cols-2 gap-2 text-[10px]">
+        <div class="rounded-xl bg-white/[.03] p-2.5"><span class="block text-slate-500">Game</span><b>${escapeHtml(order.game)}</b></div>
+        <div class="rounded-xl bg-white/[.03] p-2.5"><span class="block text-slate-500">Koin</span><b>${Number(order.coin).toLocaleString("id-ID")}</b></div>
+        <div class="rounded-xl bg-white/[.03] p-2.5"><span class="block text-slate-500">Pembayaran</span><b>${escapeHtml(order.payment || "-")}</b></div>
+        <div class="rounded-xl bg-white/[.03] p-2.5"><span class="block text-slate-500">Total</span><b class="text-primary">${rupiah(order.price)}</b></div>
+      </div>
+
+      <div class="mt-3 rounded-xl bg-white/[.03] p-3 text-[10px]">
+        <div class="flex justify-between gap-3"><span class="text-slate-500">ID Game</span><b class="break-all text-right">${escapeHtml(order.gameId)}</b></div>
+        <div class="mt-2 flex justify-between gap-3"><span class="text-slate-500">WhatsApp</span><b>${escapeHtml(order.whatsapp)}</b></div>
+      </div>
+
+      <div class="mt-3 grid grid-cols-2 gap-2">${actions}</div>
+    </div>`;
+}
+
+async function adminUpdateOrder(code, status) {
+  const token = getAdminToken();
+  if (!token) {
+    clearAdminSession();
+    renderAdminLogin();
+    return;
+  }
+
+  try {
+    const data = await apiPost({
+      action: "updateStatus",
+      token,
+      code,
+      status
+    });
+    if (!data.success) throw new Error(data.message || "Gagal mengubah status");
+    toast("Status pesanan berhasil diubah");
+    renderAdminPanel();
+  } catch (error) {
+    toast(error.message || "Gagal mengubah status");
+  }
+}
+
 // ==================================================
 // INITIAL LOAD
 // ==================================================
 
 async function initApp() {
-  showAppLoader(true);
+  setAppLoading(true, "Memuat produk, pembayaran, dan informasi toko...");
   try {
     await Promise.all([
       loadProducts(),
@@ -608,7 +817,7 @@ async function initApp() {
     console.error(error);
     showGlobalError(error.message);
   } finally {
-    setTimeout(() => showAppLoader(false), 250);
+    window.setTimeout(() => setAppLoading(false), 250);
   }
 }
 
@@ -657,14 +866,7 @@ async function loadPayments() {
     throw new Error("Data pembayaran tidak valid.");
   }
 
-  payments = data.map(payment => ({
-    id: payment.id,
-    name: payment.name,
-    type: payment.type,
-    number: payment.number,
-    owner: payment.owner || "UB STORE",
-    image: payment.image || ""
-  }));
+  payments = data;
 }
 
 
@@ -894,13 +1096,21 @@ async function createOrder() {
 
     if (!data.success) {
       if (data.blocked && data.order) {
+        localStorage.setItem("last_order_code", data.order.code);
         document.getElementById("blockedOrderInfo").innerHTML = `
-          <div class="rounded-2xl border border-amber-400/20 bg-amber-400/5 p-4 text-xs">
-            <p class="font-black text-amber-200">${escapeHtml(data.message || "Masih ada pesanan aktif.")}</p>
-            <div class="mt-3 flex justify-between gap-3"><span class="text-slate-500">Kode</span><b class="text-cyanx">${escapeHtml(data.order.code)}</b></div>
-            <div class="mt-2 flex justify-between gap-3"><span class="text-slate-500">Status</span><b>${escapeHtml(data.order.status)}</b></div>
+          <div class="rounded-2xl border border-amber-400/20 bg-amber-400/5 p-4">
+            <div class="flex items-center justify-between gap-3">
+              <span class="text-xs text-slate-400">Kode Pesanan</span>
+              <b class="text-xs text-cyanx">${escapeHtml(data.order.code)}</b>
+            </div>
+            <div class="mt-3 flex items-center justify-between gap-3">
+              <span class="text-xs text-slate-400">Status</span>
+              <b class="text-xs text-amber-300">${escapeHtml(data.order.status)}</b>
+            </div>
+            <p class="mt-3 text-[11px] leading-5 text-slate-400">
+              Anda dapat membuat pesanan baru setelah pesanan sebelumnya diproses oleh admin atau tidak lagi menunggu pembayaran/verifikasi.
+            </p>
           </div>`;
-        closeModal("paymentModal");
         openModal("blockedModal");
         return;
       }
@@ -1011,9 +1221,6 @@ function renderPayments() {
       <p class="mt-1 truncate text-[10px] text-slate-500">
         ${escapeHtml(payment.number)}
       </p>
-      <p class="mt-1 truncate text-[9px] text-emerald-400/80">
-        a.n. ${escapeHtml(payment.owner || "UB STORE")}
-      </p>
 
       <span class="mt-2 inline-block text-[9px] font-bold text-primary">
         ${escapeHtml(payment.type)}
@@ -1031,58 +1238,48 @@ function choosePayment(index) {
   }
 
   document.querySelectorAll(".pay").forEach((button, i) => {
-    button.classList.toggle("border-primary", i === index);
-    button.classList.toggle("bg-primary/10", i === index);
+    button.classList.toggle(
+      "border-primary",
+      i === index
+    );
   });
 
   const detail = document.getElementById("paymentDetail");
+
   let imageHtml = "";
 
   if (chosenPayment.image) {
     imageHtml = `
-      <div class="mt-4 rounded-2xl border border-white/10 bg-white p-3">
-        <img
-          src="${escapeHtml(testimonialImageUrl(chosenPayment.image))}"
-          alt="QRIS ${escapeHtml(chosenPayment.name)}"
-          class="mx-auto max-h-72 w-full rounded-xl object-contain"
-          loading="lazy"
-          onerror="this.parentElement.style.display='none'"
-        >
-      </div>
+      <img
+        src="${escapeHtml(chosenPayment.image)}"
+        alt="${escapeHtml(chosenPayment.name)}"
+        class="mt-3 max-h-64 w-full rounded-2xl object-contain bg-white p-2"
+        onerror="this.style.display='none'"
+      >
     `;
   }
 
-  const isQris = String(chosenPayment.type || "").toLowerCase() === "qris" ||
-    String(chosenPayment.name || "").toLowerCase().includes("qris");
-
-  const numberLabel = isQris ? "Pembayaran QRIS" : "Nomor Rekening / Nomor E-Wallet";
-  const numberValue = chosenPayment.number || (isQris ? "Scan QRIS" : "-");
-
   detail.classList.remove("hidden");
+
   detail.innerHTML = `
-    <div class="flex items-center justify-between gap-3">
-      <div>
-        <div class="font-black text-cyanx">${escapeHtml(chosenPayment.name)}</div>
-        <div class="mt-1 text-[10px] text-slate-500">${escapeHtml(chosenPayment.type || "Pembayaran")}</div>
-      </div>
-      ${isQris ? '<span class="rounded-full bg-emerald-400/10 px-2.5 py-1 text-[9px] font-black text-emerald-300">QRIS</span>' : ''}
+    <div class="font-black text-cyanx">
+      ${escapeHtml(chosenPayment.name)}
     </div>
 
-    <div class="mt-3 rounded-xl border border-white/10 bg-black/20 p-3">
-      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">${numberLabel}</div>
-      <div class="mt-1 flex items-center justify-between gap-2">
-        <span id="paymentNumber" class="min-w-0 break-all text-sm font-black">${escapeHtml(numberValue)}</span>
-        ${!isQris ? '<button onclick="copyPaymentNumber()" class="shrink-0 rounded-lg bg-primary px-3 py-2 text-xs font-bold">Salin</button>' : ''}
-      </div>
-    </div>
+    <div class="mt-2 flex items-center justify-between gap-2 rounded-xl border border-white/10 bg-black/20 p-3">
+      <span id="paymentNumber" class="min-w-0 break-all">
+        ${escapeHtml(chosenPayment.number)}
+      </span>
 
-    <div class="mt-2 rounded-xl border border-emerald-400/10 bg-emerald-400/5 p-3">
-      <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Nama Pemilik</div>
-      <div class="mt-1 text-sm font-black text-emerald-300">a.n. ${escapeHtml(chosenPayment.owner || "UB STORE")}</div>
+      <button
+        onclick="copyPaymentNumber()"
+        class="shrink-0 rounded-lg bg-primary px-3 py-2 text-xs font-bold"
+      >
+        Salin
+      </button>
     </div>
 
     ${imageHtml}
-    ${isQris ? '<p class="mt-2 text-center text-[10px] text-slate-500">Scan QRIS di atas menggunakan aplikasi pembayaran Anda.</p>' : ''}
   `;
 
   toast("Metode " + chosenPayment.name + " dipilih");
@@ -1210,7 +1407,9 @@ async function checkStatus() {
     "mt-4 rounded-2xl border border-white/10 bg-black/20 p-4";
 
   result.innerHTML = `
-    ${loadingHtml("Memuat status pesanan...")}
+    <div class="text-center text-xs text-slate-400">
+      Memuat status pesanan...
+    </div>
   `;
 
   try {
@@ -1309,11 +1508,6 @@ function renderStatusResult(order) {
     <div class="mt-4 space-y-3">
       ${renderStatusSteps(order.status)}
     </div>
-    ${isOrderOpenForNewPurchase(order.status) ? `
-      <button onclick="orderAgain()" class="mt-4 w-full rounded-2xl bg-gradient-to-r from-primary to-[#5d8dff] py-3.5 text-xs font-black shadow-glow">
-        Buat Pesanan Baru
-      </button>` : `
-      <p class="mt-4 text-center text-[10px] leading-5 text-slate-500">Pesanan ini masih menunggu tahap pembayaran atau verifikasi.</p>`}
   `;
 }
 
@@ -1370,13 +1564,19 @@ function renderStatusSteps(status) {
 }
 
 
-async function loadLatestOrderStatus() {
-  const savedCode = localStorage.getItem("last_order_code");
-  if (!savedCode) return;
-  document.getElementById("statusCode").value = savedCode;
-  await checkStatus();
+function startNewOrder() {
+  closeModal("statusModal");
+  currentOrder = null;
+  chosenPayment = null;
+  document.getElementById("playerName").value = "";
+  document.getElementById("gameId").value = "";
+  document.getElementById("whatsapp").value = "";
+  document.getElementById("statusResult").innerHTML = "";
+  document.getElementById("statusResult").classList.add("hidden");
+  selectGame(selectedGame);
+  go("order");
+  window.setTimeout(() => document.getElementById("gameTabs")?.scrollIntoView({ behavior:"smooth", block:"start" }), 180);
 }
-
 
 // ==================================================
 // FAQ
