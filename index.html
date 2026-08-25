@@ -158,8 +158,12 @@
           <div class="mt-2 flex items-center justify-between"><span class="text-xs text-slate-500">Total Bayar</span><strong id="summaryPrice" class="text-lg text-primary">Rp0</strong></div>
         </div>
 
-        <button onclick="createOrder()" class="mt-3 flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-primary to-[#5d8dff] py-4 text-sm font-black shadow-glow active:scale-[.99]">
-          Lanjutkan Pembayaran <span class="inline-arrow"></span>
+        <button
+          id="continuePaymentBtn"
+          onclick="createOrder()"
+          class="hidden mt-3 flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-primary to-[#5d8dff] py-4 text-sm font-black shadow-glow active:scale-[.99]"
+        >
+          Lanjutkan Pembayaran <span class="inline-arrow">→</span>
         </button>
       </div>
     </section>
@@ -692,6 +696,7 @@ function selectGame(game) {
 
   document.getElementById("playerForm")?.classList.add("hidden");
   document.getElementById("continueOrderBtn")?.classList.add("hidden");
+  document.getElementById("continuePaymentBtn")?.classList.add("hidden");
 
   renderPackages();
 }
@@ -754,6 +759,7 @@ function selectProduct(index) {
 
   document.getElementById("playerForm").classList.add("hidden");
   document.getElementById("continueOrderBtn").classList.remove("hidden");
+  document.getElementById("continuePaymentBtn").classList.add("hidden");
 }
 
 function showOrderForm() {
@@ -771,6 +777,11 @@ function showOrderForm() {
   });
 
   document.getElementById("continueOrderBtn").classList.add("hidden");
+  document.getElementById("continuePaymentBtn").classList.remove("hidden");
+
+  setTimeout(() => {
+    form.querySelector("#playerName")?.focus();
+  }, 150);
 }
 
 
@@ -781,9 +792,19 @@ function showOrderForm() {
 // ==================================================
 
 async function createOrder() {
-  const button = document.querySelector(
-    'button[onclick="createOrder()"]'
-  );
+  if (!selectedProduct) {
+    toast("Pilih game dan nominal koin terlebih dahulu.");
+    return;
+  }
+
+  const form = document.getElementById("playerForm");
+
+  if (form.classList.contains("hidden")) {
+    showOrderForm();
+    return;
+  }
+
+  const button = document.getElementById("continuePaymentBtn");
 
   const name = document.getElementById("playerName").value.trim();
   const gameId = document.getElementById("gameId").value.trim();
@@ -827,6 +848,8 @@ async function createOrder() {
       status: data.status,
       payment: null
     };
+
+    document.getElementById("continuePaymentBtn").classList.add("hidden");
 
     localStorage.setItem(
       "last_order_code",
