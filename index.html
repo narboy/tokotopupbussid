@@ -59,9 +59,27 @@
     @keyframes pulseDot { 0%,100%{box-shadow:0 0 0 0 rgba(34,197,94,.45)} 50%{box-shadow:0 0 0 8px rgba(34,197,94,0)} }
     .slide { animation: fadeSlide .45s ease; }
     @keyframes fadeSlide { from{opacity:.3; transform:scale(.98)} to{opacity:1; transform:scale(1)} }
+
+    .app-loader { transition: opacity .28s ease, visibility .28s ease; }
+    .app-loader.hide { opacity:0; visibility:hidden; pointer-events:none; }
+    .loader-ring { width:52px; height:52px; border:3px solid rgba(255,255,255,.12); border-top-color:#7c5cff; border-right-color:#20d9ff; border-radius:999px; animation:spin .8s linear infinite; }
+    .mini-spinner { width:18px; height:18px; border:2px solid rgba(255,255,255,.2); border-top-color:currentColor; border-radius:50%; display:inline-block; animation:spin .7s linear infinite; }
+    @keyframes spin { to { transform:rotate(360deg); } }
+    .skeleton { position:relative; overflow:hidden; background:rgba(255,255,255,.055); }
+    .skeleton::after { content:""; position:absolute; inset:0; transform:translateX(-100%); background:linear-gradient(90deg,transparent,rgba(255,255,255,.09),transparent); animation:shimmer 1.2s infinite; }
+    @keyframes shimmer { 100% { transform:translateX(100%); } }
+
   </style>
 </head>
 <body class="min-h-screen bg-[radial-gradient(circle_at_20%_0%,rgba(124,92,255,.18),transparent_30%),radial-gradient(circle_at_90%_10%,rgba(32,217,255,.10),transparent_25%),#080c18]">
+  <div id="appLoader" class="app-loader fixed inset-0 z-[200] grid place-items-center bg-[#080c18]">
+    <div class="text-center">
+      <div class="loader-ring mx-auto"></div>
+      <p class="mt-5 text-sm font-black">Memuat layanan...</p>
+      <p class="mt-1 text-[11px] text-slate-500">Menyiapkan produk dan informasi toko</p>
+    </div>
+  </div>
+
 
   <!-- HEADER -->
   <header class="sticky top-0 z-40 border-b border-white/5 bg-[#080c18]/85 backdrop-blur-xl">
@@ -128,7 +146,9 @@
         <div class="mb-3 rounded-2xl border border-primary/20 bg-primary/5 p-3 text-xs text-slate-300">Pilih nominal koin terlebih dahulu, lalu isi data pemain.</div>
         <div class="mt-4">
           <div class="mb-2 flex items-center justify-between"><span class="text-[11px] font-bold text-slate-400">Pilih Nominal Koin</span><span id="selectedGameLabel" class="text-[10px] font-bold text-primary">BUSSID</span></div>
-          <div id="packages" class="grid grid-cols-2 gap-2 sm:grid-cols-4"></div>
+          <div id="packages" class="grid grid-cols-2 gap-2 sm:grid-cols-4">
+            <div class="skeleton h-20 rounded-2xl"></div><div class="skeleton h-20 rounded-2xl"></div><div class="skeleton h-20 rounded-2xl"></div><div class="skeleton h-20 rounded-2xl"></div>
+          </div>
         </div>
 
         
@@ -458,7 +478,7 @@ function setLoading(button, loading, text) {
     button.dataset.originalText = button.innerHTML;
     button.disabled = true;
     button.classList.add("opacity-60", "cursor-not-allowed");
-    button.innerHTML = text || "Memproses...";
+    button.innerHTML = `<span class="mini-spinner"></span><span>${text || "Memproses..."}</span>`;
   } else {
     button.disabled = false;
     button.classList.remove("opacity-60", "cursor-not-allowed");
@@ -468,6 +488,37 @@ function setLoading(button, loading, text) {
   }
 }
 
+
+function showAppLoader(show) {
+  const loader = document.getElementById("appLoader");
+  if (!loader) return;
+  loader.classList.toggle("hide", !show);
+}
+
+function loadingHtml(label = "Memuat data...") {
+  return `<div class="flex items-center justify-center gap-3 py-3 text-xs text-slate-400"><span class="mini-spinner"></span><span>${escapeHtml(label)}</span></div>`;
+}
+
+function isOrderOpenForNewPurchase(status) {
+  return ["Diproses", "Selesai", "Ditolak", "Dibatalkan"]
+    .includes(String(status || "").trim());
+}
+
+function resetOrderForm() {
+  selectedProduct = null;
+  chosenPayment = null;
+  document.getElementById("playerName").value = "";
+  document.getElementById("gameId").value = "";
+  document.getElementById("whatsapp").value = "";
+  selectGame(selectedGame);
+}
+
+function orderAgain() {
+  closeModal("statusModal");
+  resetOrderForm();
+  go("order");
+  toast("Anda dapat membuat pesanan baru.");
+}
 
 // ==================================================
 // API
@@ -536,6 +587,7 @@ async function apiPost(payload) {
 // ==================================================
 
 async function initApp() {
+  showAppLoader(true);
   try {
     await Promise.all([
       loadProducts(),
@@ -555,6 +607,8 @@ async function initApp() {
   } catch (error) {
     console.error(error);
     showGlobalError(error.message);
+  } finally {
+    setTimeout(() => showAppLoader(false), 250);
   }
 }
 
@@ -839,6 +893,17 @@ async function createOrder() {
     });
 
     if (!data.success) {
+      if (data.blocked && data.order) {
+        document.getElementById("blockedOrderInfo").innerHTML = `
+          <div class="rounded-2xl border border-amber-400/20 bg-amber-400/5 p-4 text-xs">
+            <p class="font-black text-amber-200">${escapeHtml(data.message || "Masih ada pesanan aktif.")}</p>
+            <div class="mt-3 flex justify-between gap-3"><span class="text-slate-500">Kode</span><b class="text-cyanx">${escapeHtml(data.order.code)}</b></div>
+            <div class="mt-2 flex justify-between gap-3"><span class="text-slate-500">Status</span><b>${escapeHtml(data.order.status)}</b></div>
+          </div>`;
+        closeModal("paymentModal");
+        openModal("blockedModal");
+        return;
+      }
       throw new Error(data.message || "Order gagal dibuat.");
     }
 
@@ -1145,9 +1210,7 @@ async function checkStatus() {
     "mt-4 rounded-2xl border border-white/10 bg-black/20 p-4";
 
   result.innerHTML = `
-    <div class="text-center text-xs text-slate-400">
-      Memuat status pesanan...
-    </div>
+    ${loadingHtml("Memuat status pesanan...")}
   `;
 
   try {
@@ -1246,6 +1309,11 @@ function renderStatusResult(order) {
     <div class="mt-4 space-y-3">
       ${renderStatusSteps(order.status)}
     </div>
+    ${isOrderOpenForNewPurchase(order.status) ? `
+      <button onclick="orderAgain()" class="mt-4 w-full rounded-2xl bg-gradient-to-r from-primary to-[#5d8dff] py-3.5 text-xs font-black shadow-glow">
+        Buat Pesanan Baru
+      </button>` : `
+      <p class="mt-4 text-center text-[10px] leading-5 text-slate-500">Pesanan ini masih menunggu tahap pembayaran atau verifikasi.</p>`}
   `;
 }
 
@@ -1299,6 +1367,14 @@ function renderStatusSteps(status) {
       </div>
     `
     : "");
+}
+
+
+async function loadLatestOrderStatus() {
+  const savedCode = localStorage.getItem("last_order_code");
+  if (!savedCode) return;
+  document.getElementById("statusCode").value = savedCode;
+  await checkStatus();
 }
 
 
