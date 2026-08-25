@@ -2,79 +2,1477 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <title>UB STORE - Top Up Koin Game</title>
-  <meta
-    name="description"
-    content="Top up koin BUSSID, TRUCKSID, dan BUSSIN di UB STORE."
-  >
-
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#0b1020">
+  <title>TOPUP UB STORE</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
       theme: {
         extend: {
-          fontFamily: {
-            sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif']
+          colors: {
+            ink: '#0b1020',
+            panel: '#11182b',
+            panel2: '#17213a',
+            primary: '#7c5cff',
+            cyanx: '#20d9ff'
           },
           boxShadow: {
-            glow: '0 0 40px rgba(99,102,241,.15)'
+            glow: '0 0 35px rgba(124,92,255,.22)'
           }
         }
       }
-    };
+    }
   </script>
-
-  <script src="https://unpkg.com/lucide@latest"></script>
-
   <style>
-    html {
-      scroll-behavior: smooth;
+    * { -webkit-tap-highlight-color: transparent; }
+    html { scroll-behavior: smooth; }
+    body { background: #080c18; color: #f8fafc; }
+    .icon-box { width:38px; height:38px; display:grid; place-items:center; border-radius:12px; background:rgba(255,255,255,.05); color:#aab7d5; }
+    .icon-box svg { width:25px; height:25px; }
+    .nav-icon { display:flex; justify-content:center; height:21px; }
+    .nav-icon svg { width:20px; height:20px; }
+    .nav-btn small { display:block; margin-top:3px; font-size:9px; font-weight:700; }
+    .modal { display:flex; align-items:flex-end; justify-content:center; padding:12px; opacity:0; pointer-events:none; transition:opacity .22s ease; }
+    .modal.show { opacity:1; pointer-events:auto; }
+    .modal-card { position:relative !important; left:auto !important; bottom:auto !important; top:auto !important; transform:translateY(28px) !important; margin:0 auto; width:min(100%, 520px) !important; max-height:calc(100dvh - 24px); overflow-y:auto; border-radius:28px; }
+    .modal.show .modal-card { transform:translateY(0) !important; }
+    .modal-close { width:38px; height:38px; display:grid; place-items:center; border-radius:12px; background:rgba(255,255,255,.05); color:#94a3b8; }
+    .modal-close svg { width:19px; height:19px; }
+    .inline-arrow { font-size:18px; line-height:1; }
+    @media (min-width:640px) {
+      .modal { align-items:center; padding:20px; }
+      .modal-card { max-height:calc(100dvh - 40px); }
     }
-
-    body {
-      background:
-        radial-gradient(circle at top left, rgba(99,102,241,.12), transparent 30%),
-        radial-gradient(circle at top right, rgba(34,211,238,.09), transparent 25%),
-        #050816;
-    }
-
-    .glass {
-      background: rgba(15, 23, 42, .72);
-      backdrop-filter: blur(18px);
-      border: 1px solid rgba(148,163,184,.12);
-    }
-
-    .grid-bg {
-      background-image:
-        linear-gradient(rgba(148,163,184,.04) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(148,163,184,.04) 1px, transparent 1px);
-      background-size: 36px 36px;
-    }
-
-    .scrollbar-hide::-webkit-scrollbar {
-      display: none;
-    }
-
-    .scrollbar-hide {
-      -ms-overflow-style: none;
-      scrollbar-width: none;
-    }
-
-    .modal-backdrop {
-      background: rgba(2,6,23,.75);
-      backdrop-filter: blur(8px);
-    }
+    .glass { background: rgba(17,24,43,.78); backdrop-filter: blur(18px); border: 1px solid rgba(255,255,255,.08); }
+    .no-scrollbar::-webkit-scrollbar { display:none; }
+    .no-scrollbar { scrollbar-width:none; }
+    .snap-x { scroll-snap-type:x mandatory; }
+    .snap-item { scroll-snap-align:start; }
+    .modal { opacity:0; pointer-events:none; transition:.25s; }
+    .modal.show { opacity:1; pointer-events:auto; }
+    .modal-card { transform:translateY(24px); transition:.25s; }
+    .modal.show .modal-card { transform:translateY(0); }
+    .toast { transform:translate(-50%, 100px); opacity:0; transition:.25s; }
+    .toast.show { transform:translate(-50%, 0); opacity:1; }
+    .pulse-dot { animation:pulseDot 1.8s infinite; }
+    @keyframes pulseDot { 0%,100%{box-shadow:0 0 0 0 rgba(34,197,94,.45)} 50%{box-shadow:0 0 0 8px rgba(34,197,94,0)} }
+    .slide { animation: fadeSlide .45s ease; }
+    @keyframes fadeSlide { from{opacity:.3; transform:scale(.98)} to{opacity:1; transform:scale(1)} }
   </style>
 </head>
+<body class="min-h-screen bg-[radial-gradient(circle_at_20%_0%,rgba(124,92,255,.18),transparent_30%),radial-gradient(circle_at_90%_10%,rgba(32,217,255,.10),transparent_25%),#080c18]">
 
-<body class="min-h-screen text-slate-100 font-sans">
+  <!-- HEADER -->
+  <header class="sticky top-0 z-40 border-b border-white/5 bg-[#080c18]/85 backdrop-blur-xl">
+    <div class="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
+      <button onclick="go('home')" class="flex items-center gap-3 text-left">
+        <div class="grid h-10 w-10 place-items-center rounded-2xl bg-gradient-to-br from-primary to-cyanx shadow-glow">
+          <span class="text-lg font-black">G</span>
+        </div>
+        <div>
+          <div id="storeNameHeader" class="font-extrabold leading-none">TOPUP UB STORE</div>
+          <div class="mt-1 text-[10px] font-semibold uppercase tracking-[.2em] text-slate-400">Top Up Game</div>
+        </div>
+      </button>
+      <button onclick="openModal('statusModal')" class="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-xs font-bold text-slate-200">
+        Cek Pesanan
+      </button>
+    </div>
+  </header>
 
-  <div id="app" class="min-h-screen"></div>
+  <main id="home" class="mx-auto max-w-6xl px-4 pb-28 pt-5">
 
-  <!-- Konfigurasi API HARUS dimuat sebelum app.js -->
-  <script src="./config.js"></script>
-  <script src="./app.js"></script>
+    <!-- HERO -->
+    <section class="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-[#171238] via-[#121b35] to-[#0d1628] p-5 shadow-glow md:p-8">
+      <div class="absolute -right-20 -top-20 h-52 w-52 rounded-full bg-primary/20 blur-3xl"></div>
+      <div class="relative z-10 max-w-2xl">
+        <div class="mb-3 inline-flex items-center gap-2 rounded-full border border-emerald-400/20 bg-emerald-400/10 px-3 py-1 text-[11px] font-bold text-emerald-300">
+          <span class="pulse-dot h-2 w-2 rounded-full bg-emerald-400"></span> ADMIN ONLINE
+        </div>
+        <h1 class="text-3xl font-black leading-tight md:text-5xl">Top Up Koin Game<br><span class="bg-gradient-to-r from-primary to-cyanx bg-clip-text text-transparent">Cepat & Aman</span></h1>
+        <p class="mt-3 max-w-xl text-sm leading-6 text-slate-400">Pilih game, isi data pemain, pilih nominal, lalu lanjutkan pembayaran. Pesanan diproses oleh admin.</p>
+      </div>
+      <div class="relative z-10 mt-5 grid grid-cols-3 gap-2 text-center md:max-w-lg">
+        <div class="rounded-2xl border border-white/10 bg-black/20 p-3"><b class="text-lg">24/7</b><p class="text-[10px] text-slate-500">Order</p></div>
+        <div class="rounded-2xl border border-white/10 bg-black/20 p-3"><b class="text-lg">Fast</b><p class="text-[10px] text-slate-500">Proses</p></div>
+        <div class="rounded-2xl border border-white/10 bg-black/20 p-3"><b class="text-lg">WA</b><p class="text-[10px] text-slate-500">Bantuan</p></div>
+      </div>
+    </section>
+
+    <!-- ORDER -->
+    <section id="order" class="mt-5 scroll-mt-20">
+      <div class="mb-3 flex items-end justify-between">
+        <div><p class="text-xs font-bold uppercase tracking-widest text-primary">Order</p><h2 class="text-xl font-black">Beli Koin</h2></div>
+        <span class="text-[11px] text-slate-500">Isi data dengan benar</span>
+      </div>
+
+      <div class="glass rounded-3xl p-4 shadow-xl md:p-6">
+        <!-- game tabs -->
+        <div id="gameTabs" class="grid grid-cols-3 gap-2">
+          <button class="game-tab active rounded-2xl border border-primary/50 bg-primary/15 p-3 text-left" data-game="BUSSID" onclick="selectGame('BUSSID')">
+            <div class="mb-2 flex items-center justify-between"><span class="icon-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M5 16V6.8C5 5.25 6.25 4 7.8 4h8.4C17.75 4 19 5.25 19 6.8V16"/><path d="M5 14h14M7 18v2M17 18v2M7.5 9h9M8 17h.01M16 17h.01"/><path d="M5 16a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2"/></svg></span><span class="text-[9px] font-black text-primary">GAME 01</span></div>
+            <b class="text-sm">BUSSID</b><p class="mt-1 text-[10px] text-slate-500">Bus Simulator</p>
+          </button>
+          <button class="game-tab rounded-2xl border border-white/10 bg-white/[.03] p-3 text-left" data-game="TRUCKSID" onclick="selectGame('TRUCKSID')">
+            <div class="mb-2 flex items-center justify-between"><span class="icon-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M3 6h11v11H3z"/><path d="M14 10h4l3 3v4h-7z"/><circle cx="7" cy="18" r="2"/><circle cx="18" cy="18" r="2"/><path d="M14 14h6"/></svg></span><span class="text-[9px] font-black text-slate-500">GAME 02</span></div>
+            <b class="text-sm">TRUCKSID</b><p class="mt-1 text-[10px] text-slate-500">Truck Simulator</p>
+          </button>
+          <button class="game-tab rounded-2xl border border-white/10 bg-white/[.03] p-3 text-left" data-game="BUSSIN" onclick="selectGame('BUSSIN')">
+            <div class="mb-2 flex items-center justify-between"><span class="icon-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 16V7.5C4 5.57 5.57 4 7.5 4h9C18.43 4 20 5.57 20 7.5V16"/><path d="M4 13h16M7 9h10M7 17v2M17 17v2"/><circle cx="7" cy="16" r="1"/><circle cx="17" cy="16" r="1"/></svg></span><span class="text-[9px] font-black text-slate-500">GAME 03</span></div>
+            <b class="text-sm">BUSSIN</b><p class="mt-1 text-[10px] text-slate-500">Bus Simulator</p>
+          </button>
+        </div>
+
+        <!-- packages -->
+        <div class="mb-3 rounded-2xl border border-primary/20 bg-primary/5 p-3 text-xs text-slate-300">Pilih nominal koin terlebih dahulu, lalu isi data pemain.</div>
+        <div class="mt-4">
+          <div class="mb-2 flex items-center justify-between"><span class="text-[11px] font-bold text-slate-400">Pilih Nominal Koin</span><span id="selectedGameLabel" class="text-[10px] font-bold text-primary">BUSSID</span></div>
+          <div id="packages" class="grid grid-cols-2 gap-2 sm:grid-cols-4"></div>
+        </div>
+
+        
+<button id="continueOrderBtn" onclick="showOrderForm()" class="hidden mt-4 w-full rounded-2xl bg-gradient-to-r from-primary to-[#5d8dff] py-4 text-sm font-black shadow-glow">
+  Lanjutkan Pesanan
+</button>
+
+<!-- player data -->
+        <div id="playerForm" class="hidden mt-4 grid gap-3 md:grid-cols-3">
+          <label class="block">
+            <span class="mb-1.5 block text-[11px] font-bold text-slate-400">Nama Pemain <i class="text-red-400">*</i></span>
+            <input id="playerName" required class="w-full rounded-2xl border border-white/10 bg-black/20 px-4 py-3.5 text-sm outline-none transition focus:border-primary" placeholder="Nama lengkap">
+          </label>
+          <label class="block">
+            <span class="mb-1.5 block text-[11px] font-bold text-slate-400">ID Game <i class="text-red-400">*</i></span>
+            <input id="gameId" inputmode="numeric" required class="w-full rounded-2xl border border-white/10 bg-black/20 px-4 py-3.5 text-sm outline-none transition focus:border-primary" placeholder="Contoh: 123456789">
+          </label>
+          <label class="block">
+            <span class="mb-1.5 block text-[11px] font-bold text-slate-400">WhatsApp Aktif <i class="text-red-400">*</i></span>
+            <input id="whatsapp" inputmode="tel" required class="w-full rounded-2xl border border-white/10 bg-black/20 px-4 py-3.5 text-sm outline-none transition focus:border-primary" placeholder="08xxxxxxxxxx">
+          </label>
+        </div>
+
+        <div class="mt-4 rounded-2xl border border-white/10 bg-black/20 p-3">
+          <div class="flex items-center justify-between text-xs"><span class="text-slate-500">Game</span><b id="summaryGame">BUSSID</b></div>
+          <div class="mt-2 flex items-center justify-between text-xs"><span class="text-slate-500">Koin</span><b id="summaryCoins">-</b></div>
+          <div class="mt-2 flex items-center justify-between"><span class="text-xs text-slate-500">Total Bayar</span><strong id="summaryPrice" class="text-lg text-primary">Rp0</strong></div>
+        </div>
+
+        <button onclick="createOrder()" class="mt-3 flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-primary to-[#5d8dff] py-4 text-sm font-black shadow-glow active:scale-[.99]">
+          Lanjutkan Pembayaran <span class="inline-arrow"></span>
+        </button>
+      </div>
+    </section>
+
+    <!-- TESTIMONIAL -->
+    <section id="testimoni" class="mt-7 scroll-mt-20">
+      <div class="mb-3 flex items-end justify-between">
+        <div><p class="text-xs font-bold uppercase tracking-widest text-cyanx">Testimoni</p><h2 class="text-xl font-black">Bukti Transaksi</h2></div>
+        <div class="flex gap-1"><button onclick="prevTesti()" class="grid h-8 w-8 place-items-center rounded-xl border border-white/10 bg-white/5"></button><button onclick="nextTesti()" class="grid h-8 w-8 place-items-center rounded-xl border border-white/10 bg-white/5"></button></div>
+      </div>
+      <div class="overflow-hidden rounded-3xl border border-white/10 bg-[#11182b] p-3">
+        <div id="testimonialTrack" class="flex transition-transform duration-500 ease-out"></div>
+        <div id="dots" class="mt-3 flex justify-center gap-1.5"></div>
+      </div>
+    </section>
+
+    <!-- FAQ -->
+    <section id="faq" class="mt-7 scroll-mt-20">
+      <div class="mb-3"><p class="text-xs font-bold uppercase tracking-widest text-primary">Bantuan</p><h2 class="text-xl font-black">FAQ</h2></div>
+      <div id="faqList" class="overflow-hidden rounded-3xl border border-white/10 bg-[#11182b]"></div>
+    </section>
+
+    <!-- TRUST STRIP -->
+    <section class="mt-5 grid grid-cols-2 gap-2 md:grid-cols-4">
+      <div class="rounded-2xl border border-white/10 bg-white/[.03] p-3"><b class="text-xs">Data Aman</b><p class="mt-1 text-[10px] text-slate-500">Tidak menyimpan password game</p></div>
+      <div class="rounded-2xl border border-white/10 bg-white/[.03] p-3"><b class="text-xs">Admin Online</b><p class="mt-1 text-[10px] text-slate-500">Bantuan via WhatsApp</p></div>
+      <div class="rounded-2xl border border-white/10 bg-white/[.03] p-3"><b class="text-xs">Cek Pesanan</b><p class="mt-1 text-[10px] text-slate-500">Pantau status order</p></div>
+      <div class="rounded-2xl border border-white/10 bg-white/[.03] p-3"><b class="text-xs">Pembayaran</b><p class="mt-1 text-[10px] text-slate-500">Transfer & e-wallet</p></div>
+    </section>
+  </main>
+
+  <!-- BOTTOM NAV -->
+  <nav class="fixed bottom-0 left-0 right-0 z-50 border-t border-white/10 bg-[#080c18]/92 px-3 pb-[max(10px,env(safe-area-inset-bottom))] pt-2 backdrop-blur-xl">
+    <div class="mx-auto grid max-w-lg grid-cols-5 gap-1">
+      <button onclick="go('home')" class="nav-btn rounded-2xl py-2 text-center text-slate-400"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m3 10 9-7 9 7"/><path d="M5 9v11h14V9"/><path d="M9 20v-6h6v6"/></svg></span><small>Home</small></button>
+      <button onclick="go('order')" class="nav-btn rounded-2xl py-2 text-center text-slate-400"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 5v14M5 12h14"/></svg></span><small>Order</small></button>
+      <button onclick="openModal('statusModal')" class="nav-btn rounded-2xl py-2 text-center text-slate-400"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 5 5"/></svg></span><small>Status</small></button>
+      <button onclick="go('faq')" class="nav-btn rounded-2xl py-2 text-center text-slate-400"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="8.5"/><path d="M9.7 9a2.4 2.4 0 1 1 3.8 1.9c-1.1.8-1.5 1.2-1.5 2.4"/><path d="M12 16h.01"/></svg></span><small>FAQ</small></button>
+      <button onclick="openModal('settingsModal')" class="nav-btn rounded-2xl py-2 text-center text-slate-400"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 8.5a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7Z"/><path d="m19 13.5 1.2 1-.9 1.6-1.5-.4a7.6 7.6 0 0 1-1.3 1.3l.4 1.5-1.6.9-1-1.2a7.7 7.7 0 0 1-1.8.3l-.6 1.4h-1.8l-.6-1.4a7.7 7.7 0 0 1-1.8-.3l-1 1.2-1.6-.9.4-1.5a7.6 7.6 0 0 1-1.3-1.3l-1.5.4-.9-1.6 1.2-1a7.4 7.4 0 0 1-.2-1.5c0-.5.1-1 .2-1.5l-1.2-1 .9-1.6 1.5.4A7.6 7.6 0 0 1 6.7 7l-.4-1.5 1.6-.9 1 1.2a7.7 7.7 0 0 1 1.8-.3l.6-1.4h1.8l.6 1.4a7.7 7.7 0 0 1 1.8.3l1-1.2 1.6.9-.4 1.5a7.6 7.6 0 0 1 1.3 1.3l1.5-.4.9 1.6-1.2 1c.1.5.2 1 .2 1.5s-.1 1-.2 1.5Z"/></svg></span><small>Admin</small></button>
+    </div>
+  </nav>
+
+  <!-- PAYMENT MODAL -->
+  <div id="paymentModal" class="modal fixed inset-0 z-[70] bg-black/70 p-3 backdrop-blur-sm">
+    <div class="modal-card rounded-3xl border border-white/10 bg-[#10172a] p-5 shadow-2xl">
+      <div class="mb-4 flex items-center justify-between">
+        <div>
+          <p class="text-xs font-bold text-primary">PEMBAYARAN</p>
+          <h3 id="paymentTitle" class="text-xl font-black">Selesaikan Pesanan</h3>
+        </div>
+        <button onclick="closeModal('paymentModal')" class="modal-close" aria-label="Tutup">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m7 7 10 10M17 7 7 17"/></svg>
+        </button>
+      </div>
+
+      <div id="paymentDetails">
+        <div id="orderInfo" class="rounded-2xl border border-white/10 bg-black/20 p-4 text-xs"></div>
+        <p class="mb-2 mt-4 text-[11px] font-bold text-slate-400">Pilih Rekening / E-Wallet</p>
+        <div id="paymentMethods" class="grid grid-cols-2 gap-2"></div>
+<div id="paymentDetail" class="hidden mt-3 rounded-2xl border border-cyan-400/20 bg-cyan-400/5 p-4 text-sm">
+</div>
+        <div class="mt-3 rounded-2xl border border-amber-400/20 bg-amber-400/5 p-3 text-[11px] leading-5 text-amber-200">
+          Transfer sesuai nominal yang tertera. Setelah pembayaran berhasil, klik tombol <b>Saya Sudah Bayar</b>.
+        </div>
+        <button onclick="confirmPaid()" class="mt-3 w-full rounded-2xl bg-emerald-500 py-4 text-sm font-black text-black">
+          Saya Sudah Bayar
+        </button>
+      </div>
+
+      <div id="paymentSuccess" class="hidden">
+        <div class="rounded-3xl border border-emerald-400/20 bg-emerald-400/5 p-5 text-center">
+          <div class="mx-auto grid h-16 w-16 place-items-center rounded-full bg-emerald-400/10 text-emerald-300">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m5 12 4 4L19 6"/></svg>
+          </div>
+          <p class="mt-4 text-lg font-black text-emerald-300">Pembayaran Berhasil Dikonfirmasi</p>
+          <p class="mt-2 text-sm leading-6 text-slate-400">
+            Terima kasih. Data pembayaran Anda sudah diterima.
+            <b class="text-slate-200">Admin akan mengirim pesan ke WhatsApp</b>
+            setelah pembayaran Anda selesai diperiksa.
+          </p>
+
+          <div class="mt-4 rounded-2xl border border-white/10 bg-black/20 p-3 text-left">
+            <div class="flex items-center justify-between gap-3">
+              <span class="text-[10px] text-slate-500">Kode Pesanan</span>
+              <b id="successOrderCode" class="text-xs text-cyanx"></b>
+            </div>
+            <div class="mt-2 flex items-center justify-between gap-3">
+              <span class="text-[10px] text-slate-500">Status</span>
+              <span class="rounded-full bg-amber-400/10 px-2.5 py-1 text-[9px] font-black text-amber-300">Menunggu Verifikasi</span>
+            </div>
+          </div>
+
+          <button onclick="checkPaymentStatus()" class="mt-4 w-full rounded-2xl bg-gradient-to-r from-primary to-[#5d8dff] py-4 text-sm font-black shadow-glow">
+            Cek Status Pembayaran
+          </button>
+          <button onclick="closeModal('paymentModal')" class="mt-2 w-full rounded-2xl border border-white/10 bg-white/5 py-3.5 text-sm font-bold text-slate-300">
+            Tutup
+          </button>
+        </div>
+      </div>
+
+      <div id="paymentNotice" class="mt-3 hidden"></div>
+    </div>
+  </div>
+
+  <!-- STATUS MODAL -->
+  <div id="statusModal" class="modal fixed inset-0 z-[70] bg-black/70 p-3 backdrop-blur-sm">
+    <div class="modal-card rounded-3xl border border-white/10 bg-[#10172a] p-5 shadow-2xl">
+      <div class="mb-4 flex items-center justify-between"><div><p class="text-xs font-bold text-cyanx">TRACKING</p><h3 class="text-xl font-black">Cek Status Pesanan</h3></div><button onclick="closeModal('statusModal')" class="modal-close" aria-label="Tutup"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m7 7 10 10M17 7 7 17"/></svg></button></div>
+      <div class="flex gap-2"><input id="statusCode" class="min-w-0 flex-1 rounded-2xl border border-white/10 bg-black/20 px-4 py-3 text-sm outline-none focus:border-primary" placeholder="Contoh: UB-AB1234"><button onclick="checkStatus()" class="rounded-2xl bg-primary px-4 text-xs font-black">Cek</button></div>
+      <div id="statusResult" class="mt-4 hidden"></div>
+      <p class="mt-3 text-[10px] text-slate-500">Status pesanan diambil langsung dari database Google Sheets.</p>
+    </div>
+  </div>
+
+  <!-- BLOCKED ORDER MODAL -->
+  <div id="blockedModal" class="modal fixed inset-0 z-[75] bg-black/70 p-3 backdrop-blur-sm"><div class="modal-card rounded-3xl border border-white/10 bg-[#10172a] p-5 shadow-2xl"><div class="mb-4 flex items-center justify-between"><div><p class="text-xs font-bold text-amber-300">PEMBELIAN DIBLOKIR</p><h3 class="text-xl font-black">Masih Ada Pesanan Aktif</h3></div><button onclick="closeModal('blockedModal')" class="modal-close" aria-label="Tutup">X</button></div><div id="blockedOrderInfo"></div><div class="mt-3 grid grid-cols-2 gap-2"><button onclick="closeModal('blockedModal')" class="rounded-2xl border border-white/10 bg-white/5 py-3.5 text-xs font-black">Tutup</button><button onclick="closeModal('blockedModal');openModal('statusModal');loadLatestOrderStatus()" class="rounded-2xl bg-primary py-3.5 text-xs font-black">Cek Pesanan</button></div></div></div>
+
+  <!-- SETTINGS MODAL -->
+  <div id="settingsModal" class="modal fixed inset-0 z-[70] bg-black/70 p-3 backdrop-blur-sm">
+    <div class="modal-card rounded-3xl border border-white/10 bg-[#10172a] p-5 shadow-2xl">
+      <div class="mb-4 flex items-center justify-between">
+        <div>
+          <p class="text-xs font-bold text-primary">INFORMASI TOKO</p>
+          <h3 class="text-xl font-black">Admin Store</h3>
+        </div>
+        <button onclick="closeModal('settingsModal')" class="modal-close" aria-label="Tutup">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <path d="m7 7 10 10M17 7 7 17"/>
+          </svg>
+        </button>
+      </div>
+
+      <div class="space-y-3">
+        <div class="rounded-2xl border border-white/10 bg-black/20 p-4">
+          <p class="text-[10px] font-bold text-slate-500">NAMA TOKO</p>
+          <p id="setStore" class="mt-1 text-sm font-black">-</p>
+        </div>
+
+        <div class="rounded-2xl border border-white/10 bg-black/20 p-4">
+          <p class="text-[10px] font-bold text-slate-500">WHATSAPP ADMIN</p>
+          <p id="setWa" class="mt-1 text-sm font-black">-</p>
+        </div>
+
+        <div class="rounded-2xl border border-white/10 bg-black/20 p-4">
+          <p class="text-[10px] font-bold text-slate-500">ALAMAT TOKO</p>
+          <p id="setAddress" class="mt-1 text-sm font-black">-</p>
+        </div>
+      </div>
+
+      <div class="mt-4 rounded-2xl border border-cyan-400/20 bg-cyan-400/5 p-3">
+        <p class="text-[10px] font-black uppercase tracking-widest text-cyanx">DATA TERHUBUNG</p>
+        <p class="mt-1 text-[10px] leading-5 text-slate-500">
+          Produk, harga, pembayaran, FAQ, testimonial, pengaturan, dan status pesanan
+          diambil dari Google Sheets melalui Google Apps Script.
+        </p>
+      </div>
+
+      <button onclick="closeModal('settingsModal')" class="mt-4 w-full rounded-2xl border border-white/10 bg-white/5 py-3.5 text-sm font-bold text-slate-300">
+        Tutup
+      </button>
+    </div>
+  </div>
+
+  <div id="toast" class="toast fixed bottom-24 left-1/2 z-[100] rounded-2xl border border-white/10 bg-[#151d32] px-4 py-3 text-xs font-bold shadow-2xl">Berhasil</div>
+
+<script>
+/*
+ * ==================================================
+ * TOPUP UB STORE - FRONTEND
+ * Connected to Google Apps Script Code.gs
+ * ==================================================
+ *
+ * IMPORTANT:
+ * Set API_URL to the deployed Google Apps Script
+ * Web App URL.
+ */
+
+const API_URL = "https://script.google.com/macros/s/AKfycby5f_SEodLim3OGScZyb69bIPzOOSXcvbmEEONjEVt-TTqswqKmYd3KKbPJPrWTmUvF/exec";
+
+/*
+ * Vercel static assets.
+ * Put testimonial images inside:
+ *   /images/
+ *
+ * Example:
+ *   /images/testi1.jpg
+ *   /images/testi2.webp
+ *
+ * In Google Sheets > Testimonials > image,
+ * store only the filename, e.g. "testi1.jpg".
+ */
+const IMAGE_BASE_PATH = "/images/";
+
+const DEFAULT_STORE = {
+  storeName: "TOPUP UB STORE",
+  whatsapp: "",
+  address: "Indonesia",
+  currency: "IDR"
+};
+
+let products = [];
+let payments = [];
+let settings = { ...DEFAULT_STORE };
+let faqs = [];
+let testimonials = [];
+
+let selectedGame = "BUSSID";
+let selectedProduct = null;
+let currentOrder = null;
+let chosenPayment = null;
+let testiIndex = 0;
+
+const ACTIVE_STATUSES = [
+  "Menunggu Pembayaran",
+  "Menunggu Verifikasi",
+  "Diproses"
+];
+
+
+// ==================================================
+// HELPERS
+// ==================================================
+
+function rupiah(value) {
+  return new Intl.NumberFormat("id-ID", {
+    style: "currency",
+    currency: settings.currency || "IDR",
+    maximumFractionDigits: 0
+  }).format(Number(value) || 0);
+}
+
+function escapeHtml(value) {
+  return String(value ?? "").replace(/[&<>"']/g, char => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#039;"
+  }[char]));
+}
+
+function normalizeWa(value) {
+  return String(value || "").replace(/\D/g, "");
+}
+
+function testimonialImageUrl(filename) {
+  const value = String(filename || "").trim();
+
+  if (!value) return "";
+
+  // Allow an absolute URL if one is deliberately stored in Sheets.
+  if (/^https?:\/\//i.test(value)) {
+    return value;
+  }
+
+  // Keep the Sheet value as a filename/path, but prevent accidental
+  // leading slash duplication.
+  return IMAGE_BASE_PATH + value.replace(/^\/+/, "");
+}
+
+function go(id) {
+  document.getElementById(id)?.scrollIntoView({
+    behavior: "smooth",
+    block: "start"
+  });
+}
+
+function openModal(id) {
+  document.getElementById(id)?.classList.add("show");
+}
+
+function closeModal(id) {
+  document.getElementById(id)?.classList.remove("show");
+}
+
+function toast(message) {
+  const el = document.getElementById("toast");
+  if (!el) return;
+
+  el.textContent = message;
+  el.classList.add("show");
+
+  clearTimeout(window.__toastTimer);
+  window.__toastTimer = setTimeout(() => {
+    el.classList.remove("show");
+  }, 2500);
+}
+
+function setLoading(button, loading, text) {
+  if (!button) return;
+
+  if (loading) {
+    button.dataset.originalText = button.innerHTML;
+    button.disabled = true;
+    button.classList.add("opacity-60", "cursor-not-allowed");
+    button.innerHTML = text || "Memproses...";
+  } else {
+    button.disabled = false;
+    button.classList.remove("opacity-60", "cursor-not-allowed");
+    if (button.dataset.originalText) {
+      button.innerHTML = button.dataset.originalText;
+    }
+  }
+}
+
+
+// ==================================================
+// API
+// ==================================================
+
+function apiUrl(action, params = {}) {
+  const url = new URL(API_URL);
+
+  if (action) {
+    url.searchParams.set("action", action);
+  }
+
+  Object.entries(params).forEach(([key, value]) => {
+    if (value !== undefined && value !== null && value !== "") {
+      url.searchParams.set(key, value);
+    }
+  });
+
+  return url.toString();
+}
+
+async function apiGet(action, params = {}) {
+  if (!API_URL || API_URL.includes("ISI_URL")) {
+    throw new Error("API_URL belum diisi.");
+  }
+
+  const response = await fetch(apiUrl(action, params), {
+    method: "GET",
+    cache: "no-store"
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data.message || "Request gagal.");
+  }
+
+  return data;
+}
+
+async function apiPost(payload) {
+  if (!API_URL || API_URL.includes("ISI_URL")) {
+    throw new Error("API_URL belum diisi.");
+  }
+
+  const response = await fetch(API_URL, {
+    method: "POST",
+    headers: {
+      "Content-Type": "text/plain;charset=utf-8"
+    },
+    body: JSON.stringify(payload)
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data.message || "Request gagal.");
+  }
+
+  return data;
+}
+
+
+// ==================================================
+// INITIAL LOAD
+// ==================================================
+
+async function initApp() {
+  try {
+    await Promise.all([
+      loadProducts(),
+      loadPayments(),
+      loadSettings(),
+      loadFAQ(),
+      loadTestimonials()
+    ]);
+
+    selectGame(selectedGame);
+
+    const savedCode = localStorage.getItem("last_order_code");
+    if (savedCode) {
+      document.getElementById("statusCode").value = savedCode;
+    }
+
+  } catch (error) {
+    console.error(error);
+    showGlobalError(error.message);
+  }
+}
+
+function showGlobalError(message) {
+  const el = document.getElementById("toast");
+  if (el) {
+    el.textContent = "Backend: " + message;
+    el.classList.add("show");
+
+    clearTimeout(window.__toastTimer);
+    window.__toastTimer = setTimeout(() => {
+      el.classList.remove("show");
+    }, 5000);
+  }
+}
+
+
+// ==================================================
+// LOAD PRODUCTS
+// ==================================================
+
+async function loadProducts() {
+  const data = await apiGet("products");
+
+  if (!Array.isArray(data)) {
+    throw new Error("Data produk tidak valid.");
+  }
+
+  products = data.map(product => ({
+    id: product.id,
+    game: product.game,
+    coin: Number(product.coin),
+    price: Number(product.price)
+  }));
+}
+
+
+// ==================================================
+// LOAD PAYMENTS
+// ==================================================
+
+async function loadPayments() {
+  const data = await apiGet("payments");
+
+  if (!Array.isArray(data)) {
+    throw new Error("Data pembayaran tidak valid.");
+  }
+
+  payments = data;
+}
+
+
+// ==================================================
+// LOAD SETTINGS
+// ==================================================
+
+async function loadSettings() {
+  const data = await apiGet("settings");
+
+  settings = {
+    ...DEFAULT_STORE,
+    ...(data || {})
+  };
+
+  document.getElementById("storeNameHeader").textContent =
+    settings.storeName || DEFAULT_STORE.storeName;
+
+  document.title =
+    settings.storeName || DEFAULT_STORE.storeName;
+
+  document.getElementById("setStore").textContent =
+    settings.storeName || "-";
+
+  document.getElementById("setWa").textContent =
+    settings.whatsapp || "-";
+
+  document.getElementById("setAddress").textContent =
+    settings.address || "-";
+}
+
+
+// ==================================================
+// LOAD FAQ
+// ==================================================
+
+async function loadFAQ() {
+  const data = await apiGet("faq");
+
+  faqs = Array.isArray(data) ? data : [];
+  renderFaq();
+}
+
+
+// ==================================================
+// LOAD TESTIMONIALS
+// ==================================================
+
+async function loadTestimonials() {
+  const data = await apiGet("testimonials");
+
+  testimonials = Array.isArray(data) ? data : [];
+  renderTestimonials();
+}
+
+
+// ==================================================
+// GAME
+// ==================================================
+
+function getGames() {
+  return [...new Set(
+    products
+      .map(product => String(product.game))
+      .filter(Boolean)
+  )];
+}
+
+function selectGame(game) {
+  selectedGame = game;
+  selectedProduct = null;
+
+  document.querySelectorAll(".game-tab").forEach(button => {
+    const active = button.dataset.game === game;
+
+    button.className =
+      `game-tab rounded-2xl border p-3 text-left ${
+        active
+          ? "active border-primary/50 bg-primary/15"
+          : "border-white/10 bg-white/[.03]"
+      }`;
+  });
+
+  document.getElementById("selectedGameLabel").textContent = game;
+  document.getElementById("summaryGame").textContent = game;
+  document.getElementById("summaryCoins").textContent = "-";
+  document.getElementById("summaryPrice").textContent = "Rp0";
+
+  document.getElementById("playerForm")?.classList.add("hidden");
+  document.getElementById("continueOrderBtn")?.classList.add("hidden");
+
+  renderPackages();
+}
+
+function renderPackages() {
+  const el = document.getElementById("packages");
+
+  const list = products.filter(product =>
+    String(product.game).trim().toLowerCase() ===
+    String(selectedGame).trim().toLowerCase()
+  );
+
+  if (!list.length) {
+    el.innerHTML = `
+      <div class="col-span-full rounded-2xl border border-amber-400/20 bg-amber-400/5 p-4 text-center text-xs text-amber-200">
+        Produk ${escapeHtml(selectedGame)} sedang tidak tersedia.
+      </div>
+    `;
+    return;
+  }
+
+  el.innerHTML = list.map((product, index) => `
+    <button
+      onclick="selectProduct(${index})"
+      class="pkg rounded-2xl border border-white/10 bg-white/[.03] p-3 text-left transition hover:border-primary/50"
+      data-id="${escapeHtml(product.id)}"
+    >
+      <div class="text-xs font-black">
+        ${Number(product.coin).toLocaleString("id-ID")} Koin
+      </div>
+      <div class="mt-1 text-[11px] font-bold text-primary">
+        ${rupiah(product.price)}
+      </div>
+    </button>
+  `).join("");
+}
+
+function selectProduct(index) {
+  const list = products.filter(product =>
+    String(product.game).trim().toLowerCase() ===
+    String(selectedGame).trim().toLowerCase()
+  );
+
+  selectedProduct = list[index];
+
+  if (!selectedProduct) {
+    toast("Produk tidak ditemukan.");
+    return;
+  }
+
+  document.querySelectorAll(".pkg").forEach((button, i) => {
+    button.classList.toggle("border-primary", i === index);
+  });
+
+  document.getElementById("summaryCoins").textContent =
+    Number(selectedProduct.coin).toLocaleString("id-ID") + " Koin";
+
+  document.getElementById("summaryPrice").textContent =
+    rupiah(selectedProduct.price);
+
+  document.getElementById("playerForm").classList.add("hidden");
+  document.getElementById("continueOrderBtn").classList.remove("hidden");
+}
+
+function showOrderForm() {
+  if (!selectedProduct) {
+    toast("Pilih nominal koin terlebih dahulu.");
+    return;
+  }
+
+  const form = document.getElementById("playerForm");
+
+  form.classList.remove("hidden");
+  form.scrollIntoView({
+    behavior: "smooth",
+    block: "center"
+  });
+
+  document.getElementById("continueOrderBtn").classList.add("hidden");
+}
+
+
+// ==================================================
+// CREATE ORDER
+// Harga TIDAK dikirim dari frontend.
+// Backend mengambil harga resmi dari Sheet.
+// ==================================================
+
+async function createOrder() {
+  const button = document.querySelector(
+    'button[onclick="createOrder()"]'
+  );
+
+  const name = document.getElementById("playerName").value.trim();
+  const gameId = document.getElementById("gameId").value.trim();
+  const whatsapp = document.getElementById("whatsapp").value.trim();
+
+  if (!selectedProduct) {
+    toast("Pilih nominal koin terlebih dahulu.");
+    return;
+  }
+
+  if (!name || !gameId || !whatsapp) {
+    toast("Lengkapi nama, ID game, dan WhatsApp.");
+    return;
+  }
+
+  try {
+    setLoading(button, true, "Membuat pesanan...");
+
+    const data = await apiPost({
+      action: "createOrder",
+      name,
+      game: selectedProduct.game,
+      gameId,
+      whatsapp,
+      coin: selectedProduct.coin
+      // price sengaja TIDAK dikirim
+    });
+
+    if (!data.success) {
+      throw new Error(data.message || "Order gagal dibuat.");
+    }
+
+    currentOrder = {
+      code: data.code,
+      name,
+      game: data.game,
+      gameId,
+      whatsapp,
+      coin: Number(data.coin),
+      price: Number(data.price),
+      status: data.status,
+      payment: null
+    };
+
+    localStorage.setItem(
+      "last_order_code",
+      currentOrder.code
+    );
+
+    renderOrderInfo(currentOrder);
+    renderPayments();
+
+    document.getElementById("paymentDetails").classList.remove("hidden");
+    document.getElementById("paymentSuccess").classList.add("hidden");
+    document.getElementById("paymentTitle").textContent =
+      "Selesaikan Pesanan";
+
+    openModal("paymentModal");
+
+  } catch (error) {
+    console.error(error);
+    toast(error.message || "Gagal membuat pesanan.");
+  } finally {
+    setLoading(button, false);
+  }
+}
+
+
+// ==================================================
+// ORDER INFO
+// ==================================================
+
+function renderOrderInfo(order) {
+  document.getElementById("orderInfo").innerHTML = `
+    <div class="flex justify-between gap-3">
+      <span class="text-slate-500">Kode</span>
+      <b class="text-cyanx">${escapeHtml(order.code)}</b>
+    </div>
+
+    <div class="mt-2 flex justify-between gap-3">
+      <span class="text-slate-500">Pemain</span>
+      <b>${escapeHtml(order.name)}</b>
+    </div>
+
+    <div class="mt-2 flex justify-between gap-3">
+      <span class="text-slate-500">Game</span>
+      <b>${escapeHtml(order.game)}</b>
+    </div>
+
+    <div class="mt-2 flex justify-between gap-3">
+      <span class="text-slate-500">Koin</span>
+      <b>${Number(order.coin).toLocaleString("id-ID")}</b>
+    </div>
+
+    <div class="mt-2 flex justify-between gap-3">
+      <span class="text-slate-500">Total</span>
+      <b class="text-primary">${rupiah(order.price)}</b>
+    </div>
+
+    <div class="mt-3 rounded-xl border border-amber-400/20 bg-amber-400/5 p-2.5 text-[10px] text-amber-200">
+      Status: <b>${escapeHtml(order.status)}</b>
+    </div>
+  `;
+}
+
+
+// ==================================================
+// PAYMENTS
+// ==================================================
+
+function renderPayments() {
+  const el = document.getElementById("paymentMethods");
+
+  if (!payments.length) {
+    el.innerHTML = `
+      <div class="col-span-full rounded-2xl border border-amber-400/20 bg-amber-400/5 p-4 text-center text-xs text-amber-200">
+        Metode pembayaran belum tersedia.
+      </div>
+    `;
+    return;
+  }
+
+  el.innerHTML = payments.map((payment, index) => `
+    <button
+      onclick="choosePayment(${index})"
+      class="pay rounded-2xl border border-white/10 bg-white/[.03] p-3 text-left"
+    >
+      <div class="flex items-center gap-2">
+        <b class="text-sm">${escapeHtml(payment.name)}</b>
+      </div>
+
+      <p class="mt-1 truncate text-[10px] text-slate-500">
+        ${escapeHtml(payment.number)}
+      </p>
+
+      <span class="mt-2 inline-block text-[9px] font-bold text-primary">
+        ${escapeHtml(payment.type)}
+      </span>
+    </button>
+  `).join("");
+}
+
+function choosePayment(index) {
+  chosenPayment = payments[index];
+
+  if (!chosenPayment) {
+    toast("Metode pembayaran tidak ditemukan.");
+    return;
+  }
+
+  document.querySelectorAll(".pay").forEach((button, i) => {
+    button.classList.toggle(
+      "border-primary",
+      i === index
+    );
+  });
+
+  const detail = document.getElementById("paymentDetail");
+
+  let imageHtml = "";
+
+  if (chosenPayment.image) {
+    imageHtml = `
+      <img
+        src="${escapeHtml(chosenPayment.image)}"
+        alt="${escapeHtml(chosenPayment.name)}"
+        class="mt-3 max-h-64 w-full rounded-2xl object-contain bg-white p-2"
+        onerror="this.style.display='none'"
+      >
+    `;
+  }
+
+  detail.classList.remove("hidden");
+
+  detail.innerHTML = `
+    <div class="font-black text-cyanx">
+      ${escapeHtml(chosenPayment.name)}
+    </div>
+
+    <div class="mt-2 flex items-center justify-between gap-2 rounded-xl border border-white/10 bg-black/20 p-3">
+      <span id="paymentNumber" class="min-w-0 break-all">
+        ${escapeHtml(chosenPayment.number)}
+      </span>
+
+      <button
+        onclick="copyPaymentNumber()"
+        class="shrink-0 rounded-lg bg-primary px-3 py-2 text-xs font-bold"
+      >
+        Salin
+      </button>
+    </div>
+
+    ${imageHtml}
+  `;
+
+  toast("Metode " + chosenPayment.name + " dipilih");
+}
+
+async function copyPaymentNumber() {
+  const el = document.getElementById("paymentNumber");
+
+  if (!el) return;
+
+  try {
+    await navigator.clipboard.writeText(el.textContent.trim());
+    toast("Nomor berhasil disalin");
+  } catch (error) {
+    toast("Gagal menyalin nomor");
+  }
+}
+
+
+// ==================================================
+// CONFIRM PAYMENT
+// ==================================================
+
+async function confirmPaid() {
+  if (!currentOrder) {
+    toast("Pesanan tidak ditemukan.");
+    return;
+  }
+
+  if (!chosenPayment) {
+    toast("Pilih metode pembayaran terlebih dahulu.");
+    return;
+  }
+
+  const button = document.querySelector(
+    'button[onclick="confirmPaid()"]'
+  );
+
+  try {
+    setLoading(button, true, "Mengirim konfirmasi...");
+
+    const data = await apiPost({
+      action: "confirmPayment",
+      code: currentOrder.code,
+      payment: chosenPayment.name
+    });
+
+    if (!data.success) {
+      throw new Error(
+        data.message || "Konfirmasi pembayaran gagal."
+      );
+    }
+
+    currentOrder.payment = chosenPayment.name;
+    currentOrder.status = data.status;
+
+    localStorage.setItem(
+      "last_order_code",
+      currentOrder.code
+    );
+
+    document.getElementById("paymentDetails")
+      .classList.add("hidden");
+
+    document.getElementById("paymentSuccess")
+      .classList.remove("hidden");
+
+    document.getElementById("paymentTitle")
+      .textContent = "Pesanan Diterima";
+
+    document.getElementById("successOrderCode")
+      .textContent = currentOrder.code;
+
+    toast("Konfirmasi pembayaran berhasil.");
+
+  } catch (error) {
+    console.error(error);
+    toast(error.message || "Gagal mengonfirmasi pembayaran.");
+  } finally {
+    setLoading(button, false);
+  }
+}
+
+
+// ==================================================
+// CHECK PAYMENT STATUS
+// ==================================================
+
+function checkPaymentStatus() {
+  if (!currentOrder) {
+    toast("Pesanan tidak ditemukan.");
+    return;
+  }
+
+  closeModal("paymentModal");
+
+  document.getElementById("statusCode").value =
+    currentOrder.code;
+
+  openModal("statusModal");
+
+  checkStatus();
+}
+
+
+// ==================================================
+// CHECK ORDER STATUS
+// ==================================================
+
+async function checkStatus() {
+  const code = document
+    .getElementById("statusCode")
+    .value
+    .trim()
+    .toUpperCase();
+
+  const result = document.getElementById("statusResult");
+
+  if (!code) {
+    toast("Masukkan kode pesanan.");
+    return;
+  }
+
+  result.className =
+    "mt-4 rounded-2xl border border-white/10 bg-black/20 p-4";
+
+  result.innerHTML = `
+    <div class="text-center text-xs text-slate-400">
+      Memuat status pesanan...
+    </div>
+  `;
+
+  try {
+    const data = await apiGet("status", {
+      code
+    });
+
+    if (!data.success) {
+      result.className =
+        "mt-4 rounded-2xl border border-red-400/20 bg-red-400/5 p-4 text-xs text-red-200";
+
+      result.innerHTML =
+        escapeHtml(
+          data.message || "Pesanan tidak ditemukan."
+        );
+
+      return;
+    }
+
+    localStorage.setItem(
+      "last_order_code",
+      data.code
+    );
+
+    currentOrder = {
+      code: data.code,
+      name: data.name,
+      game: data.game,
+      gameId: data.gameId,
+      whatsapp: data.whatsapp,
+      coin: Number(data.coin),
+      price: Number(data.price),
+      payment: data.payment,
+      status: data.status,
+      created: data.created
+    };
+
+    renderStatusResult(data);
+
+  } catch (error) {
+    console.error(error);
+
+    result.className =
+      "mt-4 rounded-2xl border border-red-400/20 bg-red-400/5 p-4 text-xs text-red-200";
+
+    result.innerHTML =
+      escapeHtml(
+        error.message || "Gagal mengambil status."
+      );
+  }
+}
+
+function renderStatusResult(order) {
+  const result = document.getElementById("statusResult");
+
+  let statusClass =
+    "bg-amber-400/10 text-amber-300";
+
+  if (order.status === "Selesai") {
+    statusClass =
+      "bg-emerald-400/10 text-emerald-300";
+  }
+
+  if (
+    order.status === "Ditolak" ||
+    order.status === "Dibatalkan"
+  ) {
+    statusClass =
+      "bg-red-400/10 text-red-300";
+  }
+
+  result.className =
+    "mt-4 rounded-2xl border border-white/10 bg-black/20 p-4";
+
+  result.innerHTML = `
+    <div class="flex items-center justify-between gap-3">
+      <b>${escapeHtml(order.code)}</b>
+
+      <span class="rounded-full ${statusClass} px-2 py-1 text-[9px] font-bold">
+        ${escapeHtml(order.status)}
+      </span>
+    </div>
+
+    <p class="mt-2 text-xs text-slate-400">
+      ${escapeHtml(order.game)}
+      -
+      ${Number(order.coin).toLocaleString("id-ID")} Koin
+      -
+      ${escapeHtml(order.name)}
+    </p>
+
+    <p class="mt-1 text-xs text-slate-500">
+      Total: ${rupiah(order.price)}
+    </p>
+
+    <div class="mt-4 space-y-3">
+      ${renderStatusSteps(order.status)}
+    </div>
+  `;
+}
+
+function renderStatusSteps(status) {
+  const stepMap = {
+    "Menunggu Pembayaran": 1,
+    "Menunggu Verifikasi": 2,
+    "Diproses": 3,
+    "Selesai": 4
+  };
+
+  const activeStep = stepMap[status] || 0;
+
+  const steps = [
+    "Pesanan dibuat",
+    "Menunggu pembayaran",
+    "Menunggu verifikasi",
+    "Diproses admin",
+    "Top up selesai"
+  ];
+
+  const rejected =
+    status === "Ditolak" ||
+    status === "Dibatalkan";
+
+  return steps.map((label, index) => {
+    const active =
+      index <= activeStep && !rejected;
+
+    return `
+      <div class="flex items-center gap-3">
+        <span class="grid h-6 w-6 shrink-0 place-items-center rounded-full ${
+          active ? "bg-primary" : "bg-white/10"
+        } text-[10px]">
+          ${active ? "OK" : index + 1}
+        </span>
+
+        <span class="text-xs ${
+          active ? "font-bold" : "text-slate-500"
+        }">
+          ${label}
+        </span>
+      </div>
+    `;
+  }).join("") +
+  (rejected
+    ? `
+      <div class="rounded-xl border border-red-400/20 bg-red-400/5 p-3 text-[11px] text-red-200">
+        Pesanan ${escapeHtml(status.toLowerCase())}.
+        Anda dapat membuat pesanan baru.
+      </div>
+    `
+    : "");
+}
+
+
+// ==================================================
+// FAQ
+// ==================================================
+
+function renderFaq() {
+  const el = document.getElementById("faqList");
+
+  if (!faqs.length) {
+    el.innerHTML = `
+      <div class="p-4 text-xs text-slate-500">
+        FAQ belum tersedia.
+      </div>
+    `;
+    return;
+  }
+
+  el.innerHTML = faqs.map((faq, index) => `
+    <button
+      onclick="toggleFaq(${index})"
+      class="faq w-full border-b border-white/5 p-4 text-left last:border-0"
+    >
+      <div class="flex items-center justify-between gap-3">
+        <span class="text-xs font-bold">
+          ${escapeHtml(faq.question)}
+        </span>
+
+        <span
+          id="faqIcon${index}"
+          class="text-lg text-slate-500"
+        >
+          +
+        </span>
+      </div>
+
+      <div
+        id="faqAns${index}"
+        class="hidden pr-5 pt-2 text-[11px] leading-5 text-slate-500"
+      >
+        ${escapeHtml(faq.answer)}
+      </div>
+    </button>
+  `).join("");
+}
+
+function toggleFaq(index) {
+  const answer =
+    document.getElementById("faqAns" + index);
+
+  const icon =
+    document.getElementById("faqIcon" + index);
+
+  const open =
+    !answer.classList.contains("hidden");
+
+  document
+    .querySelectorAll('[id^="faqAns"]')
+    .forEach(el => el.classList.add("hidden"));
+
+  document
+    .querySelectorAll('[id^="faqIcon"]')
+    .forEach(el => el.textContent = "+");
+
+  if (!open) {
+    answer.classList.remove("hidden");
+    icon.textContent = "−";
+  }
+}
+
+
+// ==================================================
+// TESTIMONIALS
+// ==================================================
+
+function renderTestimonials() {
+  const track =
+    document.getElementById("testimonialTrack");
+
+  const dots =
+    document.getElementById("dots");
+
+  if (!testimonials.length) {
+    track.innerHTML = `
+      <div class="min-w-full p-4 text-center text-xs text-slate-500">
+        Testimonial belum tersedia.
+      </div>
+    `;
+
+    dots.innerHTML = "";
+    return;
+  }
+
+  if (testiIndex >= testimonials.length) {
+    testiIndex = 0;
+  }
+
+  track.innerHTML = testimonials.map(item => `
+    <div class="snap-item min-w-full">
+      <div class="grid grid-cols-[112px_1fr] gap-3">
+
+        ${
+          testimonialImageUrl(item.image)
+            ? `
+              <img
+                src="${escapeHtml(testimonialImageUrl(item.image))}"
+                alt="${escapeHtml(item.title)}"
+                class="h-28 w-28 rounded-2xl object-cover"
+                loading="lazy"
+                onerror="this.onerror=null; this.src='/images/placeholder-testimonial.svg';"
+              >
+            `
+            : `
+              <div class="grid h-28 w-28 place-items-center rounded-2xl bg-white/5 text-[10px] text-slate-500">
+                Tidak ada gambar
+              </div>
+            `
+        }
+
+        <div class="flex min-w-0 flex-col justify-center">
+
+          <span class="w-fit rounded-full bg-emerald-400/10 px-2 py-1 text-[9px] font-black text-emerald-300">
+            TRANSAKSI BERHASIL
+          </span>
+
+          <h3 class="mt-2 truncate text-sm font-black">
+            ${escapeHtml(item.title)}
+          </h3>
+
+          <p class="mt-1 text-[11px] leading-5 text-slate-500">
+            ${escapeHtml(item.text)}
+          </p>
+
+          <div class="mt-2 flex gap-0.5 text-amber-300">
+            ★★★★★
+          </div>
+
+        </div>
+      </div>
+    </div>
+  `).join("");
+
+  dots.innerHTML = testimonials.map((_, index) => `
+    <span
+      class="dot h-1.5 rounded-full ${
+        index === testiIndex
+          ? "bg-primary w-5"
+          : "bg-white/20 w-1.5"
+      }"
+    ></span>
+  `).join("");
+
+  updateTesti();
+}
+
+function updateTesti() {
+  if (!testimonials.length) return;
+
+  document.getElementById("testimonialTrack")
+    .style.transform =
+      `translateX(-${testiIndex * 100}%)`;
+
+  document.querySelectorAll(".dot").forEach((dot, index) => {
+    dot.className =
+      `dot h-1.5 rounded-full ${
+        index === testiIndex
+          ? "bg-primary w-5"
+          : "bg-white/20 w-1.5"
+      }`;
+  });
+}
+
+function nextTesti() {
+  if (!testimonials.length) return;
+
+  testiIndex =
+    (testiIndex + 1) % testimonials.length;
+
+  updateTesti();
+}
+
+function prevTesti() {
+  if (!testimonials.length) return;
+
+  testiIndex =
+    (testiIndex - 1 + testimonials.length) %
+    testimonials.length;
+
+  updateTesti();
+}
+
+setInterval(nextTesti, 4500);
+
+
+// ==================================================
+// NAVIGATION / MODALS
+// ==================================================
+
+document
+  .querySelectorAll(".modal")
+  .forEach(modal => {
+    modal.addEventListener("click", event => {
+      if (event.target === modal) {
+        modal.classList.remove("show");
+      }
+    });
+  });
+
+
+// ==================================================
+// START
+// ==================================================
+
+initApp();
+</script>
 </body>
 </html>
