@@ -1136,6 +1136,31 @@ async function loadProducts() {
 
 
 // ==================================================
+// PAYMENT IMAGE
+// ==================================================
+
+function paymentImageUrl(value) {
+  const image = String(value || "").trim();
+
+  // Tidak ada gambar
+  if (!image) return "";
+
+  // Jika sudah URL lengkap, gunakan langsung
+  if (/^https?:\/\//i.test(image)) {
+    return image;
+  }
+
+  // Jika path sudah dimulai dengan /images/
+  if (image.startsWith("/images/")) {
+    return image;
+  }
+
+  // Jika hanya nama file, arahkan ke folder /images/
+  return "/images/" + image.replace(/^\/+/, "");
+}
+
+
+// ==================================================
 // LOAD PAYMENTS
 // ==================================================
 
@@ -1146,9 +1171,19 @@ async function loadPayments() {
     throw new Error("Data pembayaran tidak valid.");
   }
 
-  payments = data;
-}
+  payments = data.map(payment => ({
+    ...payment,
 
+    name: String(payment.name || "").trim(),
+    type: String(payment.type || "").trim(),
+    number: String(payment.number || "").trim(),
+
+    // Otomatis memperbaiki path gambar
+    image: paymentImageUrl(payment.image)
+  }));
+
+  console.log("Payment data:", payments);
+}
 
 // ==================================================
 // LOAD SETTINGS
@@ -1560,16 +1595,28 @@ function choosePayment(index) {
 
   const detail = document.getElementById("paymentDetail");
 
+  if (!detail) {
+    console.error("Element #paymentDetail tidak ditemukan.");
+    return;
+  }
+
   let imageHtml = "";
 
+  // Jika metode pembayaran memiliki gambar
   if (chosenPayment.image) {
     imageHtml = `
-      <img
-        src="${escapeHtml(chosenPayment.image)}"
-        alt="${escapeHtml(chosenPayment.name)}"
-        class="mt-3 max-h-64 w-full rounded-2xl object-contain bg-white p-2"
-        onerror="this.style.display='none'"
-      >
+      <div class="mt-4 overflow-hidden rounded-2xl border border-white/[.10] bg-white p-2">
+        <img
+          src="${escapeHtml(chosenPayment.image)}"
+          alt="${escapeHtml(chosenPayment.name || "QRIS")}"
+          class="block max-h-80 w-full rounded-xl object-contain"
+          onerror="
+            console.error('Gagal memuat gambar:', this.src);
+            this.closest('div').innerHTML =
+              '<div class=&quot;p-5 text-center text-xs text-slate-500&quot;>Gambar pembayaran tidak dapat dimuat.</div>';
+          "
+        >
+      </div>
     `;
   }
 
@@ -1577,62 +1624,137 @@ function choosePayment(index) {
 
   detail.innerHTML = `
     <div class="payment-summary overflow-hidden rounded-[22px] border border-cyan-400/[.10] p-4">
+
       <div class="flex items-center gap-3">
-        <div class="payment-brand bg-cyan-400/10 text-cyan-200">${escapeHtml(String(chosenPayment.name || "PAY").slice(0,2).toUpperCase())}</div>
-        <div class="min-w-0">
-          <div class="text-[9px] font-extrabold uppercase tracking-[.16em] text-cyan-300">Detail pembayaran</div>
-          <div class="mt-1 truncate text-sm font-extrabold">${escapeHtml(chosenPayment.name)}</div>
+
+        <div class="payment-brand bg-cyan-400/10 text-cyan-200">
+          ${escapeHtml(
+            String(chosenPayment.name || "PAY")
+              .slice(0, 2)
+              .toUpperCase()
+          )}
         </div>
-        <span class="ml-auto rounded-full bg-emerald-400/10 px-2 py-1 text-[8px] font-extrabold text-emerald-300">TERSEDIA</span>
+
+        <div class="min-w-0">
+
+          <div class="text-[9px] font-extrabold uppercase tracking-[.16em] text-cyan-300">
+            Detail pembayaran
+          </div>
+
+          <div class="mt-1 truncate text-sm font-extrabold">
+            ${escapeHtml(chosenPayment.name || "Pembayaran")}
+          </div>
+
+        </div>
+
+        <span class="ml-auto rounded-full bg-emerald-400/10 px-2 py-1 text-[8px] font-extrabold text-emerald-300">
+          TERSEDIA
+        </span>
+
       </div>
+
+
+      <!-- NOMINAL PEMBAYARAN -->
 
       <div class="mt-4 rounded-2xl border border-cyan-400/20 bg-gradient-to-br from-cyan-400/[.09] to-blue-500/[.06] p-4">
+
         <div class="flex items-center justify-between gap-3">
+
           <div>
-            <div class="text-[9px] font-extrabold uppercase tracking-[.16em] text-cyan-200/60">NOMINAL YANG HARUS DIBAYAR</div>
-            <div class="mt-1 text-[10px] text-slate-500">Gunakan nominal ini saat validasi mutasi.</div>
+
+            <div class="text-[9px] font-extrabold uppercase tracking-[.16em] text-cyan-200/60">
+              NOMINAL YANG HARUS DIBAYAR
+            </div>
+
+            <div class="mt-1 text-[10px] text-slate-500">
+              Gunakan nominal ini saat melakukan pembayaran.
+            </div>
+
           </div>
+
           <div class="text-right">
-            <div class="display text-2xl font-extrabold tracking-tight text-cyan-300">${rupiah(currentOrder?.price || 0)}</div>
-            <div class="mt-1 text-[9px] font-bold text-slate-600">HARUS SESUAI</div>
+
+            <div class="display text-2xl font-extrabold tracking-tight text-cyan-300">
+              ${rupiah(currentOrder?.price || 0)}
+            </div>
+
+            <div class="mt-1 text-[9px] font-bold text-slate-600">
+              HARUS SESUAI
+            </div>
+
           </div>
+
         </div>
+
       </div>
 
-      <div class="mt-2 grid grid-cols-2 gap-2">
+
+      <!-- INFORMASI PESANAN -->
+
+      <div class="mt-3 grid grid-cols-2 gap-2">
+
         <div class="rounded-2xl border border-white/[.06] bg-black/[.16] p-3">
-          <div class="text-[9px] font-bold text-slate-600">GAME</div>
-          <div class="mt-1 text-sm font-extrabold text-slate-200">${escapeHtml(currentOrder?.game || "-")}</div>
+
+          <div class="text-[9px] font-bold text-slate-600">
+            GAME
+          </div>
+
+          <div class="mt-1 text-sm font-extrabold text-slate-200">
+            ${escapeHtml(currentOrder?.game || "-")}
+          </div>
+
         </div>
+
+
         <div class="rounded-2xl border border-white/[.06] bg-black/[.16] p-3">
-          <div class="text-[9px] font-bold text-slate-600">KOIN</div>
-          <div class="mt-1 text-sm font-extrabold text-amber-200">${Number(currentOrder?.coin || 0).toLocaleString("id-ID")}</div>
+
+          <div class="text-[9px] font-bold text-slate-600">
+            KOIN
+          </div>
+
+          <div class="mt-1 text-sm font-extrabold text-slate-200">
+            ${Number(currentOrder?.coin || 0).toLocaleString("id-ID")}
+          </div>
+
         </div>
+
       </div>
 
-      <div class="mt-3 rounded-2xl border border-white/[.07] bg-black/[.17] p-3.5">
-        <div class="mb-2 flex items-center justify-between">
-          <span class="text-[9px] font-extrabold uppercase tracking-wider text-slate-600">Nomor / rekening / tujuan</span>
-          <button onclick="copyPaymentNumber()" class="rounded-xl bg-cyan-400/10 px-3 py-2 text-[9px] font-extrabold text-cyan-300 hover:bg-cyan-400/15">Salin</button>
-        </div>
-        <div id="paymentNumber" class="break-all text-sm font-extrabold tracking-wide text-white">${escapeHtml(chosenPayment.number || "-")}</div>
-      </div>
 
-      <div class="mt-2 rounded-2xl border border-emerald-400/10 bg-emerald-400/[.045] p-3.5">
-        <div class="text-[9px] font-extrabold uppercase tracking-wider text-slate-600">Nama Pemilik Rekening</div>
-        <div class="mt-1 text-sm font-extrabold text-emerald-300">a.n. ${escapeHtml(chosenPayment.owner || "UB STORE")}</div>
-      </div>
+      <!-- NOMOR / KETERANGAN PEMBAYARAN -->
+
+      ${
+        chosenPayment.number
+          ? `
+            <div class="mt-3 rounded-2xl border border-white/[.06] bg-black/[.16] p-3">
+
+              <div class="text-[9px] font-bold uppercase tracking-wider text-slate-600">
+                ${escapeHtml(chosenPayment.type || "Informasi Pembayaran")}
+              </div>
+
+              <div class="mt-1 break-all text-sm font-extrabold text-slate-200">
+                ${escapeHtml(chosenPayment.number)}
+              </div>
+
+            </div>
+          `
+          : ""
+      }
+
+
+      <!-- GAMBAR QRIS / PEMBAYARAN -->
 
       ${imageHtml}
 
-      <div class="mt-3 flex items-start gap-2 rounded-xl border border-amber-400/10 bg-amber-400/[.04] p-3">
-        <svg class="mt-0.5 h-4 w-4 shrink-0 text-amber-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 9v4"/><path d="M12 17h.01"/><path d="m10.3 4.5-7 12a2 2 0 0 0 1.7 3h14a2 2 0 0 0 1.7-3l-7-12a2 2 0 0 0-3.4 0Z"/></svg>
-        <p class="text-[10px] leading-5 text-amber-200/80">Pastikan nominal transfer sesuai total pembayaran. Jangan melakukan pembayaran ke tujuan lain.</p>
-      </div>
     </div>
   `;
 
-  toast("Metode " + chosenPayment.name + " dipilih");
+  console.log(
+    "Payment selected:",
+    chosenPayment.name,
+    "Image:",
+    chosenPayment.image
+  );
 }
 
 async function copyPaymentNumber() {
