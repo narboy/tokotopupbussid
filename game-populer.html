@@ -1,0 +1,2428 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#171717">
+  <meta name="description" content="Buat SIM game BUSSID dan TruckSID untuk kebutuhan roleplay di Topup UB Store.">
+  <title>BUAT SIM - Topup UB Store</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif']
+          },
+          colors: {
+            ub: {
+              50: '#fff9eb',
+              100: '#fff0c7',
+              200: '#ffe08a',
+              300: '#ffd05a',
+              400: '#f7bd32',
+              500: '#d99a17',
+              600: '#b9780e',
+              700: '#8d570c',
+              800: '#68400f',
+              900: '#452b0b'
+            }
+          },
+          boxShadow: {
+            glow: '0 0 0 1px rgba(217,154,23,.18), 0 15px 50px rgba(0,0,0,.28)'
+          }
+        }
+      }
+    }
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <style>
+    html { scroll-behavior: smooth; }
+    body { background: #181818; }
+    .glass { background: rgba(35,35,35,.82); backdrop-filter: blur(16px); }
+    .hero-slide { display:none; }
+    .hero-slide.active { display:block; animation: fade .45s ease; }
+    @keyframes fade { from { opacity:.3; transform:scale(.99); } to { opacity:1; transform:scale(1); } }
+    .marquee { animation: marquee 22s linear infinite; }
+    @keyframes marquee { from { transform:translateX(0); } to { transform:translateX(-50%); } }
+    .card-hover { transition: transform .2s ease, border-color .2s ease, box-shadow .2s ease; }
+    .card-hover:hover { transform: translateY(-4px); border-color: rgba(217,154,23,.45); box-shadow: 0 15px 35px rgba(0,0,0,.25); }
+    .no-scrollbar::-webkit-scrollbar { display:none; }
+    .no-scrollbar { scrollbar-width:none; }
+    /* Mobile drawer */
+    body.menu-open { overflow: hidden; overscroll-behavior: none; touch-action: none; }
+    .menu-backdrop {
+      position: fixed; inset: 0; z-index: 90;
+      background: rgba(0,0,0,.68); opacity: 0; visibility: hidden;
+      transition: opacity .32s ease, visibility .32s ease;
+      backdrop-filter: blur(2px);
+    }
+    .menu-backdrop.open { opacity: 1; visibility: visible; }
+    .mobile-menu {
+      position: fixed; inset: 0 auto 0 0; z-index: 100;
+      width: min(72vw, 475px); min-width: 300px; height: 100dvh;
+      max-height: none; overflow-y: auto; overflow-x: hidden;
+      background: #2c2d2f; border-right: 1px solid rgba(255,255,255,.05);
+      box-shadow: 20px 0 60px rgba(0,0,0,.42);
+      transform: translateX(-105%); opacity: 1;
+      visibility: hidden; pointer-events: none;
+      transition: transform .42s cubic-bezier(.22,1,.36,1), visibility 0s linear .42s;
+      -webkit-overflow-scrolling: touch;
+    }
+    .mobile-menu.open {
+      transform: translateX(0); visibility: visible; pointer-events: auto;
+      transition: transform .42s cubic-bezier(.22,1,.36,1), visibility 0s;
+    }
+    .drawer-header { height: 124px; border-bottom: 1px solid rgba(255,255,255,.08); }
+    .drawer-nav { padding: 24px 26px 34px; }
+    .mobile-nav {
+      min-height: 72px; display: flex; align-items: center; justify-content: space-between;
+      gap: 20px; padding: 0 16px; border-radius: 14px;
+      color: rgba(255,255,255,.82); font-size: 22px; font-weight: 700;
+      letter-spacing: -.01em; transition: background .2s ease, color .2s ease, transform .2s ease;
+    }
+    .mobile-nav:hover, .mobile-nav:focus-visible { background: rgba(255,255,255,.055); color: #fff; outline: none; }
+    .mobile-nav:active { transform: scale(.985); }
+    .mobile-nav .drawer-icon { width: 25px; height: 25px; flex: 0 0 auto; color: rgba(255,255,255,.72); }
+    .drawer-auth { border-top: 1px solid rgba(255,255,255,.08); margin-top: 22px; padding-top: 20px; }
+    .drawer-close { transition: background .2s ease, transform .2s ease; }
+    .drawer-close:hover { background: rgba(255,255,255,.07); }
+    .drawer-close:active { transform: scale(.92); }
+    @media (max-width: 380px) {
+      .mobile-menu { width: 88vw; min-width: 0; }
+      .drawer-nav { padding: 18px 16px 28px; }
+      .mobile-nav { font-size: 19px; min-height: 64px; }
+    }
+  </style>
+<link rel="icon" type="image/png" href="images/logo/logo.png"/>
+
+<!-- UB GLOBAL FEEDBACK UI -->
+<style id="ub-global-feedback-style">
+  :root{
+    --ub-feedback-bg:rgba(28,29,31,.97);
+    --ub-feedback-border:rgba(255,255,255,.10);
+    --ub-feedback-yellow:#d99a17;
+  }
+
+  /* ========= SIMPLE GLOBAL LOADER ========= */
+  #ubGlobalLoader{
+    position:fixed;
+    inset:0;
+    z-index:2147483600;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:16px;
+    background:rgba(10,10,10,.34);
+    -webkit-backdrop-filter:blur(2px);
+    backdrop-filter:blur(2px);
+    opacity:0;
+    visibility:hidden;
+    pointer-events:none;
+    transition:opacity .18s ease,visibility .18s ease;
+  }
+  #ubGlobalLoader.ub-show{
+    opacity:1;
+    visibility:visible;
+    pointer-events:auto;
+  }
+  .ub-loader-box{
+    display:flex;
+    align-items:center;
+    gap:11px;
+    min-width:145px;
+    max-width:min(88vw,280px);
+    padding:12px 15px;
+    border-radius:15px;
+    border:1px solid var(--ub-feedback-border);
+    background:rgba(32,33,36,.96);
+    box-shadow:0 16px 45px rgba(0,0,0,.34);
+    transform:translateY(5px) scale(.985);
+    transition:transform .18s ease;
+  }
+  #ubGlobalLoader.ub-show .ub-loader-box{
+    transform:translateY(0) scale(1);
+  }
+  .ub-loader-spinner{
+    width:21px;
+    height:21px;
+    flex:0 0 21px;
+    border:2.5px solid rgba(255,255,255,.14);
+    border-top-color:var(--ub-feedback-yellow);
+    border-radius:999px;
+    animation:ubSimpleSpin .72s linear infinite;
+  }
+  .ub-loader-copy{
+    min-width:0;
+  }
+  .ub-loader-title{
+    margin:0;
+    font-size:11px;
+    line-height:1.3;
+    font-weight:800;
+    color:#fff;
+  }
+  .ub-loader-text{
+    margin:2px 0 0;
+    font-size:9px;
+    line-height:1.35;
+    color:rgba(255,255,255,.42);
+  }
+  @keyframes ubSimpleSpin{to{transform:rotate(360deg)}}
+
+  /* ========= MODERN ALERT / TOAST ========= */
+  #ubGlobalToast{
+    position:fixed;
+    z-index:2147483640;
+    right:14px;
+    bottom:14px;
+    width:min(390px,calc(100vw - 28px));
+    pointer-events:none;
+    opacity:0;
+    visibility:hidden;
+    transform:translateY(14px) scale(.985);
+    transition:opacity .22s ease,transform .22s ease,visibility .22s ease;
+  }
+  #ubGlobalToast.ub-show{
+    opacity:1;
+    visibility:visible;
+    transform:translateY(0) scale(1);
+  }
+  .ub-toast-card{
+    position:relative;
+    overflow:hidden;
+    display:grid;
+    grid-template-columns:38px minmax(0,1fr) 28px;
+    gap:10px;
+    align-items:start;
+    padding:13px 12px 13px 13px;
+    border-radius:17px;
+    border:1px solid var(--ub-feedback-border);
+    background:var(--ub-feedback-bg);
+    box-shadow:0 18px 55px rgba(0,0,0,.42);
+    -webkit-backdrop-filter:blur(18px);
+    backdrop-filter:blur(18px);
+    pointer-events:auto;
+  }
+  .ub-toast-icon{
+    width:38px;
+    height:38px;
+    border-radius:12px;
+    display:grid;
+    place-items:center;
+    border:1px solid rgba(255,255,255,.07);
+  }
+  .ub-toast-icon svg{
+    width:19px;
+    height:19px;
+    fill:none;
+    stroke:currentColor;
+    stroke-width:2;
+    stroke-linecap:round;
+    stroke-linejoin:round;
+  }
+  .ub-toast-title{
+    margin:1px 0 0;
+    color:#fff;
+    font-size:12px;
+    line-height:1.35;
+    font-weight:800;
+  }
+  .ub-toast-message{
+    margin:3px 0 0;
+    color:rgba(255,255,255,.52);
+    font-size:10px;
+    line-height:1.55;
+    overflow-wrap:anywhere;
+  }
+  .ub-toast-close{
+    width:28px;
+    height:28px;
+    display:grid;
+    place-items:center;
+    padding:0;
+    border:0;
+    border-radius:9px;
+    background:transparent;
+    color:rgba(255,255,255,.35);
+    cursor:pointer;
+    transition:background .15s ease,color .15s ease;
+  }
+  .ub-toast-close:hover{
+    background:rgba(255,255,255,.06);
+    color:#fff;
+  }
+  .ub-toast-close svg{
+    width:15px;
+    height:15px;
+    stroke:currentColor;
+    fill:none;
+    stroke-width:2;
+    stroke-linecap:round;
+  }
+  .ub-toast-progress{
+    position:absolute;
+    left:0;
+    right:0;
+    bottom:0;
+    height:2px;
+    background:rgba(255,255,255,.05);
+  }
+  .ub-toast-progress > span{
+    display:block;
+    width:100%;
+    height:100%;
+    transform-origin:left;
+    animation:ubToastProgress var(--ub-toast-duration,3200ms) linear forwards;
+  }
+  @keyframes ubToastProgress{to{transform:scaleX(0)}}
+
+  #ubGlobalToast[data-type="success"] .ub-toast-icon{
+    background:rgba(52,211,153,.10);
+    color:#6ee7b7;
+  }
+  #ubGlobalToast[data-type="success"] .ub-toast-progress > span{background:#34d399}
+
+  #ubGlobalToast[data-type="error"] .ub-toast-icon{
+    background:rgba(248,113,113,.10);
+    color:#fca5a5;
+  }
+  #ubGlobalToast[data-type="error"] .ub-toast-progress > span{background:#f87171}
+
+  #ubGlobalToast[data-type="warning"] .ub-toast-icon{
+    background:rgba(251,191,36,.10);
+    color:#fcd34d;
+  }
+  #ubGlobalToast[data-type="warning"] .ub-toast-progress > span{background:#fbbf24}
+
+  #ubGlobalToast[data-type="info"] .ub-toast-icon{
+    background:rgba(217,154,23,.11);
+    color:#f7bd32;
+  }
+  #ubGlobalToast[data-type="info"] .ub-toast-progress > span{background:#d99a17}
+
+  @media(max-width:640px){
+    #ubGlobalToast{
+      left:12px;
+      right:12px;
+      bottom:12px;
+      width:auto;
+    }
+    .ub-toast-card{
+      grid-template-columns:35px minmax(0,1fr) 26px;
+      padding:12px 10px 12px 12px;
+      border-radius:16px;
+    }
+    .ub-toast-icon{
+      width:35px;
+      height:35px;
+      border-radius:11px;
+    }
+  }
+
+  @media(prefers-reduced-motion:reduce){
+    #ubGlobalLoader,#ubGlobalToast,.ub-loader-box{
+      transition:none!important;
+    }
+    .ub-loader-spinner,.ub-toast-progress > span{
+      animation:none!important;
+    }
+  }
+</style>
+
+
+<style id="ub-responsive-fix">
+  .auth-hidden{display:none!important}
+
+  /* Guard: elemen auth desktop tidak boleh muncul di viewport mobile */
+  @media (max-width:767.98px){
+    #siteGuestDesktop,
+    #siteUserDesktop{
+      display:none!important;
+    }
+  }
+
+  /* Semua content boleh menyusut tanpa mendorong viewport */
+  main,section,article,header,nav,aside,div{min-width:0}
+  img,video,canvas,svg{max-width:100%}
+
+  /* Drawer mobile tetap berada dalam viewport */
+  .mobile-menu{
+    max-width:min(88vw,360px);
+  }
+
+  @media (max-width:639.98px){
+    .drawer-header{padding-left:18px!important;padding-right:14px!important}
+    .drawer-nav{padding-left:12px!important;padding-right:12px!important}
+  }
+
+  /* Mobile topup hero */
+  @media (max-width:767.98px){
+    #hero{
+      min-height:390px!important;
+      border-radius:22px!important;
+    }
+    #hero .hero-slide > .relative{
+      min-height:390px!important;
+      padding:32px 20px 62px!important;
+      align-items:flex-start!important;
+    }
+    #hero h1,
+    #hero h2{
+      font-size:34px!important;
+      line-height:1.04!important;
+      letter-spacing:-.025em!important;
+    }
+    #hero p{
+      font-size:13px!important;
+      line-height:1.65!important;
+      max-width:34rem!important;
+    }
+    #hero #prevSlide,
+    #hero #nextSlide{
+      display:none!important;
+    }
+    #hero .hero-dot{
+      width:22px;
+    }
+  }
+
+  @media (max-width:380px){
+    #hero{
+      min-height:410px!important;
+    }
+    #hero .hero-slide > .relative{
+      min-height:410px!important;
+      padding-left:17px!important;
+      padding-right:17px!important;
+    }
+    #hero h1,
+    #hero h2{
+      font-size:30px!important;
+    }
+  }
+</style>
+
+
+<style id="ub-global-mobile-guard">
+  html,body{width:100%;max-width:100%;overflow-x:hidden}
+  *,*::before,*::after{box-sizing:border-box}
+  img,video,canvas{max-width:100%;height:auto}
+  input,select,textarea,button{max-width:100%}
+  @media(max-width:639.98px){
+    main{max-width:100%}
+  }
+</style>
+
+
+<style id="ub-contextual-loader-style">
+  :root{
+    --ub-loader-yellow:#d99a17;
+    --ub-loader-yellow-soft:#f7bd32;
+  }
+
+  #ubContextLoader{
+    position:fixed;
+    inset:0;
+    z-index:2147483600;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:16px;
+    background:rgba(6,7,8,.46);
+    -webkit-backdrop-filter:blur(5px);
+    backdrop-filter:blur(5px);
+    opacity:0;
+    visibility:hidden;
+    pointer-events:none;
+    transition:opacity .2s ease,visibility .2s ease;
+  }
+  #ubContextLoader.ub-show{
+    opacity:1;
+    visibility:visible;
+    pointer-events:auto;
+  }
+
+  .ub-context-loader-card{
+    width:min(88vw,290px);
+    border-radius:24px;
+    border:1px solid rgba(255,255,255,.10);
+    background:
+      radial-gradient(circle at 50% -10%,rgba(217,154,23,.12),transparent 48%),
+      rgba(29,30,32,.97);
+    box-shadow:0 24px 70px rgba(0,0,0,.48);
+    padding:20px 18px 17px;
+    text-align:center;
+    transform:translateY(7px) scale(.975);
+    transition:transform .22s ease;
+  }
+  #ubContextLoader.ub-show .ub-context-loader-card{
+    transform:translateY(0) scale(1);
+  }
+
+  .ub-orbit-loader{
+    position:relative;
+    width:56px;
+    height:56px;
+    margin:0 auto 13px;
+  }
+  .ub-orbit-loader::before{
+    content:"";
+    position:absolute;
+    inset:8px;
+    border-radius:50%;
+    border:1px solid rgba(255,255,255,.09);
+  }
+  .ub-orbit-loader::after{
+    content:"";
+    position:absolute;
+    inset:0;
+    border-radius:50%;
+    border:2px solid transparent;
+    border-top-color:var(--ub-loader-yellow-soft);
+    border-right-color:rgba(217,154,23,.32);
+    animation:ubOrbitSpin .9s linear infinite;
+  }
+  .ub-orbit-dot{
+    position:absolute;
+    left:50%;
+    top:50%;
+    width:8px;
+    height:8px;
+    margin:-4px;
+    border-radius:50%;
+    background:var(--ub-loader-yellow-soft);
+    box-shadow:0 0 16px rgba(247,189,50,.75);
+    animation:ubDotPulse 1.1s ease-in-out infinite;
+  }
+  .ub-orbit-loader .ub-inner-ring{
+    position:absolute;
+    inset:16px;
+    border-radius:50%;
+    border:2px solid rgba(217,154,23,.18);
+    border-bottom-color:var(--ub-loader-yellow);
+    animation:ubOrbitSpinReverse 1.35s linear infinite;
+  }
+
+  .ub-context-loader-title{
+    margin:0;
+    font-size:12px;
+    line-height:1.35;
+    font-weight:800;
+    color:#fff;
+  }
+  .ub-context-loader-text{
+    margin:4px auto 0;
+    max-width:220px;
+    font-size:9px;
+    line-height:1.55;
+    color:rgba(255,255,255,.42);
+  }
+
+  .ub-context-loader-dots{
+    display:flex;
+    justify-content:center;
+    gap:4px;
+    margin-top:12px;
+  }
+  .ub-context-loader-dots span{
+    width:4px;
+    height:4px;
+    border-radius:999px;
+    background:rgba(247,189,50,.35);
+    animation:ubLoadingDots 1s ease-in-out infinite;
+  }
+  .ub-context-loader-dots span:nth-child(2){animation-delay:.12s}
+  .ub-context-loader-dots span:nth-child(3){animation-delay:.24s}
+
+  @keyframes ubOrbitSpin{to{transform:rotate(360deg)}}
+  @keyframes ubOrbitSpinReverse{to{transform:rotate(-360deg)}}
+  @keyframes ubDotPulse{
+    0%,100%{transform:scale(.8);opacity:.55}
+    50%{transform:scale(1.2);opacity:1}
+  }
+  @keyframes ubLoadingDots{
+    0%,100%{transform:translateY(0);opacity:.35}
+    50%{transform:translateY(-3px);opacity:1}
+  }
+
+  @media(max-width:640px){
+    .ub-context-loader-card{
+      width:min(84vw,265px);
+      border-radius:21px;
+      padding:18px 16px 15px;
+    }
+    .ub-orbit-loader{
+      width:50px;
+      height:50px;
+      margin-bottom:11px;
+    }
+  }
+
+  @media(prefers-reduced-motion:reduce){
+    #ubContextLoader,
+    .ub-context-loader-card{
+      transition:none!important;
+    }
+    .ub-orbit-loader::after,
+    .ub-orbit-loader .ub-inner-ring,
+    .ub-orbit-dot,
+    .ub-context-loader-dots span{
+      animation:none!important;
+    }
+  }
+</style>
+
+
+<style id="ub-sim-generator-style">
+  .sim-page{
+    width:100%;
+    max-width:1500px;
+    margin:0 auto;
+    padding:22px 12px 48px;
+  }
+  @media(min-width:640px){.sim-page{padding:30px 24px 56px}}
+  @media(min-width:1024px){.sim-page{padding-left:32px;padding-right:32px}}
+
+  .sim-intro{
+    position:relative;
+    overflow:hidden;
+    margin-bottom:18px;
+    padding:22px;
+    border:1px solid rgba(217,154,23,.16);
+    border-radius:24px;
+    background:
+      radial-gradient(circle at 100% 0%,rgba(217,154,23,.14),transparent 34%),
+      linear-gradient(135deg,#232323,#1c1c1c);
+    box-shadow:0 18px 45px rgba(0,0,0,.22);
+  }
+  .sim-intro-label{
+    display:inline-flex;align-items:center;gap:8px;
+    padding:6px 10px;border-radius:999px;
+    border:1px solid rgba(217,154,23,.25);
+    background:rgba(217,154,23,.08);
+    color:#f7bd32;font-size:10px;font-weight:900;
+    letter-spacing:.14em;text-transform:uppercase;
+  }
+  .sim-intro h1{
+    margin:14px 0 0;color:#fff;
+    font-size:clamp(28px,5vw,46px);line-height:1.04;
+    font-weight:900;letter-spacing:-.04em;
+  }
+  .sim-intro p{
+    max-width:800px;margin:10px 0 0;
+    color:rgba(255,255,255,.47);
+    font-size:13px;line-height:1.75;
+  }
+  .sim-warning{
+    margin-top:14px;display:flex;gap:10px;align-items:flex-start;
+    border:1px solid rgba(251,191,36,.12);
+    background:rgba(251,191,36,.05);
+    border-radius:16px;padding:11px 13px;
+    color:rgba(255,255,255,.48);font-size:10px;line-height:1.6;
+  }
+  .sim-warning b{color:#fcd34d}
+
+  .sim-workspace{
+    display:grid;
+    grid-template-columns:390px minmax(0,1fr);
+    align-items:start;
+    gap:18px;
+  }
+  .sim-panel{
+    overflow:hidden;
+    border:1px solid rgba(255,255,255,.07);
+    border-radius:24px;
+    background:#202124;
+    box-shadow:0 18px 50px rgba(0,0,0,.22);
+  }
+  .sim-controls{
+    position:sticky;top:142px;
+    max-height:calc(100vh - 160px);
+    overflow-y:auto;
+    scrollbar-width:thin;
+    scrollbar-color:#444 transparent;
+  }
+  .sim-panel-head{
+    position:sticky;top:0;z-index:20;
+    display:flex;align-items:center;justify-content:space-between;gap:12px;
+    padding:15px 18px;
+    border-bottom:1px solid rgba(255,255,255,.07);
+    background:rgba(32,33,36,.96);
+    backdrop-filter:blur(18px);
+  }
+  .sim-panel-head h2,.sim-preview-toolbar h2{
+    margin:0;color:#fff;font-size:15px;font-weight:800;
+  }
+  .sim-section{
+    overflow:hidden;
+    padding:17px 18px;
+    border-bottom:1px solid rgba(255,255,255,.06);
+    transition:background .2s ease;
+  }
+  .sim-section:last-child{border-bottom:0}
+  .sim-section.is-open{background:rgba(217,154,23,.025)}
+  .sim-section-title{
+    display:inline-flex;align-items:center;
+    margin:0;padding:5px 9px;
+    border:1px solid rgba(217,154,23,.18);
+    border-radius:999px;
+    background:rgba(217,154,23,.08);
+    color:#f7bd32;
+    font-size:9px;font-weight:900;
+    letter-spacing:.14em;text-transform:uppercase;
+  }
+  .sim-grid{
+    display:grid;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:11px;
+  }
+  .sim-field{
+    display:flex;flex-direction:column;
+    gap:6px;margin-bottom:11px;
+  }
+  .sim-field:last-child{margin-bottom:0}
+  .sim-field.sim-full{grid-column:1/-1}
+  .sim-field label{
+    color:rgba(255,255,255,.42);
+    font-size:9px;font-weight:800;
+    letter-spacing:.05em;text-transform:uppercase;
+  }
+  .sim-field input:not([type="range"]):not([type="color"]),
+  .sim-field select{
+    width:100%;
+    min-height:42px;
+    padding:10px 12px;
+    outline:0;
+    border:1px solid rgba(255,255,255,.10);
+    border-radius:12px;
+    background:#171717;
+    color:#fff;
+    font-size:12px;
+    transition:.18s;
+  }
+  .sim-field input:focus,.sim-field select:focus{
+    border-color:rgba(217,154,23,.65)!important;
+    box-shadow:0 0 0 3px rgba(217,154,23,.08);
+  }
+  .sim-field input[type="file"]{
+    padding:9px!important;
+  }
+  .sim-field input[type="file"]::file-selector-button{
+    margin-right:8px;padding:8px 10px;
+    border:0;border-radius:9px;
+    background:#2b2b2b;color:#fff;
+    font-size:10px;font-weight:800;
+    cursor:pointer;
+  }
+  .sim-field input[type="color"]{
+    width:100%;height:42px;padding:5px;
+    border:1px solid rgba(255,255,255,.10);
+    border-radius:12px;background:#171717;cursor:pointer;
+  }
+  .sim-range-row{
+    display:grid;
+    grid-template-columns:minmax(0,1fr) 52px;
+    align-items:center;gap:10px;
+    padding:9px 10px;
+    border:1px solid rgba(255,255,255,.06);
+    border-radius:12px;background:#171717;
+  }
+  .sim-range-row input[type="range"]{
+    width:100%;height:5px;padding:0;
+    appearance:none;border-radius:999px;
+    background:#3a3a3a;accent-color:#d99a17;
+  }
+  .sim-range-row input[type="range"]::-webkit-slider-thumb{
+    width:15px;height:15px;appearance:none;
+    border:3px solid #fff;border-radius:50%;
+    background:#d99a17;
+  }
+  .sim-range-value{
+    padding:5px 6px;border:1px solid rgba(255,255,255,.08);
+    border-radius:8px;background:#292929;
+    color:rgba(255,255,255,.62);
+    font-size:9px;font-weight:900;text-align:center;
+  }
+  .sim-btn{
+    display:inline-flex;align-items:center;justify-content:center;
+    gap:7px;padding:10px 13px;
+    border:1px solid transparent;border-radius:11px;
+    font-size:10px;font-weight:900;cursor:pointer;
+    transition:.18s;
+  }
+  .sim-btn:active{transform:scale(.98)}
+  .sim-btn-secondary{
+    border-color:rgba(255,255,255,.10);
+    background:#292929;color:rgba(255,255,255,.78);
+  }
+  .sim-btn-secondary:hover{border-color:rgba(217,154,23,.28);color:#fff}
+  .sim-btn-primary{
+    background:#d99a17;color:#090909;
+    box-shadow:0 10px 24px rgba(217,154,23,.14);
+  }
+  .sim-btn-primary:hover{background:#f7bd32}
+  .sim-actions{display:flex;flex-wrap:wrap;gap:8px}
+  .sim-preview-panel{padding:16px}
+  .sim-preview-toolbar{
+    display:flex;align-items:center;justify-content:space-between;
+    gap:12px;margin-bottom:14px;
+  }
+  .sim-stage{
+    position:relative;display:grid;place-items:center;
+    min-height:680px;overflow:auto;padding:18px;
+    border:1px solid rgba(255,255,255,.07);
+    border-radius:18px;background:#171717;
+    background-image:
+      linear-gradient(45deg,rgba(255,255,255,.018) 25%,transparent 25%),
+      linear-gradient(-45deg,rgba(255,255,255,.018) 25%,transparent 25%),
+      linear-gradient(45deg,transparent 75%,rgba(255,255,255,.018) 75%),
+      linear-gradient(-45deg,transparent 75%,rgba(255,255,255,.018) 75%);
+    background-size:22px 22px;
+    background-position:0 0,0 11px,11px -11px,-11px 0;
+  }
+  .sim-hint{
+    margin-top:14px;padding:11px 13px;
+    border:1px solid rgba(217,154,23,.10);
+    border-radius:14px;background:rgba(217,154,23,.04);
+    color:rgba(255,255,255,.40);
+    font-size:10px;line-height:1.65;
+  }
+  .sim-hint b{color:rgba(255,255,255,.75)}
+
+  .section-accordion{
+    display:flex;align-items:center;justify-content:space-between;
+    width:100%;margin:0;padding:0;border:0;background:transparent;
+    color:inherit;text-align:left;cursor:pointer;
+  }
+  .section-accordion-icon{
+    display:grid;place-items:center;width:28px;height:28px;
+    flex:0 0 auto;margin-left:10px;
+    border:1px solid rgba(255,255,255,.09);
+    border-radius:999px;background:rgba(255,255,255,.03);
+    color:rgba(255,255,255,.55);font-size:14px;font-weight:900;
+    transition:.22s;
+  }
+  .sim-section.is-open .section-accordion-icon{
+    transform:rotate(180deg);
+    border-color:rgba(217,154,23,.25);
+    background:rgba(217,154,23,.08);
+    color:#f7bd32;
+  }
+  .section-content{
+    display:grid;grid-template-rows:0fr;opacity:0;
+    transition:grid-template-rows .25s ease,opacity .2s ease,padding-top .2s ease;
+  }
+  .sim-section.is-open .section-content{
+    grid-template-rows:1fr;opacity:1;padding-top:13px;
+  }
+  .section-content-inner{min-height:0;overflow:hidden}
+
+  @media(max-width:1199px){
+    .sim-workspace{grid-template-columns:1fr}
+    .sim-controls{position:relative;top:auto;max-height:none}
+  }
+  @media(max-width:767px){
+    .sim-page{padding-top:14px}
+    .sim-intro{padding:18px;border-radius:20px}
+    .sim-preview-panel{padding:10px}
+    .sim-stage{min-height:520px;padding:8px}
+    .sim-preview-toolbar{align-items:stretch;flex-direction:column}
+    .sim-actions .sim-btn{flex:1 1 0}
+  }
+  @media(max-width:639px){
+    .sim-grid{grid-template-columns:1fr}
+    .sim-field.sim-full{grid-column:auto}
+    .sim-panel{border-radius:20px}
+  }
+</style>
+
+<style id='ub-sim-card-style'>
+
+    :root {
+      --card-header: #e40012;
+      --card-strip: #eef1f4;
+      --card-bg: #d9dde2;
+      --card-text: #111111;
+      --card-accent: #c70014;
+      --card-watermark: rgba(92,104,118,.28);
+    }
+
+/* ===== GAME CARD ===== */
+    #gameCard {
+      position: relative;
+      width: 1080px;
+      height: 680px;
+      overflow: hidden;
+      border-radius: 40px;
+      background: var(--card-bg);
+      color: var(--card-text);
+      box-shadow: 0 35px 80px rgba(0,0,0,.45);
+      transform-origin: center center;
+    }
+
+    
+
+    .card-header {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 122px;
+      background: var(--card-header);
+    }
+
+    .card-strip {
+      position: absolute;
+      left: 0;
+      top: 122px;
+      width: 100%;
+      height: 86px;
+      background: var(--card-strip);
+    }
+
+    .map-shape {
+      position: absolute;
+      left: 178px;
+      top: 238px;
+      width: 700px;
+      height: auto;
+      z-index: 0;
+      pointer-events: none;
+      opacity: .28;
+    }
+
+    .map-shape img {
+      width: 100%;
+      height: auto;
+      display: block;
+      object-fit: contain;
+    }
+
+    .map-caption {
+      position: absolute;
+      left: 460px;
+      top: 520px;
+      z-index: 1;
+      color: rgba(40,50,62,.15);
+      font-size: 15px;
+      font-weight: 900;
+      letter-spacing: .22em;
+      transform: translateX(-50%);
+      white-space: nowrap;
+    }
+
+    .game-logo {
+      position: absolute;
+      left: 88px;
+      top: 44px;
+      width: 108px;
+      height: 108px;
+      border-radius: 22px;
+      display: grid;
+      place-items: center;
+      overflow: hidden;
+      border: 3px solid rgba(255,255,255,.55);
+      background: rgba(255,255,255,.12);
+      color: white;
+      font-size: 12px;
+      text-align: center;
+      font-weight: 900;
+      z-index: 3;
+    }
+
+    .game-logo img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: none;
+    }
+
+    .title-block {
+      position: absolute;
+      left: 268px;
+      top: 38px;
+      z-index: 3;
+    }
+
+    .title-block .main-title {
+      margin: 0;
+      color: white;
+      font-size: 56px;
+      line-height: 1;
+      font-weight: 900;
+      letter-spacing: -.035em;
+      text-transform: uppercase;
+    }
+
+    .title-block .sub-title {
+      margin-top: 30px;
+      color: var(--card-accent);
+      font-size: 26px;
+      font-weight: 900;
+      letter-spacing: .02em;
+      text-transform: uppercase;
+    }
+
+    .license-label {
+      position: absolute;
+      right: 54px;
+      top: 62px;
+      color: white;
+      font-size: 28px;
+      font-weight: 900;
+      text-transform: uppercase;
+      z-index: 3;
+    }
+
+    .class-box {
+      position: absolute;
+      right: 112px;
+      top: 124px;
+      z-index: 4;
+      font-size: 82px;
+      line-height: 1;
+      font-weight: 900;
+      color: var(--card-text);
+      text-transform: uppercase;
+    }
+
+    .id-number {
+      position: absolute;
+      right: 56px;
+      top: 217px;
+      z-index: 3;
+      font-size: 30px;
+      font-weight: 900;
+      letter-spacing: .02em;
+    }
+
+    .portrait {
+      position: absolute;
+      left: 92px;
+      top: 300px;
+      width: 250px;
+      height: 290px;
+      z-index: 2;
+      overflow: hidden;
+      border-radius: 22px;
+      background: rgba(255,255,255,.34);
+      border: 2px solid rgba(255,255,255,.4);
+    }
+
+    .portrait img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: none;
+    }
+
+    .portrait-placeholder {
+      width: 100%;
+      height: 100%;
+      display: grid;
+      place-items: center;
+      text-align: center;
+      color: rgba(0,0,0,.45);
+      font-weight: 900;
+      font-size: 18px;
+      background:
+        linear-gradient(145deg, rgba(255,255,255,.45), rgba(255,255,255,.12));
+    }
+
+    .data-block {
+      position: absolute;
+      left: 395px;
+      top: 300px;
+      width: 505px;
+      z-index: 4;
+      font-size: 26px;
+      line-height: 1.3;
+      font-weight: 900;
+      text-transform: uppercase;
+    }
+
+    .data-row {
+      display: grid;
+      grid-template-columns: 34px 1fr;
+      gap: 5px;
+      margin-bottom: 6px;
+    }
+
+    .data-row .n {
+      text-align: right;
+    }
+
+    .data-row .v {
+      white-space: pre-line;
+    }
+
+    .mini-photo {
+      position: absolute;
+      right: 102px;
+      bottom: 76px;
+      width: 140px;
+      height: 160px;
+      opacity: .42;
+      overflow: hidden;
+      z-index: 2;
+      border-radius: 18px;
+      background: rgba(0,0,0,.12);
+    }
+
+    .mini-photo img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: none;
+    }
+
+    .valid-date {
+      position: absolute;
+      right: 70px;
+      bottom: 28px;
+      font-size: 24px;
+      font-weight: 900;
+      z-index: 5;
+    }
+
+    .signature {
+      position: absolute;
+      left: 122px;
+      bottom: 28px;
+      font-family: "Brush Script MT", "Segoe Script", cursive;
+      font-size: 32px;
+      color: rgba(0,0,0,.72);
+      transform: rotate(-4deg);
+      z-index: 4;
+    }
+
+    .game-watermark {
+      position: absolute;
+      left: 50%;
+      top: 54%;
+      transform: translate(-50%, -50%) rotate(-18deg);
+      z-index: 8;
+      pointer-events: none;
+      font-size: 58px;
+      font-weight: 900;
+      letter-spacing: .08em;
+      color: rgba(180,0,0,.12);
+      white-space: nowrap;
+      text-transform: uppercase;
+    }
+
+    .game-footnote {
+      position: absolute;
+      left: 50%;
+      bottom: 6px;
+      transform: translateX(-50%);
+      width: 100%;
+      text-align: center;
+      z-index: 9;
+      color: rgba(0,0,0,.38);
+      font-size: 10px;
+      font-weight: 900;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+    }
+
+
+  
+</style>
+
+<style id="ub-sim-export-position-fix">
+  /* Koreksi khusus hasil PNG/JPG.
+     Preview editor tetap menggunakan posisi asli. */
+  #gameCard.ub-exporting .class-box{
+    transform:translateY(-28px);
+  }
+  #gameCard.ub-exporting .id-number{
+    transform:translateY(-28px);
+  }
+</style>
+
+</head>
+
+
+<style>
+  html { scroll-behavior: smooth; }
+  body.menu-open { overflow: hidden; }
+  .nav-link.active { color: rgb(251 146 60) !important; border-bottom-width: 2px; }
+  .page-hero { min-height: 260px; }
+</style>
+<body data-page="game-populer" class="bg-[#171717] text-white">
+
+<div id="ubContextLoader" role="status" aria-live="polite" aria-label="Memproses">
+  <div class="ub-context-loader-card">
+    <div class="ub-orbit-loader" aria-hidden="true">
+      <span class="ub-inner-ring"></span>
+      <span class="ub-orbit-dot"></span>
+    </div>
+    <p id="ubContextLoaderTitle" class="ub-context-loader-title">Memproses...</p>
+    <p id="ubContextLoaderText" class="ub-context-loader-text">Mohon tunggu sebentar.</p>
+    <div class="ub-context-loader-dots" aria-hidden="true"><span></span><span></span><span></span></div>
+  </div>
+</div>
+
+
+
+<!-- UB GLOBAL FEEDBACK COMPONENT -->
+<div id="ubGlobalLoader" class="hidden" aria-hidden="true">
+  <div class="ub-loader-box">
+    <span class="ub-loader-spinner" aria-hidden="true"></span>
+    <div class="ub-loader-copy">
+      <p id="ubLoaderTitle" class="ub-loader-title">Memuat...</p>
+      <p id="ubLoaderText" class="ub-loader-text">Mohon tunggu sebentar.</p>
+    </div>
+  </div>
+</div>
+
+<div id="ubGlobalToast" data-type="info" role="status" aria-live="polite" aria-atomic="true">
+  <div class="ub-toast-card">
+    <div id="ubToastIcon" class="ub-toast-icon" aria-hidden="true"></div>
+    <div class="min-w-0">
+      <p id="ubToastTitle" class="ub-toast-title">Informasi</p>
+      <p id="ubToastMessage" class="ub-toast-message"></p>
+    </div>
+    <button id="ubToastClose" type="button" class="ub-toast-close" aria-label="Tutup notifikasi">
+      <svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg>
+    </button>
+    <div class="ub-toast-progress"><span id="ubToastProgress"></span></div>
+  </div>
+</div>
+
+<script id="ub-global-feedback-core">
+(function(){
+  if(window.UBFeedback) return;
+
+  const icons = {
+    success:'<svg viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/></svg>',
+    error:'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m9 9 6 6M15 9l-6 6"/></svg>',
+    warning:'<svg viewBox="0 0 24 24"><path d="M12 4 3.5 19h17L12 4Z"/><path d="M12 9v4M12 16h.01"/></svg>',
+    info:'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7h.01"/></svg>'
+  };
+
+  let toastTimer = null;
+  let loaderCount = 0;
+  let initialLoad = false;
+  let postDelayTimer = null;
+
+  const get = id => document.getElementById(id);
+
+  function inferType(title,message){
+    const x=(String(title||'')+' '+String(message||'')).toLowerCase();
+    if(/gagal|error|salah|tidak valid|ditolak|dibatalkan|habis|expired|kosong/.test(x)) return 'error';
+    if(/berhasil|sukses|selesai|terkirim|disimpan|disalin|ditemukan|disetujui/.test(x)) return 'success';
+    if(/peringatan|tunggu|menunggu|perhatian|belum|cek admin|verifikasi/.test(x)) return 'warning';
+    return 'info';
+  }
+
+  function hideToast(){
+    const el=get('ubGlobalToast');
+    if(!el) return;
+    el.classList.remove('ub-show');
+  }
+
+  function toast(title,message,type,duration){
+    const el=get('ubGlobalToast');
+    if(!el) return;
+    const t=type||inferType(title,message);
+    const ms=Math.max(1800,Number(duration||3200));
+
+    el.dataset.type=t;
+    get('ubToastIcon').innerHTML=icons[t]||icons.info;
+    get('ubToastTitle').textContent=String(title||'Informasi');
+    get('ubToastMessage').textContent=String(message||'');
+
+    const progress=get('ubToastProgress');
+    progress.style.animation='none';
+    progress.style.setProperty('--ub-toast-duration',ms+'ms');
+    progress.parentElement.style.setProperty('--ub-toast-duration',ms+'ms');
+    void progress.offsetWidth;
+    progress.style.animation='ubToastProgress '+ms+'ms linear forwards';
+
+    clearTimeout(toastTimer);
+    el.classList.add('ub-show');
+    toastTimer=setTimeout(hideToast,ms);
+  }
+
+  function showLoading(title,text){ if(window.UBContextLoader) window.UBContextLoader.show(title,text,80); }
+
+  function hideLoading(force){ if(window.UBContextLoader) window.UBContextLoader.hide(!!force); }
+
+  function finishInitialLoad(){
+    initialLoad=false;
+    loaderCount=0;
+    setTimeout(function(){
+      const el=get('ubGlobalLoader');
+      if(el) el.classList.remove('ub-show');
+    },120);
+  }
+
+  window.UBFeedback={
+    toast,
+    alert:toast,
+    loading:showLoading,
+    done:hideLoading,
+    hideToast,
+    inferType,
+    bindLegacy:function(){
+      try{
+        if(typeof window.showToast==='function'){
+          window.showToast=function(title,text,type){ toast(title,text,type); };
+        }
+      }catch(_){}
+      try{
+        if(typeof window.toast==='function'){
+          window.toast=function(title,text,type){ toast(title,text,type); };
+        }
+      }catch(_){}
+    }
+  };
+
+  // Native alert dibuat non-blocking dan mengikuti desain UB Store.
+  window.alert=function(message){
+    toast('Informasi',String(message||''),'info',3800);
+  };
+
+  get('ubToastClose')?.addEventListener('click',hideToast);
+
+  // Loading sederhana saat request POST (checkout, upload, perubahan admin, dll).
+  // GET sengaja tidak dipaksa agar polling status tidak membuat loader berkedip.
+  const originalFetch=window.fetch ? window.fetch.bind(window) : null;
+  if(originalFetch){
+    window.fetch=async function(input,init){
+      const method=String((init&&init.method)||'GET').toUpperCase();
+      const useLoader=false;
+      if(useLoader){
+        clearTimeout(postDelayTimer);
+        postDelayTimer=setTimeout(function(){
+          showLoading('Memproses...','Menghubungkan ke server UB Store.');
+        },140);
+      }
+      try{
+        return await originalFetch(input,init);
+      }finally{
+        if(useLoader){
+          clearTimeout(postDelayTimer);
+          setTimeout(function(){ hideLoading(); },80);
+        }
+      }
+    };
+  }
+})();
+</script>
+
+
+
+    <!-- Top announcement -->
+  <div class="bg-ub-500 text-black text-xs font-semibold overflow-hidden whitespace-nowrap">
+    <div class="w-max marquee flex">
+      <div class="px-6 py-2">TOPUP UB STORE • Top up cepat dan aman</div>
+      <div class="px-6 py-2">Nikmati harga terbaik untuk game favoritmu</div>
+      <div class="px-6 py-2">TOPUP UB STORE • Top up cepat dan aman</div>
+      <div class="px-6 py-2">Nikmati harga terbaik untuk game favoritmu</div>
+    </div>
+  </div>
+
+
+<header class="sticky top-0 z-50 border-b border-white/5 bg-[#191919]/95 backdrop-blur-xl">
+    <div class="max-w-[1500px] mx-auto px-4 lg:px-8">
+      <div class="h-[72px] flex items-center gap-3 relative">
+
+        <!-- Mobile header: LOGO - NAMA TOKO - CARI - HAMBURGER -->
+        <a href="/" class="shrink-0 flex items-center gap-2 md:relative md:left-0 md:translate-x-0">
+          <img src="images/logo/logo.png" alt="Topup UB Store" class="w-9 h-9 sm:w-12 sm:h-12 object-contain shrink-0" />
+          <div class="leading-tight">
+            <div class="font-extrabold tracking-tight text-[15px] sm:text-lg whitespace-nowrap">TOPUP <span class="text-ub-400">UB</span> STORE</div>
+            <div class="hidden sm:block text-[10px] uppercase tracking-[.25em] text-white/40">Official Top Up Store</div>
+          </div>
+        </a>
+
+        <div class="hidden flex-1 max-w-2xl mx-auto relative md:ml-8">
+          <i data-lucide="search" class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/40"></i>
+          <input id="searchInput" type="search" placeholder="Cari Game atau Produk"
+            class="w-full h-11 rounded-xl bg-[#2a2a2a] border border-white/10 pl-12 pr-4 outline-none placeholder:text-white/35 focus:border-ub-500/60 focus:ring-2 focus:ring-ub-500/10">
+        </div>
+
+        <button class="hidden md:flex items-center gap-2 h-11 px-4 rounded-xl border border-white/10 bg-[#242424] text-sm font-semibold hover:bg-[#2c2c2c]">
+          <span class="w-6 h-6 rounded-full overflow-hidden bg-white grid place-items-center text-[13px]">🇮🇩</span>
+          ID / IDR
+          <i data-lucide="chevron-down" class="w-4 h-4 text-white/40"></i>
+        </button>
+
+        <!-- Mobile search icon -->
+        <button id="mobileSearchToggle" aria-label="Cari" aria-expanded="false" aria-controls="mobileSearch" class="hidden ml-auto w-10 h-10 rounded-xl border border-white/10 bg-[#242424] place-items-center text-white/80 hover:text-ub-400 hover:border-ub-500/30 transition">
+          <i data-lucide="search" class="w-5 h-5"></i>
+        </button>
+
+        <!-- Mobile hamburger -->
+        <button id="mobileToggle" aria-label="Buka menu" aria-expanded="false" aria-controls="mobileMenu" class="md:hidden ml-auto w-10 h-10 rounded-xl border border-white/10 bg-[#242424] grid place-items-center text-white/80 hover:text-ub-400 hover:border-ub-500/30 transition">
+          <i data-lucide="menu"></i>
+        </button>
+
+        <div id="siteGuestDesktop" class="hidden md:flex items-center gap-2 ml-auto"><a href="/masuk" class="h-11 px-4 rounded-xl text-sm font-semibold text-white/70 hover:text-white hover:bg-white/5 inline-flex items-center"><i class="w-4 h-4 mr-1.5" data-lucide="log-in"></i>Masuk</a><a href="/daftar" class="h-11 px-4 rounded-xl bg-ub-500 hover:bg-ub-400 text-black text-sm font-bold inline-flex items-center">Daftar</a></div><a id="siteUserDesktop" href="/akun" class="hidden md:flex auth-hidden ml-auto h-11 items-center gap-2 rounded-xl border border-ub-500/20 bg-ub-500/[.06] px-3 text-sm font-bold text-ub-300 hover:bg-ub-500/10"><span class="w-7 h-7 rounded-lg bg-ub-500 text-black grid place-items-center"><i data-lucide="user-round" class="w-4 h-4"></i></span><span id="siteUserDesktopName" class="max-w-[120px] truncate">Akun Saya</span></a>
+      </div>
+
+      <div id="mobileSearch" class="hidden md:hidden pb-3">
+        <div class="relative">
+          <i data-lucide="search" class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/40"></i>
+          <input id="mobileSearchInput" type="search" placeholder="Cari Game atau Produk"
+            class="w-full h-11 rounded-xl bg-[#2a2a2a] border border-white/10 pl-12 pr-4 outline-none placeholder:text-white/35 focus:border-ub-500/60">
+        </div>
+      </div>
+
+      <!-- Mobile drawer -->
+      <div id="menuBackdrop" class="menu-backdrop md:hidden" aria-hidden="true"></div>
+
+      <aside id="mobileMenu" class="mobile-menu md:hidden" role="dialog" aria-modal="true" aria-label="Menu navigasi">
+        <div class="drawer-header flex items-center justify-between px-7">
+          <a href="/" class="mobile-nav-close flex items-center gap-3 min-w-0" aria-label="Beranda">
+            <img src="images/logo/logo.png" alt="Topup UB Store" class="w-12 h-12 object-contain shrink-0" />
+            <div class="min-w-0 leading-tight">
+              <div class="font-extrabold tracking-tight text-base whitespace-nowrap">TOPUP <span class="text-ub-400">UB</span> STORE</div>
+              <div class="text-[10px] uppercase tracking-[.22em] text-white/35 mt-1">Official Top Up Store</div>
+            </div>
+          </a>
+          <button id="drawerClose" type="button" class="drawer-close w-12 h-12 rounded-xl grid place-items-center text-white/85 shrink-0" aria-label="Tutup menu">
+            <i data-lucide="x" class="w-8 h-8"></i>
+          </button>
+        </div>
+
+        <nav class="drawer-nav" aria-label="Navigasi mobile">
+          <a href="/" class="mobile-nav"><span>Topup</span><i data-lucide="shopping-bag" class="drawer-icon"></i></a>
+          <a href="/tools" class="mobile-nav"><span>Tools Topup</span><i data-lucide="wrench" class="drawer-icon"></i></a>
+          <a href="/transaksi" class="mobile-nav"><span>Cek Transaksi</span><i data-lucide="receipt-text" class="drawer-icon"></i></a>
+          <a href="/buat-sim" class="mobile-nav"><span>BUAT SIM</span><i data-lucide="contact" class="drawer-icon"></i></a>
+          <a href="/promo" class="mobile-nav"><span>Promo</span><i data-lucide="megaphone" class="drawer-icon"></i></a>
+          <a href="/faq" class="mobile-nav"><span>FAQ</span><i data-lucide="circle-help" class="drawer-icon"></i></a>
+          <a href="/bantuan" class="mobile-nav"><span>Bantuan</span><i data-lucide="headphones" class="drawer-icon"></i></a>
+
+          <div id="siteGuestMobile" class="drawer-auth space-y-1"><a class="mobile-nav w-full text-left" href="/masuk"><span>Masuk</span><i data-lucide="log-in" class="drawer-icon"></i></a><a class="mobile-nav w-full text-left" href="/daftar"><span>Daftar</span><i data-lucide="user-plus" class="drawer-icon"></i></a></div><div id="siteUserMobile" class="drawer-auth auth-hidden space-y-1">
+  <a class="mobile-nav w-full text-left" href="/akun">
+    <span>Akun Saya</span>
+    <i data-lucide="circle-user-round" class="drawer-icon"></i>
+  </a>
+  <a class="mobile-nav w-full text-left" href="/akun#riwayat">
+    <span>Riwayat Transaksi</span>
+    <i data-lucide="history" class="drawer-icon"></i>
+  </a>
+</div>
+        </nav>
+      </aside>
+
+      <!-- Desktop navigation -->
+      <nav class="hidden md:flex items-center gap-1 h-14 border-t border-white/5">
+  <a href="/" data-page="topup" class="nav-link flex items-center gap-2 px-4 h-full text-sm font-semibold">
+    <i data-lucide="shopping-bag" class="w-4 h-4"></i> Topup
+  </a>
+  <a href="/tools" data-page="tools" class="nav-link flex items-center gap-2 px-4 h-full text-sm font-semibold">
+    <i data-lucide="wrench" class="w-4 h-4"></i> Tools Topup
+  </a>
+  <a href="/transaksi" data-page="transaksi" class="nav-link flex items-center gap-2 px-4 h-full text-sm font-semibold">
+    <i data-lucide="receipt-text" class="w-4 h-4"></i> Cek Transaksi
+  </a>
+  <a href="/buat-sim" data-page="game-populer" class="nav-link flex items-center gap-2 px-4 h-full text-sm font-semibold">
+    <i data-lucide="contact" class="w-4 h-4"></i> BUAT SIM
+  </a>
+  <a href="/promo" data-page="promo" class="nav-link flex items-center gap-2 px-4 h-full text-sm font-semibold">
+    <i data-lucide="megaphone" class="w-4 h-4"></i> Promo
+  </a>
+  <a href="/bantuan" data-page="bantuan" class="nav-link flex items-center gap-2 px-4 h-full text-sm font-semibold">
+    <i data-lucide="circle-help" class="w-4 h-4"></i> Bantuan
+  </a>
+</nav>
+    </div>
+  </header>
+
+
+<main class="sim-page">
+  <section class="sim-intro">
+    <span class="sim-intro-label">BUAT SIM • BUSSID / TRUCKSID</span>
+    <h1>Buat SIM Game dengan gaya UB Store.</h1>
+    <p>
+      Isi data driver, unggah foto dan logo, atur warna serta posisi elemen, lalu lihat preview secara real-time.
+      Hasil dapat disimpan dalam format PNG atau JPG.
+    </p>
+    <div class="sim-warning">
+      <span>⚠️</span>
+      <div><b>Untuk kebutuhan game/roleplay saja.</b> Bukan SIM resmi, bukan identitas pemerintah, dan tidak berlaku untuk penggunaan di dunia nyata.</div>
+    </div>
+  </section>
+
+  <section class="workspace">
+<aside class="sim-panel sim-controls">
+<div class="sim-panel-head">
+<h2>Pengaturan</h2>
+<button class="sim-btn sim-btn-secondary" id="resetBtn">Reset</button>
+</div>
+
+<div class="sim-section">
+<p class="sim-section-title">TEKS &amp; DATA</p>
+<div class="sim-field">
+<label>Game</label>
+<select id="gameType">
+<option value="BUSSID">BUSSID</option>
+<option value="TRUCKSID">TruckSID</option>
+<option value="CUSTOM">Custom</option>
+</select>
+</div>
+<div class="sim-field">
+<label>Judul utama</label>
+<input id="mainTitle" maxlength="24" value="BUSSID DRIVER"/>
+</div>
+<div class="sim-field">
+<label>Subjudul</label>
+<input id="subTitle" maxlength="32" value="KARTU PENGEMUDI GAME"/>
+</div>
+<div class="sim-grid">
+<div class="sim-field">
+<label>Kelas</label>
+<input id="driverClass" maxlength="7" value="BUS"/>
+</div>
+<div class="sim-field">
+<label>ID Game</label>
+<input id="gameId" maxlength="18" value="RP-2026-00125"/>
+</div>
+</div>
+<div class="sim-field">
+<label>1. Nama Driver</label>
+<input id="name" maxlength="28" value="BUDI SANTOSO"/>
+</div>
+<div class="sim-field">
+<label>2. Nickname / Tanggal RP</label>
+<input id="nickname" maxlength="32" value="BUDITRANS • 29-08-2026"/>
+</div>
+<div class="sim-field">
+<label>3. Gender</label>
+<input id="gender" maxlength="24" value="PRIA"/>
+</div>
+<div class="sim-field">
+<label>4. Base / Server</label>
+<input id="server" maxlength="56" value="JAWA ROLEPLAY SERVER
+TERMINAL UTAMA"/>
+</div>
+<div class="sim-field">
+<label>5. Perusahaan</label>
+<input id="company" maxlength="34" value="BUDI TRANS LOGISTICS"/>
+</div>
+<div class="sim-field">
+<label>6. Role</label>
+<input id="role" maxlength="28" value="DRIVER ROLEPLAY"/>
+</div>
+<div class="sim-field">
+<label>Tanggal kartu</label>
+<input id="validDate" type="date" value="2026-08-29"/>
+</div>
+</div>
+<div class="sim-section">
+<p class="sim-section-title">FOTO &amp; LOGO</p>
+<div class="sim-field">
+<label>Upload foto driver</label>
+<input accept="image/*" id="photoInput" type="file"/>
+</div>
+<div class="sim-field">
+<label>Upload logo game / komunitas</label>
+<input accept="image/*" id="logoInput" type="file"/>
+</div>
+<div class="sim-field">
+<label>Bentuk foto</label>
+<select id="photoShape">
+<option value="22">Rounded</option>
+<option value="0">Kotak</option>
+<option value="999">Oval / bulat</option>
+</select>
+</div>
+</div>
+<div class="sim-section">
+<p class="sim-section-title">WARNA</p>
+<div class="sim-grid">
+<div class="sim-field">
+<label>Header</label>
+<input id="headerColor" type="color" value="#e40012"/>
+</div>
+<div class="sim-field">
+<label>Strip</label>
+<input id="stripColor" type="color" value="#eef1f4"/>
+</div>
+<div class="sim-field">
+<label>Background</label>
+<input id="bgColor" type="color" value="#d9dde2"/>
+</div>
+<div class="sim-field">
+<label>Teks</label>
+<input id="textColor" type="color" value="#111111"/>
+</div>
+<div class="sim-field">
+<label>Aksen</label>
+<input id="accentColor" type="color" value="#c70014"/>
+</div>
+<div class="sim-field">
+<label>Watermark</label>
+<input id="watermarkColor" type="color" value="#65717f"/>
+</div>
+</div>
+</div>
+<div class="sim-section">
+<p class="sim-section-title">POSISI FOTO</p>
+<div class="sim-field">
+<label>Foto X</label>
+<div class="sim-range-row">
+<input id="photoX" max="420" min="20" type="range" value="92"/>
+<span class="sim-range-value" id="photoXVal">92</span>
+</div>
+</div>
+<div class="sim-field">
+<label>Foto Y</label>
+<div class="sim-range-row">
+<input id="photoY" max="430" min="200" type="range" value="300"/>
+<span class="sim-range-value" id="photoYVal">300</span>
+</div>
+</div>
+<div class="sim-field">
+<label>Lebar foto</label>
+<div class="sim-range-row">
+<input id="photoW" max="330" min="140" type="range" value="250"/>
+<span class="sim-range-value" id="photoWVal">250</span>
+</div>
+</div>
+<div class="sim-field">
+<label>Tinggi foto</label>
+<div class="sim-range-row">
+<input id="photoH" max="360" min="180" type="range" value="290"/>
+<span class="sim-range-value" id="photoHVal">290</span>
+</div>
+</div>
+</div>
+<div class="sim-section">
+<p class="sim-section-title">POSISI DATA</p>
+<div class="sim-field">
+<label>Data X</label>
+<div class="sim-range-row">
+<input id="dataX" max="580" min="250" type="range" value="395"/>
+<span class="sim-range-value" id="dataXVal">395</span>
+</div>
+</div>
+<div class="sim-field">
+<label>Data Y</label>
+<div class="sim-range-row">
+<input id="dataY" max="440" min="230" type="range" value="300"/>
+<span class="sim-range-value" id="dataYVal">300</span>
+</div>
+</div>
+<div class="sim-field">
+<label>Ukuran font data</label>
+<div class="sim-range-row">
+<input id="dataFont" max="34" min="18" type="range" value="26"/>
+<span class="sim-range-value" id="dataFontVal">26</span>
+</div>
+</div>
+</div>
+<div class="sim-section">
+<p class="sim-section-title">POSISI JUDUL &amp; KELAS</p>
+<div class="sim-field">
+<label>Judul X</label>
+<div class="sim-range-row">
+<input id="titleX" max="420" min="180" type="range" value="268"/>
+<span class="sim-range-value" id="titleXVal">268</span>
+</div>
+</div>
+<div class="sim-field">
+<label>Judul Y</label>
+<div class="sim-range-row">
+<input id="titleY" max="90" min="10" type="range" value="38"/>
+<span class="sim-range-value" id="titleYVal">38</span>
+</div>
+</div>
+<div class="sim-field">
+<label>Ukuran judul</label>
+<div class="sim-range-row">
+<input id="titleFont" max="72" min="36" type="range" value="56"/>
+<span class="sim-range-value" id="titleFontVal">56</span>
+</div>
+</div>
+<div class="sim-field">
+<label>Kelas X</label>
+<div class="sim-range-row">
+<input id="classX" max="260" min="30" type="range" value="112"/>
+<span class="sim-range-value" id="classXVal">112</span>
+</div>
+</div>
+<div class="sim-field">
+<label>Kelas Y</label>
+<div class="sim-range-row">
+<input id="classY" max="230" min="100" type="range" value="124"/>
+<span class="sim-range-value" id="classYVal">124</span>
+</div>
+</div>
+<div class="sim-field">
+<label>Ukuran kelas</label>
+<div class="sim-range-row">
+<input id="classFont" max="105" min="50" type="range" value="82"/>
+<span class="sim-range-value" id="classFontVal">82</span>
+</div>
+</div>
+</div>
+<div class="sim-section">
+<p class="sim-section-title">DOWNLOAD</p>
+<div class="sim-field">
+<label>Nama file hasil</label>
+<input id="downloadName" maxlength="50" value="sim-game-bussid"/>
+</div>
+<div class="sim-hint" style="margin-top:8px;">
+            Gunakan tombol <b>Download PNG</b> atau <b>Download JPG</b> di area preview untuk menyimpan kartu game.
+          </div>
+</div>
+<div class="sim-section">
+<p class="sim-section-title">PETA PNG</p>
+
+<div class="sim-field">
+<label>Peta X</label>
+<div class="sim-range-row">
+<input id="mapX" max="700" min="0" type="range" value="178"/>
+<span class="sim-range-value" id="mapXVal">178</span>
+</div>
+</div>
+<div class="sim-field">
+<label>Peta Y</label>
+<div class="sim-range-row">
+<input id="mapY" max="520" min="150" type="range" value="238"/>
+<span class="sim-range-value" id="mapYVal">238</span>
+</div>
+</div>
+<div class="sim-field">
+<label>Lebar peta</label>
+<div class="sim-range-row">
+<input id="mapW" max="1000" min="200" type="range" value="700"/>
+<span class="sim-range-value" id="mapWVal">700</span>
+</div>
+</div>
+<div class="sim-field">
+<label>Opacity peta</label>
+<div class="sim-range-row">
+<input id="mapOpacity" max="100" min="5" type="range" value="28"/>
+<span class="sim-range-value" id="mapOpacityVal">28</span>
+</div>
+</div>
+</div>
+<div class="sim-section">
+<p class="sim-section-title">LOGO</p>
+<div class="sim-field">
+<label>Logo X</label>
+<div class="sim-range-row">
+<input id="logoX" max="220" min="20" type="range" value="88"/>
+<span class="sim-range-value" id="logoXVal">88</span>
+</div>
+</div>
+<div class="sim-field">
+<label>Logo Y</label>
+<div class="sim-range-row">
+<input id="logoY" max="130" min="10" type="range" value="44"/>
+<span class="sim-range-value" id="logoYVal">44</span>
+</div>
+</div>
+<div class="sim-field">
+<label>Ukuran logo</label>
+<div class="sim-range-row">
+<input id="logoSize" max="150" min="60" type="range" value="108"/>
+<span class="sim-range-value" id="logoSizeVal">108</span>
+</div>
+</div>
+</div>
+</aside>
+<section class="sim-panel sim-preview-panel">
+<div class="sim-preview-toolbar">
+<div>
+<h2>Preview</h2>
+</div>
+<div class="sim-actions">
+<button class="sim-btn sim-btn-secondary" id="fitBtn">Fit</button>
+<button class="sim-btn sim-btn-primary" id="downloadPngBtn">Download PNG</button>
+<button class="sim-btn sim-btn-secondary" id="downloadJpgBtn">Download JPG</button>
+</div>
+</div>
+<div class="sim-stage" id="stage">
+<article id="gameCard">
+
+<div class="card-header" id="builtHeader"></div>
+<div class="card-strip" id="builtStrip"></div>
+<div aria-hidden="true" class="map-shape" id="mapShape">
+<img alt="" id="mapImage" onerror="this.style.display='none'; document.getElementById('mapMissing').style.display='block';" src="images/peta/peta.png"/>
+<div id="mapMissing" style="display:none; padding:24px; border:2px dashed rgba(0,0,0,.18);
+                          border-radius:18px; color:rgba(0,0,0,.35); font-weight:900;
+                          text-align:center; background:rgba(255,255,255,.12);">GAMBAR PETA BELUM TERSEDIA</div>
+</div>
+<div class="map-caption" id="mapCaption">INDONESIA ARCHIPELAGO</div>
+<div class="game-logo" id="logoBox">
+<img alt="Logo game" id="logoImg"/>
+<span id="logoPlaceholder">LOGO<br/>GAME</span>
+</div>
+<div class="title-block" id="titleBlock">
+<h3 class="main-title" id="cardMainTitle">BUSSID DRIVER</h3>
+<div class="sub-title" id="cardSubTitle">KARTU PENGEMUDI GAME</div>
+</div>
+<div class="license-label">ROLEPLAY LICENSE</div>
+<div class="class-box" id="cardClass">BUS</div>
+<div class="id-number" id="cardGameId">RP-2026-00125</div>
+<div class="portrait" id="portrait">
+<img alt="Foto driver" id="photoImg"/>
+<div class="portrait-placeholder" id="photoPlaceholder">
+                FOTO<br/>DRIVER
+              </div>
+</div>
+<div class="data-block" id="dataBlock">
+<div class="data-row"><span class="n">1.</span><span class="v" id="cardName">BUDI SANTOSO</span></div>
+<div class="data-row"><span class="n">2.</span><span class="v" id="cardNickname">BUDITRANS • 29-08-2026</span></div>
+<div class="data-row"><span class="n">3.</span><span class="v" id="cardGender">PRIA</span></div>
+<div class="data-row"><span class="n">4.</span><span class="v" id="cardServer">JAWA ROLEPLAY SERVER<br/>TERMINAL UTAMA</span></div>
+<div class="data-row"><span class="n">5.</span><span class="v" id="cardCompany">BUDI TRANS LOGISTICS</span></div>
+<div class="data-row"><span class="n">6.</span><span class="v" id="cardRole">DRIVER ROLEPLAY</span></div>
+</div>
+<div class="mini-photo">
+<img alt="" id="miniPhotoImg"/>
+</div>
+<div class="signature">Game Driver</div>
+<div class="valid-date" id="cardValidDate">29/08/2026</div>
+<div class="game-footnote">
+              BUSSID / TRUCKSID ROLEPLAY ONLY • NOT A GOVERNMENT ID • NOT VALID FOR REAL-WORLD IDENTIFICATION
+            </div>
+</article>
+</div>
+<div class="sim-hint">
+          Gunakan logo game, komunitas, PO virtual, atau logo buatan sendiri. Hindari logo instansi pemerintah,
+          nomor identitas asli, QR resmi, dan data pribadi sensitif.
+        </div>
+</section>
+</section>
+</main>
+
+
+<body class="text-white font-sans antialiased">
+
+  <!-- Header -->
+  
+
+  
+
+  <!-- Footer -->
+  <footer class="border-t border-white/5 bg-[#131313]">
+    <div class="max-w-[1500px] mx-auto px-4 lg:px-8 py-10">
+      <div class="grid md:grid-cols-4 gap-8">
+        <div class="md:col-span-2">
+          <div class="flex items-center gap-3">
+            <img src="images/logo/logo.png" alt="Topup UB Store" class="w-12 h-12 object-contain shrink-0" />
+            <div class="font-extrabold text-lg">TOPUP <span class="text-ub-400">UB</span> STORE</div>
+          </div>
+          <p class="text-sm text-white/35 mt-4 max-w-md leading-relaxed">Platform top up game yang dirancang untuk memberikan pengalaman pembelian yang cepat, mudah, dan nyaman.</p>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm">Navigasi</h4>
+          <div class="mt-4 space-y-3 text-sm text-white/40">
+            <a href="#games" class="block hover:text-white">Topup</a>
+            <a href="#tools" class="block hover:text-white">Tools Topup</a>
+             <a href="#transaction" class="block hover:text-white">Cek Transaksi</a>
+            <a href="#promo" class="block hover:text-white">Promo</a>
+            <a href="#help" class="block hover:text-white">Bantuan</a>
+          </div>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm">Informasi</h4>
+          <div class="mt-4 space-y-3 text-sm text-white/40">
+            <a href="#" class="block hover:text-white">Syarat & Ketentuan</a>
+            <a href="#" class="block hover:text-white">Kebijakan Privasi</a>
+            <a href="#" class="block hover:text-white">Kontak</a>
+          </div>
+        </div>
+      </div>
+      <div class="border-t border-white/5 mt-8 pt-6 text-xs text-white/25 flex flex-col sm:flex-row justify-between gap-2">
+        <span>© 2026 Topup UB Store. All rights reserved.</span>
+        <span>Website Topup Game</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Toast -->
+  <div id="toast" class="fixed z-[100] left-1/2 bottom-6 -translate-x-1/2 translate-y-20 opacity-0 pointer-events-none transition-all duration-300">
+    <div class="flex items-center gap-3 rounded-2xl bg-[#292929] border border-white/10 shadow-2xl px-4 py-3">
+      <div id="toastIcon" class="w-8 h-8 rounded-lg bg-ub-500/15 text-ub-400 grid place-items-center"><i data-lucide="info" class="w-4 h-4"></i></div>
+      <div>
+        <p id="toastTitle" class="font-bold text-sm">Info</p>
+        <p id="toastText" class="text-xs text-white/45 mt-0.5">Pesan</p>
+      </div>
+    </div>
+  </div>
+
+<script src="https://unpkg.com/lucide@latest"></script>
+<script>
+  lucide.createIcons();
+
+  // =========================
+  // Shared mobile drawer
+  // =========================
+  const mobileToggle = document.getElementById('mobileToggle');
+  const mobileMenu = document.getElementById('mobileMenu');
+  const menuBackdrop = document.getElementById('menuBackdrop');
+  const drawerClose = document.getElementById('drawerClose');
+  const mobileSearchToggle = document.getElementById('mobileSearchToggle');
+  const mobileSearch = document.getElementById('mobileSearch');
+  const mobileSearchInput = document.getElementById('mobileSearchInput');
+
+  function setMobileIcon(button, icon) {
+    if (!button) return;
+    button.innerHTML = `<i data-lucide="${icon}" class="w-5 h-5"></i>`;
+    lucide.createIcons();
+  }
+
+  function openMobileMenu() {
+    if (!mobileMenu || !menuBackdrop || !mobileToggle) return;
+    if (mobileSearch) mobileSearch.classList.add('hidden');
+    if (mobileSearchToggle) {
+      mobileSearchToggle.setAttribute('aria-expanded', 'false');
+      setMobileIcon(mobileSearchToggle, 'search');
+    }
+    mobileMenu.classList.add('open');
+    menuBackdrop.classList.add('open');
+    mobileToggle.setAttribute('aria-expanded', 'true');
+    mobileToggle.setAttribute('aria-label', 'Tutup menu');
+    document.body.classList.add('menu-open');
+    drawerClose?.focus({ preventScroll: true });
+  }
+
+  function closeMobileMenu() {
+    if (!mobileMenu || !menuBackdrop || !mobileToggle) return;
+    mobileMenu.classList.remove('open');
+    menuBackdrop.classList.remove('open');
+    mobileToggle.setAttribute('aria-expanded', 'false');
+    mobileToggle.setAttribute('aria-label', 'Buka menu');
+    document.body.classList.remove('menu-open');
+  }
+
+  mobileToggle?.addEventListener('click', () => {
+    mobileMenu?.classList.contains('open') ? closeMobileMenu() : openMobileMenu();
+  });
+  drawerClose?.addEventListener('click', closeMobileMenu);
+  menuBackdrop?.addEventListener('click', closeMobileMenu);
+
+  document.querySelectorAll('.mobile-nav, .mobile-nav-close').forEach(link => {
+    link.addEventListener('click', closeMobileMenu);
+  });
+
+  mobileSearchToggle?.addEventListener('click', () => {
+    const opening = mobileSearch?.classList.contains('hidden');
+    if (opening) closeMobileMenu();
+    mobileSearch?.classList.toggle('hidden', !opening);
+    mobileSearchToggle.setAttribute('aria-expanded', String(opening));
+    mobileSearchToggle.setAttribute('aria-label', opening ? 'Tutup pencarian' : 'Cari');
+    setMobileIcon(mobileSearchToggle, opening ? 'x' : 'search');
+    if (opening) setTimeout(() => mobileSearchInput?.focus(), 50);
+  });
+
+  document.addEventListener('keydown', e => {
+    if (e.key !== 'Escape') return;
+    closeMobileMenu();
+    if (mobileSearch && !mobileSearch.classList.contains('hidden')) {
+      mobileSearch.classList.add('hidden');
+      mobileSearchToggle?.setAttribute('aria-expanded', 'false');
+      setMobileIcon(mobileSearchToggle, 'search');
+    }
+  });
+
+  // =========================
+  // Active menu across pages
+  // =========================
+  const currentPage = document.body.dataset.page || '';
+  document.querySelectorAll('[data-page]').forEach(link => {
+    const active = link.dataset.page === currentPage;
+    link.classList.toggle('active', active);
+    if (active) {
+      link.classList.add('text-ub-400', 'border-b-2', 'border-ub-400');
+    } else {
+      link.classList.add('text-white/65');
+    }
+  });
+
+  // =========================
+  // Toast helper
+  // =========================
+  let toastTimer;
+  function showToast(title, text) {
+    const toast = document.getElementById('toast');
+    if (!toast) return;
+    document.getElementById('toastTitle').textContent = title;
+    document.getElementById('toastText').textContent = text;
+    toast.classList.remove('translate-y-20', 'opacity-0');
+    toast.classList.add('translate-y-0', 'opacity-100');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => {
+      toast.classList.add('translate-y-20', 'opacity-0');
+      toast.classList.remove('translate-y-0', 'opacity-100');
+    }, 3200);
+  }
+
+  // =========================
+  // Homepage/topup: slider
+  // =========================
+  const slides = [...document.querySelectorAll('.hero-slide')];
+  const dots = [...document.querySelectorAll('.hero-dot')];
+  if (slides.length) {
+    let current = 0;
+    let timer;
+
+    function showSlide(index) {
+      current = (index + slides.length) % slides.length;
+      slides.forEach((s, i) => s.classList.toggle('active', i === current));
+      dots.forEach((d, i) => {
+        d.classList.toggle('bg-ub-400', i === current);
+        d.classList.toggle('bg-white/25', i !== current);
+      });
+    }
+
+    function startSlider() {
+      clearInterval(timer);
+      timer = setInterval(() => showSlide(current + 1), 6000);
+    }
+
+    document.getElementById('prevSlide')?.addEventListener('click', () => {
+      showSlide(current - 1); startSlider();
+    });
+    document.getElementById('nextSlide')?.addEventListener('click', () => {
+      showSlide(current + 1); startSlider();
+    });
+    dots.forEach((dot, i) => dot.addEventListener('click', () => {
+      showSlide(i); startSlider();
+    }));
+    startSlider();
+  }
+
+  // =========================
+  // Homepage/topup: game search
+  // =========================
+  const searchInput = document.getElementById('searchInput');
+  const mobileSearchGameInput = document.getElementById('mobileSearchInput');
+  const cards = [...document.querySelectorAll('.game-card')];
+
+  function filterGames(value) {
+    const q = value.trim().toLowerCase();
+    cards.forEach(card => {
+      card.style.display = card.dataset.game.toLowerCase().includes(q) ? '' : 'none';
+    });
+  }
+
+  searchInput?.addEventListener('input', e => filterGames(e.target.value));
+  mobileSearchGameInput?.addEventListener('input', e => filterGames(e.target.value));
+
+  cards.forEach(card => {
+    card.addEventListener('click', () => {
+      showToast('Produk dipilih', `Membuka topup ${card.dataset.game}.`);
+    });
+  });
+
+  // =========================
+  // Tools
+  // =========================
+  document.querySelectorAll('.tool-action').forEach(button => {
+    button.addEventListener('click', () => {
+      showToast('Tools Topup', 'Fitur siap dihubungkan ke backend.');
+    });
+  });
+
+  // =========================
+  // Transaction checker
+  // =========================
+  const checkForm = document.getElementById('checkForm');
+  checkForm?.addEventListener('submit', e => {
+    e.preventDefault();
+    const code = document.getElementById('orderCode')?.value.trim();
+    if (!code) {
+      showToast('Cek transaksi', 'Masukkan kode transaksi terlebih dahulu.');
+      return;
+    }
+    showToast('Cek transaksi', `Kode ${code} siap dicek setelah backend terhubung.`);
+  });
+</script>
+
+
+<script id="ub-global-feedback-adapter">
+(function(){
+  if(!window.UBFeedback) return;
+  window.UBFeedback.bindLegacy();
+
+  // Beberapa halaman membuat toast lama setelah DOM siap.
+  setTimeout(function(){ window.UBFeedback.bindLegacy(); },0);
+  setTimeout(function(){ window.UBFeedback.bindLegacy(); },350);
+})();
+</script>
+
+<script id="ub-site-auth-state">(function(){const K='ub_site_session',t=localStorage.getItem(K)||'',gd=document.getElementById('siteGuestDesktop'),ud=document.getElementById('siteUserDesktop'),gm=document.getElementById('siteGuestMobile'),um=document.getElementById('siteUserMobile');function g(){gd?.classList.remove('hidden');ud?.classList.add('hidden');gm?.classList.remove('hidden');um?.classList.add('hidden')}function m(u){gd?.classList.add('hidden');ud?.classList.remove('hidden');gm?.classList.add('hidden');um?.classList.remove('hidden');const n=document.getElementById('siteUserDesktopName');if(n)n.textContent=String(u?.full_name||'Akun').trim().split(/\s+/)[0]||'Akun'}g();if(!t)return;fetch("https://script.google.com/macros/s/AKfycbxzv5Q1e8Ety6HbmMYgTsoa_DIDyAkP_15M3xF8Fzpx302f5CS69xaRv5UekDUMMPFq/exec",{method:'POST',headers:{'Content-Type':'text/plain;charset=UTF-8','Accept':'application/json'},body:JSON.stringify({action:'websiteGetProfile',token:"9fK2xP7mQ4vL8sT1zR6aW3nY5",session_token:t}),cache:'no-store',redirect:'follow',ubSilent:true}).then(r=>r.text()).then(x=>{const d=JSON.parse(x);if(!d.success)throw 0;m(d.data||{})}).catch(()=>{localStorage.removeItem(K);g()})})();</script>
+
+<script id="ub-contextual-loader-core">
+(function(){
+  if(window.UBContextLoader) return;
+
+  let activeCount=0;
+  let delayedTimer=null;
+
+  const $=id=>document.getElementById(id);
+
+  function show(title,text,delay){
+    const wait=Number.isFinite(Number(delay))?Number(delay):120;
+    activeCount++;
+
+    clearTimeout(delayedTimer);
+    delayedTimer=setTimeout(function(){
+      const el=$('ubContextLoader');
+      if(!el||activeCount<=0)return;
+      $('ubContextLoaderTitle').textContent=String(title||'Memproses...');
+      $('ubContextLoaderText').textContent=String(text||'Mohon tunggu sebentar.');
+      el.classList.add('ub-show');
+    },Math.max(0,wait));
+  }
+
+  function hide(force){
+    clearTimeout(delayedTimer);
+    activeCount=force?0:Math.max(0,activeCount-1);
+    if(activeCount===0){
+      const el=$('ubContextLoader');
+      if(el)el.classList.remove('ub-show');
+    }
+  }
+
+  function withLoader(promise,title,text,delay){
+    show(title,text,delay);
+    return Promise.resolve(promise).finally(function(){hide();});
+  }
+
+  window.UBContextLoader={show,hide,withLoader};
+
+  // Compatibility with pages that already call loading(true/false)
+  // but do NOT create automatic loading for navigation or GET polling.
+  const oldLoading=window.loading;
+  window.ubLoading=function(on,title,text){
+    if(on)show(title||'Memproses...',text||'Mohon tunggu sebentar.',80);
+    else hide();
+  };
+
+  // Only POST/PUT/PATCH/DELETE requests trigger loader automatically.
+  // GET/polling/navigation stay silent.
+  const originalFetch=window.fetch?window.fetch.bind(window):null;
+  if(originalFetch){
+    window.fetch=async function(input,init){
+      const method=String((init&&init.method)||'GET').toUpperCase();
+      const silent=!!(init&&init.ubSilent===true);
+      const shouldLoad=!silent&&['POST','PUT','PATCH','DELETE'].includes(method);
+      if(shouldLoad){
+        show('Memproses...','Sedang menghubungkan ke server UB Store.',140);
+      }
+      try{
+        return await originalFetch(input,init);
+      }finally{
+        if(shouldLoad)hide();
+      }
+    };
+  }
+})();
+</script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script id="ub-sim-generator-script">
+
+    const $ = (id) => document.getElementById(id);
+    const root = document.documentElement;
+
+
+    const textFields = [
+      "mainTitle","subTitle","driverClass","gameId","name","nickname","gender",
+      "server","company","role","validDate"
+    ];
+
+    function formatDate(v) {
+      if (!v) return "-";
+      const [y,m,d] = v.split("-");
+      return `${d}/${m}/${y}`;
+    }
+
+    function setText(id, value, fallback = "-") {
+      $(id).textContent = (value || "").trim() || fallback;
+    }
+
+    function updateText() {
+      setText("cardMainTitle", $("mainTitle").value, "GAME DRIVER");
+      setText("cardSubTitle", $("subTitle").value, "ROLEPLAY CARD");
+      setText("cardClass", $("driverClass").value, "BUS");
+      setText("cardGameId", $("gameId").value, "GAME-ID");
+      setText("cardName", $("name").value, "DRIVER NAME");
+      setText("cardNickname", $("nickname").value, "NICKNAME");
+      setText("cardGender", $("gender").value, "-");
+      setText("cardServer", $("server").value, "ROLEPLAY SERVER");
+      setText("cardCompany", $("company").value, "VIRTUAL COMPANY");
+      setText("cardRole", $("role").value, "DRIVER ROLEPLAY");
+      setText("cardValidDate", formatDate($("validDate").value), "-");
+    }
+
+    textFields.forEach(id => {
+      $(id).addEventListener("input", updateText);
+      $(id).addEventListener("change", updateText);
+    });
+
+    $("gameType").addEventListener("change", () => {
+      const v = $("gameType").value;
+      if (v === "BUSSID") {
+        $("mainTitle").value = "BUSSID DRIVER";
+        $("driverClass").value = "BUS";
+      } else if (v === "TRUCKSID") {
+        $("mainTitle").value = "TRUCKSID DRIVER";
+        $("driverClass").value = "TRUCK";
+      }
+      updateText();
+    });
+
+    const colorMap = {
+      headerColor: "--card-header",
+      stripColor: "--card-strip",
+      bgColor: "--card-bg",
+      textColor: "--card-text",
+      accentColor: "--card-accent"
+    };
+
+    Object.entries(colorMap).forEach(([input, cssVar]) => {
+      $(input).addEventListener("input", e => {
+        root.style.setProperty(cssVar, e.target.value);
+      });
+    });
+
+    $("watermarkColor").addEventListener("input", e => {
+      const hex = e.target.value;
+      root.style.setProperty("--card-watermark", hex + "48");
+    });
+
+    function bindRange(id, callback) {
+      const input = $(id);
+      const out = $(id + "Val");
+      const run = () => {
+        out.textContent = input.value;
+        callback(Number(input.value));
+      };
+      input.addEventListener("input", run);
+      run();
+    }
+
+    bindRange("photoX", v => $("portrait").style.left = v + "px");
+    bindRange("photoY", v => $("portrait").style.top = v + "px");
+    bindRange("photoW", v => $("portrait").style.width = v + "px");
+    bindRange("photoH", v => $("portrait").style.height = v + "px");
+
+    bindRange("dataX", v => $("dataBlock").style.left = v + "px");
+    bindRange("dataY", v => $("dataBlock").style.top = v + "px");
+    bindRange("dataFont", v => $("dataBlock").style.fontSize = v + "px");
+
+    bindRange("titleX", v => $("titleBlock").style.left = v + "px");
+    bindRange("titleY", v => $("titleBlock").style.top = v + "px");
+    bindRange("titleFont", v => $("cardMainTitle").style.fontSize = v + "px");
+
+    bindRange("classX", v => $("cardClass").style.right = v + "px");
+    bindRange("classY", v => $("cardClass").style.top = v + "px");
+    bindRange("classFont", v => $("cardClass").style.fontSize = v + "px");
+
+
+    bindRange("mapX", v => $("mapShape").style.left = v + "px");
+    bindRange("mapY", v => $("mapShape").style.top = v + "px");
+    bindRange("mapW", v => $("mapShape").style.width = v + "px");
+    bindRange("mapOpacity", v => $("mapShape").style.opacity = (v / 100));
+
+
+    bindRange("logoX", v => $("logoBox").style.left = v + "px");
+    bindRange("logoY", v => $("logoBox").style.top = v + "px");
+    bindRange("logoSize", v => {
+      $("logoBox").style.width = v + "px";
+      $("logoBox").style.height = v + "px";
+    });
+
+    $("photoShape").addEventListener("change", e => {
+      $("portrait").style.borderRadius = e.target.value + "px";
+    });
+
+    function loadImage(inputId, imgId, placeholderId = null, secondaryImgId = null) {
+      $(inputId).addEventListener("change", e => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        if (!file.type.startsWith("image/")) {
+          alert("File harus berupa gambar.");
+          return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = ev => {
+          const img = $(imgId);
+          img.src = ev.target.result;
+          img.style.display = "block";
+
+          if (placeholderId) $(placeholderId).style.display = "none";
+
+          if (secondaryImgId) {
+            const second = $(secondaryImgId);
+            second.src = ev.target.result;
+            second.style.display = "block";
+          }
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+
+    loadImage("photoInput", "photoImg", "photoPlaceholder", "miniPhotoImg");
+    loadImage("logoInput", "logoImg", "logoPlaceholder");
+
+    const card = $("gameCard");
+    const stage = $("stage");
+
+    function fitCard() {
+      const availableW = Math.max(stage.clientWidth - 30, 280);
+      const availableH = Math.max(stage.clientHeight - 30, 280);
+      const scale = Math.min(1, availableW / 1080, availableH / 680);
+      card.style.transform = `scale(${scale})`;
+
+      if (window.innerWidth < 1100) {
+        stage.style.minHeight = `${680 * scale + 40}px`;
+      }
+    }
+
+    $("fitBtn").addEventListener("click", fitCard);
+    window.addEventListener("resize", fitCard);
+    window.addEventListener("load", fitCard);
+
+    async function exportCard(format = "png") {
+      window.UBContextLoader?.show("Menyimpan SIM...","Sedang menyiapkan file gambar.",120);
+      if (typeof html2canvas === "undefined") {
+        alert("Library ekspor belum termuat. Pastikan internet aktif lalu refresh halaman.");
+        return;
+      }
+
+      const oldTransform = card.style.transform;
+      card.style.transform = "none";
+      card.classList.add("ub-exporting");
+
+      try {
+        const canvas = await html2canvas(card, {
+          scale: 2,
+          backgroundColor: "#ffffff",
+          useCORS: true,
+          logging: false
+        });
+
+        const a = document.createElement("a");
+        let baseName = ($("downloadName").value || "").trim();
+
+        if (!baseName) {
+          const game = $("gameType").value.toLowerCase();
+          const nick = ($("nickname").value || "driver")
+            .replace(/[^a-z0-9_-]/gi, "-")
+            .toLowerCase();
+          baseName = `${game}-${nick}-game-driver-card`;
+        }
+
+        baseName = baseName.replace(/[^a-z0-9_-]/gi, "-").toLowerCase();
+
+        if (format === "jpg") {
+          a.download = `${baseName}.jpg`;
+          a.href = canvas.toDataURL("image/jpeg", 0.95);
+        } else {
+          a.download = `${baseName}.png`;
+          a.href = canvas.toDataURL("image/png");
+        }
+
+        a.click();
+      } catch (err) {
+        console.error(err);
+        alert("Gagal menyimpan kartu. Coba ulangi.");
+      } finally {
+        card.classList.remove("ub-exporting");
+        card.style.transform = oldTransform;
+        fitCard();
+        window.UBContextLoader?.hide();
+      }
+    }
+
+    $("downloadPngBtn").addEventListener("click", () => exportCard("png"));
+    $("downloadJpgBtn").addEventListener("click", () => exportCard("jpg"));
+
+    $("resetBtn").addEventListener("click", () => {
+      location.reload();
+    });
+
+
+    // Accordion / slide behavior for settings panel
+    function initSettingsAccordion() {
+      const sections = Array.from(document.querySelectorAll(".sim-controls .sim-section"));
+
+      sections.forEach((section, index) => {
+        const titleEl = section.querySelector(".sim-section-title");
+        if (!titleEl) return;
+
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "section-accordion";
+        button.setAttribute("aria-expanded", "false");
+
+        const icon = document.createElement("span");
+        icon.className = "section-accordion-icon";
+        icon.innerHTML = "⌄";
+
+        titleEl.parentNode.insertBefore(button, titleEl);
+        button.appendChild(titleEl);
+        button.appendChild(icon);
+
+        const content = document.createElement("div");
+        content.className = "section-content";
+        const inner = document.createElement("div");
+        inner.className = "section-content-inner";
+
+        while (button.nextSibling) {
+          inner.appendChild(button.nextSibling);
+        }
+
+        content.appendChild(inner);
+        section.appendChild(content);
+
+        const openSection = () => {
+          sections.forEach((otherSection) => {
+            const otherButton = otherSection.querySelector(".section-accordion");
+            if (otherSection === section) {
+              otherSection.classList.add("is-open");
+              if (otherButton) otherButton.setAttribute("aria-expanded", "true");
+            } else {
+              otherSection.classList.remove("is-open");
+              if (otherButton) otherButton.setAttribute("aria-expanded", "false");
+            }
+          });
+        };
+
+        button.addEventListener("click", () => {
+          const isOpen = section.classList.contains("is-open");
+          if (isOpen) {
+            section.classList.remove("is-open");
+            button.setAttribute("aria-expanded", "false");
+          } else {
+            openSection();
+          }
+        });
+
+        if (index === 0) {
+          openSection();
+        }
+      });
+    }
+
+
+        initSettingsAccordion();
+    updateText();
+
+</script>
+</body>
+</html>

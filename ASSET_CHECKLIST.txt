@@ -1,0 +1,35 @@
+TOPUP UB STORE - ASSET CHECKLIST
+================================
+
+Paket Vercel ini sudah menyertakan:
+- images/logo/logo.png
+
+File gambar lain yang direferensikan website tetapi tidak tersedia
+di file kerja ChatGPT saat paket ini dibuat harus Anda salin dari
+folder project Topup UB Store Anda ke path yang sama sebelum deploy.
+
+ASSET YANG BELUM TERSEDIA DI PAKET:
+- images/beli-akun.png
+- images/bussid.png
+- images/bussin.png
+- images/jasa-ambil-device-id.png
+- images/jasa-pasang-kodename.png
+- images/jasa-pasang-obb.png
+- images/payment/dana.webp
+- images/payment/gopay.webp
+- images/payment/qris-logo.webp
+- images/payment/qris.webp
+- images/payment/seabank.webp
+- images/payment/shopeepay.webp
+- images/peta/peta.png
+- images/suntik-sosmed.png
+- images/trucksid.png
+
+CATATAN
+-------
+Jika asset pembayaran tidak disalin, beberapa kartu pembayaran masih
+memiliki fallback ikon, tetapi sebaiknya tetap gunakan file logo asli.
+
+Untuk BUAT SIM:
+- images/peta/peta.png adalah asset internal.
+- Path file peta tidak ditampilkan kepada pengguna.

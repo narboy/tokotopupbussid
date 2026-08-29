@@ -1,0 +1,254 @@
+<!doctype html><html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#171717"><title>Masuk - Topup UB Store</title><script src="https://cdn.tailwindcss.com"></script><script>tailwind.config={theme:{extend:{colors:{ub:{300:'#ffd05a',400:'#f7bd32',500:'#d99a17'}},fontFamily:{sans:['Inter','system-ui','sans-serif']}}}}</script><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"><script src="https://unpkg.com/lucide@latest"></script><link rel="icon" href="images/logo/logo.png"><style>*{box-sizing:border-box}html,body{max-width:100%;overflow-x:hidden}body{background:#171717}.card{background:#202124;border:1px solid rgba(255,255,255,.07)}.input{width:100%;border-radius:14px;background:#171717;border:1px solid rgba(255,255,255,.10);padding:13px 14px;color:white;outline:none;transition:.18s}.input:focus{border-color:rgba(217,154,23,.72);box-shadow:0 0 0 3px rgba(217,154,23,.08)}#siteToast{position:fixed;left:12px;right:12px;bottom:12px;z-index:1000;opacity:0;visibility:hidden;transform:translateY(12px);transition:.2s}#siteToast.show{opacity:1;visibility:visible;transform:none}@media(min-width:640px){#siteToast{left:auto;right:18px;width:360px}}#siteLoader{position:fixed;inset:0;z-index:999;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.38);backdrop-filter:blur(2px);opacity:0;visibility:hidden;transition:.18s}#siteLoader.show{opacity:1;visibility:visible}.spinner{width:22px;height:22px;border:2.5px solid rgba(255,255,255,.15);border-top-color:#d99a17;border-radius:99px;animation:spin .7s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}</style>
+<style id="ub-global-mobile-guard">
+  html,body{width:100%;max-width:100%;overflow-x:hidden}
+  *,*::before,*::after{box-sizing:border-box}
+  img,video,canvas{max-width:100%;height:auto}
+  input,select,textarea,button{max-width:100%}
+  @media(max-width:639.98px){
+    main{max-width:100%}
+  }
+</style>
+
+
+<style id="ub-contextual-loader-style">
+  :root{
+    --ub-loader-yellow:#d99a17;
+    --ub-loader-yellow-soft:#f7bd32;
+  }
+
+  #ubContextLoader{
+    position:fixed;
+    inset:0;
+    z-index:2147483600;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:16px;
+    background:rgba(6,7,8,.46);
+    -webkit-backdrop-filter:blur(5px);
+    backdrop-filter:blur(5px);
+    opacity:0;
+    visibility:hidden;
+    pointer-events:none;
+    transition:opacity .2s ease,visibility .2s ease;
+  }
+  #ubContextLoader.ub-show{
+    opacity:1;
+    visibility:visible;
+    pointer-events:auto;
+  }
+
+  .ub-context-loader-card{
+    width:min(88vw,290px);
+    border-radius:24px;
+    border:1px solid rgba(255,255,255,.10);
+    background:
+      radial-gradient(circle at 50% -10%,rgba(217,154,23,.12),transparent 48%),
+      rgba(29,30,32,.97);
+    box-shadow:0 24px 70px rgba(0,0,0,.48);
+    padding:20px 18px 17px;
+    text-align:center;
+    transform:translateY(7px) scale(.975);
+    transition:transform .22s ease;
+  }
+  #ubContextLoader.ub-show .ub-context-loader-card{
+    transform:translateY(0) scale(1);
+  }
+
+  .ub-orbit-loader{
+    position:relative;
+    width:56px;
+    height:56px;
+    margin:0 auto 13px;
+  }
+  .ub-orbit-loader::before{
+    content:"";
+    position:absolute;
+    inset:8px;
+    border-radius:50%;
+    border:1px solid rgba(255,255,255,.09);
+  }
+  .ub-orbit-loader::after{
+    content:"";
+    position:absolute;
+    inset:0;
+    border-radius:50%;
+    border:2px solid transparent;
+    border-top-color:var(--ub-loader-yellow-soft);
+    border-right-color:rgba(217,154,23,.32);
+    animation:ubOrbitSpin .9s linear infinite;
+  }
+  .ub-orbit-dot{
+    position:absolute;
+    left:50%;
+    top:50%;
+    width:8px;
+    height:8px;
+    margin:-4px;
+    border-radius:50%;
+    background:var(--ub-loader-yellow-soft);
+    box-shadow:0 0 16px rgba(247,189,50,.75);
+    animation:ubDotPulse 1.1s ease-in-out infinite;
+  }
+  .ub-orbit-loader .ub-inner-ring{
+    position:absolute;
+    inset:16px;
+    border-radius:50%;
+    border:2px solid rgba(217,154,23,.18);
+    border-bottom-color:var(--ub-loader-yellow);
+    animation:ubOrbitSpinReverse 1.35s linear infinite;
+  }
+
+  .ub-context-loader-title{
+    margin:0;
+    font-size:12px;
+    line-height:1.35;
+    font-weight:800;
+    color:#fff;
+  }
+  .ub-context-loader-text{
+    margin:4px auto 0;
+    max-width:220px;
+    font-size:9px;
+    line-height:1.55;
+    color:rgba(255,255,255,.42);
+  }
+
+  .ub-context-loader-dots{
+    display:flex;
+    justify-content:center;
+    gap:4px;
+    margin-top:12px;
+  }
+  .ub-context-loader-dots span{
+    width:4px;
+    height:4px;
+    border-radius:999px;
+    background:rgba(247,189,50,.35);
+    animation:ubLoadingDots 1s ease-in-out infinite;
+  }
+  .ub-context-loader-dots span:nth-child(2){animation-delay:.12s}
+  .ub-context-loader-dots span:nth-child(3){animation-delay:.24s}
+
+  @keyframes ubOrbitSpin{to{transform:rotate(360deg)}}
+  @keyframes ubOrbitSpinReverse{to{transform:rotate(-360deg)}}
+  @keyframes ubDotPulse{
+    0%,100%{transform:scale(.8);opacity:.55}
+    50%{transform:scale(1.2);opacity:1}
+  }
+  @keyframes ubLoadingDots{
+    0%,100%{transform:translateY(0);opacity:.35}
+    50%{transform:translateY(-3px);opacity:1}
+  }
+
+  @media(max-width:640px){
+    .ub-context-loader-card{
+      width:min(84vw,265px);
+      border-radius:21px;
+      padding:18px 16px 15px;
+    }
+    .ub-orbit-loader{
+      width:50px;
+      height:50px;
+      margin-bottom:11px;
+    }
+  }
+
+  @media(prefers-reduced-motion:reduce){
+    #ubContextLoader,
+    .ub-context-loader-card{
+      transition:none!important;
+    }
+    .ub-orbit-loader::after,
+    .ub-orbit-loader .ub-inner-ring,
+    .ub-orbit-dot,
+    .ub-context-loader-dots span{
+      animation:none!important;
+    }
+  }
+</style>
+
+</head><body class="min-h-screen text-white font-sans antialiased">
+
+<div id="ubContextLoader" role="status" aria-live="polite" aria-label="Memproses">
+  <div class="ub-context-loader-card">
+    <div class="ub-orbit-loader" aria-hidden="true">
+      <span class="ub-inner-ring"></span>
+      <span class="ub-orbit-dot"></span>
+    </div>
+    <p id="ubContextLoaderTitle" class="ub-context-loader-title">Memproses...</p>
+    <p id="ubContextLoaderText" class="ub-context-loader-text">Mohon tunggu sebentar.</p>
+    <div class="ub-context-loader-dots" aria-hidden="true"><span></span><span></span><span></span></div>
+  </div>
+</div>
+
+<header class="border-b border-white/5 bg-[#191919]/95"><div class="max-w-6xl mx-auto px-3 sm:px-6 h-16 sm:h-[72px] flex items-center justify-between gap-3"><a href="/" class="flex items-center gap-2.5 min-w-0"><img src="images/logo/logo.png" class="w-10 h-10 sm:w-12 sm:h-12 object-contain" alt="Topup UB Store"><div><b class="text-sm sm:text-base">TOPUP <span class="text-ub-400">UB</span> STORE</b><div class="hidden sm:block text-[9px] tracking-[.18em] text-white/35">OFFICIAL TOP UP STORE</div></div></a><a href="/" class="w-10 h-10 rounded-xl border border-white/10 bg-[#242424] grid place-items-center text-white/60 hover:text-white"><i data-lucide="home" class="w-4 h-4"></i></a></div></header><main class="max-w-5xl mx-auto px-3 sm:px-6 py-7 sm:py-14"><div class="grid lg:grid-cols-[1fr_420px] gap-6 lg:gap-12 items-center"><section class="hidden lg:block"><span class="inline-flex items-center gap-2 rounded-full border border-ub-500/20 bg-ub-500/[.06] px-3 py-1.5 text-[10px] font-extrabold text-ub-300"><i data-lucide="log-in" class="w-4 h-4"></i>MEMBER UB STORE</span><h1 class="mt-4 text-5xl font-extrabold tracking-tight">Selamat datang kembali</h1><p class="mt-3 text-sm text-white/45 leading-6 max-w-lg">Masuk dengan email atau WhatsApp. Akun website terpisah dari akun Tools Topup.</p></section><section class="card rounded-3xl overflow-hidden"><div class="p-5 sm:p-6 border-b border-white/5"><h2 class="font-extrabold text-xl">Masuk</h2><p class="text-xs text-white/35 mt-1">Gunakan akun member UB Store.</p></div><form id="loginForm" class="p-5 sm:p-6 space-y-4"><label class="block"><span class="text-xs font-semibold">Email atau WhatsApp</span><input id="identifier" class="input mt-2" autocomplete="username" placeholder="email / 08xxxxxxxxxx"></label><label class="block"><span class="text-xs font-semibold">Password</span><div class="relative mt-2"><input id="password" class="input pr-12" type="password" autocomplete="current-password" placeholder="Password"><button data-pass="password" type="button" class="absolute right-0 inset-y-0 w-12 grid place-items-center text-white/35"><i data-lucide="eye" class="w-4 h-4"></i></button></div></label><button class="w-full rounded-xl bg-ub-500 hover:bg-ub-400 text-black py-3.5 text-sm font-extrabold inline-flex items-center justify-center gap-2"><i data-lucide="log-in" class="w-4 h-4"></i>Masuk</button><a href="/bantuan" class="block text-center text-[10px] text-white/35 hover:text-ub-300">Lupa password? Hubungi admin melalui Bantuan</a><div class="h-px bg-white/5"></div><p class="text-center text-xs text-white/40">Belum punya akun? <a href="/daftar" class="font-bold text-ub-300">Daftar sekarang</a></p></form></section></div></main><div id="siteToast" class="rounded-2xl border bg-[#26272a] shadow-2xl p-4"><b id="siteToastTitle" class="text-sm"></b><p id="siteToastText" class="text-xs text-white/55 mt-1 leading-5"></p></div><script>const API_URL="https://script.google.com/macros/s/AKfycbxzv5Q1e8Ety6HbmMYgTsoa_DIDyAkP_15M3xF8Fzpx302f5CS69xaRv5UekDUMMPFq/exec",API_TOKEN="9fK2xP7mQ4vL8sT1zR6aW3nY5",SESSION_KEY='ub_site_session',$=id=>document.getElementById(id);function toast(t,m,type='info'){const e=$('siteToast');const tone=type==='success'?'border-emerald-400/20 text-emerald-300':type==='error'?'border-red-400/20 text-red-300':'border-ub-500/20 text-ub-300';e.className='rounded-2xl border bg-[#26272a] shadow-2xl p-4 '+tone;$('siteToastTitle').textContent=t;$('siteToastText').textContent=m||'';requestAnimationFrame(()=>e.classList.add('show'));clearTimeout(window.__st);window.__st=setTimeout(()=>e.classList.remove('show'),3300)}function loading(on,text='Memproses...'){if(on)window.UBContextLoader?.show(text,'Mohon tunggu sebentar.',90);else window.UBContextLoader?.hide()}async function api(action,p={}){const r=await fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=UTF-8','Accept':'application/json'},body:JSON.stringify({...p,action,token:API_TOKEN}),cache:'no-store',redirect:'follow'});const t=await r.text();let d;try{d=JSON.parse(t)}catch(_){throw new Error('Respons backend tidak valid.')}if(!r.ok||d.success===false){const e=new Error(d.error||'Request gagal.');e.payload=d;throw e}return d}function getSession(){return localStorage.getItem(SESSION_KEY)||''}function setSession(v){localStorage.setItem(SESSION_KEY,v)}function clearSession(){localStorage.removeItem(SESSION_KEY)}function strong(p){return p.length>=8&&/[A-Z]/.test(p)&&/[0-9]/.test(p)&&/[^A-Za-z0-9]/.test(p)}document.querySelectorAll('[data-pass]').forEach(b=>b.onclick=()=>{const i=$(b.dataset.pass);i.type=i.type==='password'?'text':'password';b.innerHTML='<i data-lucide="'+(i.type==='password'?'eye':'eye-off')+'" class="w-4 h-4"></i>';lucide.createIcons()});lucide.createIcons();</script><script>if(getSession())location.replace('/akun');if(new URLSearchParams(location.search).get('registered')==='1')setTimeout(()=>toast('Akun sudah dibuat','Silakan masuk.','success'),100);$('loginForm').addEventListener('submit',async e=>{e.preventDefault();const identifier=$('identifier').value.trim(),password=$('password').value;if(!identifier||!password)return toast('Data belum lengkap','Isi email/WhatsApp dan password.','error');loading(true,'Memeriksa akun...');try{const r=await api('websiteLogin',{identifier,password});setSession(r.data.session_token);toast('Login berhasil','Membuka akun Anda.','success');setTimeout(()=>location.href='/akun',650)}catch(e){toast('Tidak dapat masuk',e.message,'error')}finally{loading(false)}});</script>
+<script id="ub-contextual-loader-core">
+(function(){
+  if(window.UBContextLoader) return;
+
+  let activeCount=0;
+  let delayedTimer=null;
+
+  const $=id=>document.getElementById(id);
+
+  function show(title,text,delay){
+    const wait=Number.isFinite(Number(delay))?Number(delay):120;
+    activeCount++;
+
+    clearTimeout(delayedTimer);
+    delayedTimer=setTimeout(function(){
+      const el=$('ubContextLoader');
+      if(!el||activeCount<=0)return;
+      $('ubContextLoaderTitle').textContent=String(title||'Memproses...');
+      $('ubContextLoaderText').textContent=String(text||'Mohon tunggu sebentar.');
+      el.classList.add('ub-show');
+    },Math.max(0,wait));
+  }
+
+  function hide(force){
+    clearTimeout(delayedTimer);
+    activeCount=force?0:Math.max(0,activeCount-1);
+    if(activeCount===0){
+      const el=$('ubContextLoader');
+      if(el)el.classList.remove('ub-show');
+    }
+  }
+
+  function withLoader(promise,title,text,delay){
+    show(title,text,delay);
+    return Promise.resolve(promise).finally(function(){hide();});
+  }
+
+  window.UBContextLoader={show,hide,withLoader};
+
+  // Compatibility with pages that already call loading(true/false)
+  // but do NOT create automatic loading for navigation or GET polling.
+  const oldLoading=window.loading;
+  window.ubLoading=function(on,title,text){
+    if(on)show(title||'Memproses...',text||'Mohon tunggu sebentar.',80);
+    else hide();
+  };
+
+  // Only POST/PUT/PATCH/DELETE requests trigger loader automatically.
+  // GET/polling/navigation stay silent.
+  const originalFetch=window.fetch?window.fetch.bind(window):null;
+  if(originalFetch){
+    window.fetch=async function(input,init){
+      const method=String((init&&init.method)||'GET').toUpperCase();
+      const silent=!!(init&&init.ubSilent===true);
+      const shouldLoad=!silent&&['POST','PUT','PATCH','DELETE'].includes(method);
+      if(shouldLoad){
+        show('Memproses...','Sedang menghubungkan ke server UB Store.',140);
+      }
+      try{
+        return await originalFetch(input,init);
+      }finally{
+        if(shouldLoad)hide();
+      }
+    };
+  }
+})();
+</script>
+
+</body></html>

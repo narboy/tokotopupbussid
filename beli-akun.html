@@ -1,0 +1,911 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#171717">
+  <meta name="description" content="Beli akun game tersedia di Topup UB Store.">
+  <title>Topup UB Store - Beli Akun</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config={theme:{extend:{fontFamily:{sans:['Inter','system-ui','sans-serif']},colors:{ub:{300:'#ffd05a',400:'#f7bd32',500:'#d99a17'}}}}}
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    body{background:#171717}.no-scrollbar::-webkit-scrollbar{display:none}.no-scrollbar{scrollbar-width:none}
+    .modal-backdrop{background:rgba(0,0,0,.78);backdrop-filter:blur(6px)}
+    .account-card{transition:transform .2s ease,border-color .2s ease,box-shadow .2s ease}.account-card:hover{transform:translateY(-4px);border-color:rgba(217,154,23,.38);box-shadow:0 18px 45px rgba(0,0,0,.28)}
+    body.modal-open{overflow:hidden}
+    .marquee{animation:marquee 22s linear infinite;will-change:transform}
+    @keyframes marquee{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+  </style>
+<link rel="icon" type="image/png" href="images/logo/logo.png"/>
+
+<!-- UB GLOBAL FEEDBACK UI -->
+<style id="ub-global-feedback-style">
+  :root{
+    --ub-feedback-bg:rgba(28,29,31,.97);
+    --ub-feedback-border:rgba(255,255,255,.10);
+    --ub-feedback-yellow:#d99a17;
+  }
+
+  /* ========= SIMPLE GLOBAL LOADER ========= */
+  #ubGlobalLoader{
+    position:fixed;
+    inset:0;
+    z-index:2147483600;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:16px;
+    background:rgba(10,10,10,.34);
+    -webkit-backdrop-filter:blur(2px);
+    backdrop-filter:blur(2px);
+    opacity:0;
+    visibility:hidden;
+    pointer-events:none;
+    transition:opacity .18s ease,visibility .18s ease;
+  }
+  #ubGlobalLoader.ub-show{
+    opacity:1;
+    visibility:visible;
+    pointer-events:auto;
+  }
+  .ub-loader-box{
+    display:flex;
+    align-items:center;
+    gap:11px;
+    min-width:145px;
+    max-width:min(88vw,280px);
+    padding:12px 15px;
+    border-radius:15px;
+    border:1px solid var(--ub-feedback-border);
+    background:rgba(32,33,36,.96);
+    box-shadow:0 16px 45px rgba(0,0,0,.34);
+    transform:translateY(5px) scale(.985);
+    transition:transform .18s ease;
+  }
+  #ubGlobalLoader.ub-show .ub-loader-box{
+    transform:translateY(0) scale(1);
+  }
+  .ub-loader-spinner{
+    width:21px;
+    height:21px;
+    flex:0 0 21px;
+    border:2.5px solid rgba(255,255,255,.14);
+    border-top-color:var(--ub-feedback-yellow);
+    border-radius:999px;
+    animation:ubSimpleSpin .72s linear infinite;
+  }
+  .ub-loader-copy{
+    min-width:0;
+  }
+  .ub-loader-title{
+    margin:0;
+    font-size:11px;
+    line-height:1.3;
+    font-weight:800;
+    color:#fff;
+  }
+  .ub-loader-text{
+    margin:2px 0 0;
+    font-size:9px;
+    line-height:1.35;
+    color:rgba(255,255,255,.42);
+  }
+  @keyframes ubSimpleSpin{to{transform:rotate(360deg)}}
+
+  /* ========= MODERN ALERT / TOAST ========= */
+  #ubGlobalToast{
+    position:fixed;
+    z-index:2147483640;
+    right:14px;
+    bottom:14px;
+    width:min(390px,calc(100vw - 28px));
+    pointer-events:none;
+    opacity:0;
+    visibility:hidden;
+    transform:translateY(14px) scale(.985);
+    transition:opacity .22s ease,transform .22s ease,visibility .22s ease;
+  }
+  #ubGlobalToast.ub-show{
+    opacity:1;
+    visibility:visible;
+    transform:translateY(0) scale(1);
+  }
+  .ub-toast-card{
+    position:relative;
+    overflow:hidden;
+    display:grid;
+    grid-template-columns:38px minmax(0,1fr) 28px;
+    gap:10px;
+    align-items:start;
+    padding:13px 12px 13px 13px;
+    border-radius:17px;
+    border:1px solid var(--ub-feedback-border);
+    background:var(--ub-feedback-bg);
+    box-shadow:0 18px 55px rgba(0,0,0,.42);
+    -webkit-backdrop-filter:blur(18px);
+    backdrop-filter:blur(18px);
+    pointer-events:auto;
+  }
+  .ub-toast-icon{
+    width:38px;
+    height:38px;
+    border-radius:12px;
+    display:grid;
+    place-items:center;
+    border:1px solid rgba(255,255,255,.07);
+  }
+  .ub-toast-icon svg{
+    width:19px;
+    height:19px;
+    fill:none;
+    stroke:currentColor;
+    stroke-width:2;
+    stroke-linecap:round;
+    stroke-linejoin:round;
+  }
+  .ub-toast-title{
+    margin:1px 0 0;
+    color:#fff;
+    font-size:12px;
+    line-height:1.35;
+    font-weight:800;
+  }
+  .ub-toast-message{
+    margin:3px 0 0;
+    color:rgba(255,255,255,.52);
+    font-size:10px;
+    line-height:1.55;
+    overflow-wrap:anywhere;
+  }
+  .ub-toast-close{
+    width:28px;
+    height:28px;
+    display:grid;
+    place-items:center;
+    padding:0;
+    border:0;
+    border-radius:9px;
+    background:transparent;
+    color:rgba(255,255,255,.35);
+    cursor:pointer;
+    transition:background .15s ease,color .15s ease;
+  }
+  .ub-toast-close:hover{
+    background:rgba(255,255,255,.06);
+    color:#fff;
+  }
+  .ub-toast-close svg{
+    width:15px;
+    height:15px;
+    stroke:currentColor;
+    fill:none;
+    stroke-width:2;
+    stroke-linecap:round;
+  }
+  .ub-toast-progress{
+    position:absolute;
+    left:0;
+    right:0;
+    bottom:0;
+    height:2px;
+    background:rgba(255,255,255,.05);
+  }
+  .ub-toast-progress > span{
+    display:block;
+    width:100%;
+    height:100%;
+    transform-origin:left;
+    animation:ubToastProgress var(--ub-toast-duration,3200ms) linear forwards;
+  }
+  @keyframes ubToastProgress{to{transform:scaleX(0)}}
+
+  #ubGlobalToast[data-type="success"] .ub-toast-icon{
+    background:rgba(52,211,153,.10);
+    color:#6ee7b7;
+  }
+  #ubGlobalToast[data-type="success"] .ub-toast-progress > span{background:#34d399}
+
+  #ubGlobalToast[data-type="error"] .ub-toast-icon{
+    background:rgba(248,113,113,.10);
+    color:#fca5a5;
+  }
+  #ubGlobalToast[data-type="error"] .ub-toast-progress > span{background:#f87171}
+
+  #ubGlobalToast[data-type="warning"] .ub-toast-icon{
+    background:rgba(251,191,36,.10);
+    color:#fcd34d;
+  }
+  #ubGlobalToast[data-type="warning"] .ub-toast-progress > span{background:#fbbf24}
+
+  #ubGlobalToast[data-type="info"] .ub-toast-icon{
+    background:rgba(217,154,23,.11);
+    color:#f7bd32;
+  }
+  #ubGlobalToast[data-type="info"] .ub-toast-progress > span{background:#d99a17}
+
+  @media(max-width:640px){
+    #ubGlobalToast{
+      left:12px;
+      right:12px;
+      bottom:12px;
+      width:auto;
+    }
+    .ub-toast-card{
+      grid-template-columns:35px minmax(0,1fr) 26px;
+      padding:12px 10px 12px 12px;
+      border-radius:16px;
+    }
+    .ub-toast-icon{
+      width:35px;
+      height:35px;
+      border-radius:11px;
+    }
+  }
+
+  @media(prefers-reduced-motion:reduce){
+    #ubGlobalLoader,#ubGlobalToast,.ub-loader-box{
+      transition:none!important;
+    }
+    .ub-loader-spinner,.ub-toast-progress > span{
+      animation:none!important;
+    }
+  }
+</style>
+
+
+<style id="ub-global-mobile-guard">
+  html,body{width:100%;max-width:100%;overflow-x:hidden}
+  *,*::before,*::after{box-sizing:border-box}
+  img,video,canvas{max-width:100%;height:auto}
+  input,select,textarea,button{max-width:100%}
+  @media(max-width:639.98px){
+    main{max-width:100%}
+  }
+</style>
+
+
+<style id="ub-contextual-loader-style">
+  :root{
+    --ub-loader-yellow:#d99a17;
+    --ub-loader-yellow-soft:#f7bd32;
+  }
+
+  #ubContextLoader{
+    position:fixed;
+    inset:0;
+    z-index:2147483600;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:16px;
+    background:rgba(6,7,8,.46);
+    -webkit-backdrop-filter:blur(5px);
+    backdrop-filter:blur(5px);
+    opacity:0;
+    visibility:hidden;
+    pointer-events:none;
+    transition:opacity .2s ease,visibility .2s ease;
+  }
+  #ubContextLoader.ub-show{
+    opacity:1;
+    visibility:visible;
+    pointer-events:auto;
+  }
+
+  .ub-context-loader-card{
+    width:min(88vw,290px);
+    border-radius:24px;
+    border:1px solid rgba(255,255,255,.10);
+    background:
+      radial-gradient(circle at 50% -10%,rgba(217,154,23,.12),transparent 48%),
+      rgba(29,30,32,.97);
+    box-shadow:0 24px 70px rgba(0,0,0,.48);
+    padding:20px 18px 17px;
+    text-align:center;
+    transform:translateY(7px) scale(.975);
+    transition:transform .22s ease;
+  }
+  #ubContextLoader.ub-show .ub-context-loader-card{
+    transform:translateY(0) scale(1);
+  }
+
+  .ub-orbit-loader{
+    position:relative;
+    width:56px;
+    height:56px;
+    margin:0 auto 13px;
+  }
+  .ub-orbit-loader::before{
+    content:"";
+    position:absolute;
+    inset:8px;
+    border-radius:50%;
+    border:1px solid rgba(255,255,255,.09);
+  }
+  .ub-orbit-loader::after{
+    content:"";
+    position:absolute;
+    inset:0;
+    border-radius:50%;
+    border:2px solid transparent;
+    border-top-color:var(--ub-loader-yellow-soft);
+    border-right-color:rgba(217,154,23,.32);
+    animation:ubOrbitSpin .9s linear infinite;
+  }
+  .ub-orbit-dot{
+    position:absolute;
+    left:50%;
+    top:50%;
+    width:8px;
+    height:8px;
+    margin:-4px;
+    border-radius:50%;
+    background:var(--ub-loader-yellow-soft);
+    box-shadow:0 0 16px rgba(247,189,50,.75);
+    animation:ubDotPulse 1.1s ease-in-out infinite;
+  }
+  .ub-orbit-loader .ub-inner-ring{
+    position:absolute;
+    inset:16px;
+    border-radius:50%;
+    border:2px solid rgba(217,154,23,.18);
+    border-bottom-color:var(--ub-loader-yellow);
+    animation:ubOrbitSpinReverse 1.35s linear infinite;
+  }
+
+  .ub-context-loader-title{
+    margin:0;
+    font-size:12px;
+    line-height:1.35;
+    font-weight:800;
+    color:#fff;
+  }
+  .ub-context-loader-text{
+    margin:4px auto 0;
+    max-width:220px;
+    font-size:9px;
+    line-height:1.55;
+    color:rgba(255,255,255,.42);
+  }
+
+  .ub-context-loader-dots{
+    display:flex;
+    justify-content:center;
+    gap:4px;
+    margin-top:12px;
+  }
+  .ub-context-loader-dots span{
+    width:4px;
+    height:4px;
+    border-radius:999px;
+    background:rgba(247,189,50,.35);
+    animation:ubLoadingDots 1s ease-in-out infinite;
+  }
+  .ub-context-loader-dots span:nth-child(2){animation-delay:.12s}
+  .ub-context-loader-dots span:nth-child(3){animation-delay:.24s}
+
+  @keyframes ubOrbitSpin{to{transform:rotate(360deg)}}
+  @keyframes ubOrbitSpinReverse{to{transform:rotate(-360deg)}}
+  @keyframes ubDotPulse{
+    0%,100%{transform:scale(.8);opacity:.55}
+    50%{transform:scale(1.2);opacity:1}
+  }
+  @keyframes ubLoadingDots{
+    0%,100%{transform:translateY(0);opacity:.35}
+    50%{transform:translateY(-3px);opacity:1}
+  }
+
+  @media(max-width:640px){
+    .ub-context-loader-card{
+      width:min(84vw,265px);
+      border-radius:21px;
+      padding:18px 16px 15px;
+    }
+    .ub-orbit-loader{
+      width:50px;
+      height:50px;
+      margin-bottom:11px;
+    }
+  }
+
+  @media(prefers-reduced-motion:reduce){
+    #ubContextLoader,
+    .ub-context-loader-card{
+      transition:none!important;
+    }
+    .ub-orbit-loader::after,
+    .ub-orbit-loader .ub-inner-ring,
+    .ub-orbit-dot,
+    .ub-context-loader-dots span{
+      animation:none!important;
+    }
+  }
+</style>
+
+
+<style id="ub-payment-topup-exact-style">
+  .pay input:checked + div{
+    border-color:#d99a17!important;
+    background:rgba(217,154,23,.10)!important;
+  }
+  .pay input:checked + div .dot{
+    opacity:1;
+    transform:scale(1);
+  }
+</style>
+
+</head>
+<body class="text-white font-sans antialiased min-h-screen">
+
+<div id="ubContextLoader" role="status" aria-live="polite" aria-label="Memproses">
+  <div class="ub-context-loader-card">
+    <div class="ub-orbit-loader" aria-hidden="true">
+      <span class="ub-inner-ring"></span>
+      <span class="ub-orbit-dot"></span>
+    </div>
+    <p id="ubContextLoaderTitle" class="ub-context-loader-title">Memproses...</p>
+    <p id="ubContextLoaderText" class="ub-context-loader-text">Mohon tunggu sebentar.</p>
+    <div class="ub-context-loader-dots" aria-hidden="true"><span></span><span></span><span></span></div>
+  </div>
+</div>
+
+
+
+<!-- UB GLOBAL FEEDBACK COMPONENT -->
+<div id="ubGlobalLoader" class="hidden" aria-hidden="true">
+  <div class="ub-loader-box">
+    <span class="ub-loader-spinner" aria-hidden="true"></span>
+    <div class="ub-loader-copy">
+      <p id="ubLoaderTitle" class="ub-loader-title">Memuat...</p>
+      <p id="ubLoaderText" class="ub-loader-text">Mohon tunggu sebentar.</p>
+    </div>
+  </div>
+</div>
+
+<div id="ubGlobalToast" data-type="info" role="status" aria-live="polite" aria-atomic="true">
+  <div class="ub-toast-card">
+    <div id="ubToastIcon" class="ub-toast-icon" aria-hidden="true"></div>
+    <div class="min-w-0">
+      <p id="ubToastTitle" class="ub-toast-title">Informasi</p>
+      <p id="ubToastMessage" class="ub-toast-message"></p>
+    </div>
+    <button id="ubToastClose" type="button" class="ub-toast-close" aria-label="Tutup notifikasi">
+      <svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg>
+    </button>
+    <div class="ub-toast-progress"><span id="ubToastProgress"></span></div>
+  </div>
+</div>
+
+<script id="ub-global-feedback-core">
+(function(){
+  if(window.UBFeedback) return;
+
+  const icons = {
+    success:'<svg viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/></svg>',
+    error:'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m9 9 6 6M15 9l-6 6"/></svg>',
+    warning:'<svg viewBox="0 0 24 24"><path d="M12 4 3.5 19h17L12 4Z"/><path d="M12 9v4M12 16h.01"/></svg>',
+    info:'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7h.01"/></svg>'
+  };
+
+  let toastTimer = null;
+  let loaderCount = 0;
+  let initialLoad = false;
+  let postDelayTimer = null;
+
+  const get = id => document.getElementById(id);
+
+  function inferType(title,message){
+    const x=(String(title||'')+' '+String(message||'')).toLowerCase();
+    if(/gagal|error|salah|tidak valid|ditolak|dibatalkan|habis|expired|kosong/.test(x)) return 'error';
+    if(/berhasil|sukses|selesai|terkirim|disimpan|disalin|ditemukan|disetujui/.test(x)) return 'success';
+    if(/peringatan|tunggu|menunggu|perhatian|belum|cek admin|verifikasi/.test(x)) return 'warning';
+    return 'info';
+  }
+
+  function hideToast(){
+    const el=get('ubGlobalToast');
+    if(!el) return;
+    el.classList.remove('ub-show');
+  }
+
+  function toast(title,message,type,duration){
+    const el=get('ubGlobalToast');
+    if(!el) return;
+    const t=type||inferType(title,message);
+    const ms=Math.max(1800,Number(duration||3200));
+
+    el.dataset.type=t;
+    get('ubToastIcon').innerHTML=icons[t]||icons.info;
+    get('ubToastTitle').textContent=String(title||'Informasi');
+    get('ubToastMessage').textContent=String(message||'');
+
+    const progress=get('ubToastProgress');
+    progress.style.animation='none';
+    progress.style.setProperty('--ub-toast-duration',ms+'ms');
+    progress.parentElement.style.setProperty('--ub-toast-duration',ms+'ms');
+    void progress.offsetWidth;
+    progress.style.animation='ubToastProgress '+ms+'ms linear forwards';
+
+    clearTimeout(toastTimer);
+    el.classList.add('ub-show');
+    toastTimer=setTimeout(hideToast,ms);
+  }
+
+  function showLoading(title,text){ if(window.UBContextLoader) window.UBContextLoader.show(title,text,80); }
+
+  function hideLoading(force){ if(window.UBContextLoader) window.UBContextLoader.hide(!!force); }
+
+  function finishInitialLoad(){
+    initialLoad=false;
+    loaderCount=0;
+    setTimeout(function(){
+      const el=get('ubGlobalLoader');
+      if(el) el.classList.remove('ub-show');
+    },120);
+  }
+
+  window.UBFeedback={
+    toast,
+    alert:toast,
+    loading:showLoading,
+    done:hideLoading,
+    hideToast,
+    inferType,
+    bindLegacy:function(){
+      try{
+        if(typeof window.showToast==='function'){
+          window.showToast=function(title,text,type){ toast(title,text,type); };
+        }
+      }catch(_){}
+      try{
+        if(typeof window.toast==='function'){
+          window.toast=function(title,text,type){ toast(title,text,type); };
+        }
+      }catch(_){}
+    }
+  };
+
+  // Native alert dibuat non-blocking dan mengikuti desain UB Store.
+  window.alert=function(message){
+    toast('Informasi',String(message||''),'info',3800);
+  };
+
+  get('ubToastClose')?.addEventListener('click',hideToast);
+
+  // Loading sederhana saat request POST (checkout, upload, perubahan admin, dll).
+  // GET sengaja tidak dipaksa agar polling status tidak membuat loader berkedip.
+  const originalFetch=window.fetch ? window.fetch.bind(window) : null;
+  if(originalFetch){
+    window.fetch=async function(input,init){
+      const method=String((init&&init.method)||'GET').toUpperCase();
+      const useLoader=false;
+      if(useLoader){
+        clearTimeout(postDelayTimer);
+        postDelayTimer=setTimeout(function(){
+          showLoading('Memproses...','Menghubungkan ke server UB Store.');
+        },140);
+      }
+      try{
+        return await originalFetch(input,init);
+      }finally{
+        if(useLoader){
+          clearTimeout(postDelayTimer);
+          setTimeout(function(){ hideLoading(); },80);
+        }
+      }
+    };
+  }
+})();
+</script>
+
+
+  <div class="bg-ub-500 text-black text-xs font-semibold overflow-hidden whitespace-nowrap">
+    <div class="w-max marquee flex">
+      <div class="px-6 py-2">BELI AKUN GAME • Stok akun tersedia secara real-time</div>
+      <div class="px-6 py-2">Detail akun dibuka setelah pembayaran terverifikasi</div>
+      <div class="px-6 py-2">BELI AKUN GAME • Stok akun tersedia secara real-time</div>
+      <div class="px-6 py-2">Detail akun dibuka setelah pembayaran terverifikasi</div>
+    </div>
+  </div>
+
+  <header class="sticky top-0 z-40 border-b border-white/5 bg-[#191919]/95 backdrop-blur-xl">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 h-[72px] flex items-center justify-between gap-4">
+      <a href="/" class="flex items-center gap-3 min-w-0">
+        <img src="images/logo/logo.png" alt="Topup UB Store" class="w-12 h-12 object-contain shrink-0" />
+        <div class="min-w-0"><b class="block truncate">TOPUP <span class="text-ub-400">UB</span> STORE</b><div class="text-[10px] tracking-[.18em] text-white/35">BELI AKUN</div></div>
+      </a>
+      <a href="/" class="rounded-xl border border-white/10 px-3 sm:px-4 py-2.5 text-xs sm:text-sm font-bold text-white/65 hover:text-white inline-flex gap-2 items-center"><i data-lucide="arrow-left" class="w-4 h-4"></i><span class="hidden sm:inline">Kembali ke Topup</span></a>
+    </div>
+  </header>
+
+  <main>
+    <section class="border-b border-white/5 bg-gradient-to-b from-[#202020] to-[#171717]">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 py-12 sm:py-16">
+        <div class="max-w-3xl">
+          <div class="inline-flex items-center gap-2 rounded-full border border-ub-500/20 bg-ub-500/10 px-3 py-1.5 text-xs font-bold text-ub-300"><i data-lucide="shield-check" class="w-4 h-4"></i>STOK AKUN REAL-TIME</div>
+          <h1 class="text-3xl sm:text-5xl font-extrabold mt-4">Pilih Akun Game</h1>
+          <p class="text-sm sm:text-base text-white/45 mt-3 leading-7">Hanya akun berstatus tersedia yang ditampilkan. Saat checkout dibuat, akun akan direservasi sementara agar tidak dapat dibeli dua orang sekaligus.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-10">
+      <div class="rounded-3xl border border-white/5 bg-[#202124] p-4 sm:p-5 flex flex-col md:flex-row gap-3 md:items-center">
+        <div class="relative flex-1">
+          <i data-lucide="search" class="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30"></i>
+          <input id="searchInput" class="w-full rounded-xl bg-[#171717] border border-white/10 pl-11 pr-4 py-3 outline-none focus:border-ub-500 text-sm" placeholder="Cari game atau nama akun...">
+        </div>
+        <select id="gameFilter" class="rounded-xl bg-[#171717] border border-white/10 px-4 py-3 outline-none focus:border-ub-500 text-sm min-w-[180px]"><option value="all">Semua Game</option></select>
+        <div class="rounded-xl border border-ub-500/20 bg-ub-500/10 px-4 py-3 text-sm whitespace-nowrap"><span class="text-white/45">Stok tersedia:</span> <b id="stockCount" class="text-ub-300">0</b></div>
+      </div>
+
+      <div id="loadingBox" class="py-16 text-center">
+        <i data-lucide="loader-circle" class="w-8 h-8 animate-spin text-ub-300 mx-auto"></i>
+        <p class="text-sm text-white/40 mt-3">Memuat stok akun...</p>
+      </div>
+      <div id="errorBox" class="hidden rounded-3xl border border-red-400/20 bg-red-400/[.07] p-8 text-center mt-6"><i data-lucide="circle-alert" class="w-8 h-8 text-red-300 mx-auto"></i><b class="block mt-3">Stok akun gagal dimuat</b><p id="errorText" class="text-sm text-white/45 mt-2"></p><button id="retryBtn" class="mt-5 rounded-xl bg-ub-500 text-black font-bold px-5 py-3">Coba Lagi</button></div>
+      <div id="emptyBox" class="hidden rounded-3xl border border-white/5 bg-[#202124] p-10 text-center mt-6"><i data-lucide="package-open" class="w-9 h-9 text-white/25 mx-auto"></i><b class="block mt-3">Belum ada akun tersedia</b><p class="text-xs text-white/35 mt-2">Stok baru akan muncul otomatis saat admin menambahkan akun berstatus AVAILABLE di Supabase.</p></div>
+      <div id="accountsGrid" class="hidden grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mt-6"></div>
+    </section>
+  </main>
+
+  <div id="checkoutModal" class="hidden fixed inset-0 z-[80] modal-backdrop overflow-y-auto p-3 sm:p-6">
+    <div class="min-h-full grid place-items-center">
+      <div class="w-full max-w-3xl rounded-3xl border border-white/10 bg-[#202124] shadow-2xl overflow-hidden">
+        <div class="p-5 border-b border-white/5 flex items-center justify-between gap-4">
+          <div><div class="text-xs font-bold tracking-[.16em] text-ub-300">CHECKOUT AKUN</div><h2 class="text-xl font-extrabold mt-1">Lengkapi Pesanan</h2></div>
+          <button id="closeCheckout" class="w-10 h-10 rounded-xl border border-white/10 grid place-items-center text-white/60 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
+        </div>
+        <form id="checkoutForm" class="p-5 sm:p-6 space-y-5">
+          <div id="selectedAccountBox"></div>
+
+          <div class="grid sm:grid-cols-2 gap-4">
+            <label><span class="text-sm font-semibold">Nama Lengkap <b class="text-red-400">*</b></span><input id="customerName" required class="mt-2 w-full rounded-xl bg-[#171717] border border-white/10 px-4 py-3.5 outline-none focus:border-ub-500" placeholder="Nama pembeli"></label>
+            <label><span class="text-sm font-semibold">WhatsApp Aktif <b class="text-red-400">*</b></span><input id="customerWa" required inputmode="tel" class="mt-2 w-full rounded-xl bg-[#171717] border border-white/10 px-4 py-3.5 outline-none focus:border-ub-500" placeholder="081234567890"></label>
+          </div>
+
+          <div>
+            <div class="flex items-center justify-between gap-3"><div><h3 class="font-bold">Pilih Pembayaran</h3><p class="text-xs text-white/35 mt-1">Metode pembayaran sama dengan layanan top up.</p></div></div>
+            <div id="paymentMethods" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 mt-3"><div class="col-span-full rounded-xl border border-white/10 p-4 text-sm text-white/40">Memuat metode pembayaran...</div></div>
+          </div>
+
+          <div class="rounded-2xl border border-white/5 bg-[#171717] divide-y divide-white/5 text-sm">
+            <div class="p-4 flex justify-between gap-4"><span class="text-white/45">Harga Akun</span><b id="sumPrice">Rp0</b></div>
+            <div class="p-4 flex justify-between gap-4"><span class="text-white/45">Biaya Admin</span><b id="sumFee">Rp0</b></div>
+            <div class="p-4 flex justify-between gap-4"><span class="text-white/45">Kode Unik</span><b class="text-white/55">ditentukan saat order dibuat</b></div>
+            <div class="p-4 flex justify-between gap-4 bg-ub-500/5 text-base"><b>Estimasi sebelum kode unik</b><b id="sumTotal" class="text-ub-300">Rp0</b></div>
+          </div>
+
+          <div class="rounded-2xl border border-amber-400/15 bg-amber-400/[.05] p-4 text-xs text-white/55 leading-5"><b class="text-amber-200">Reservasi stok:</b> akun yang dipilih akan dikunci selama 30 menit setelah order dibuat. Jika bukti pembayaran tidak dikirim sampai waktu habis, stok otomatis kembali tersedia.</div>
+
+          <button id="checkoutBtn" class="w-full rounded-2xl bg-ub-500 hover:bg-ub-400 text-black font-extrabold py-4 inline-flex items-center justify-center gap-2"><i data-lucide="shopping-cart" class="w-5 h-5"></i><span>Buat Pesanan Akun</span></button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" class="fixed z-[120] right-4 bottom-4 hidden max-w-sm rounded-2xl border border-white/10 bg-[#2b2d31] p-4 shadow-2xl"><b id="toastTitle" class="text-sm"></b><p id="toastText" class="text-xs text-white/50 mt-1 leading-5"></p></div>
+
+<script>
+const API_URL='https://script.google.com/macros/s/AKfycbxzv5Q1e8Ety6HbmMYgTsoa_DIDyAkP_15M3xF8Fzpx302f5CS69xaRv5UekDUMMPFq/exec';
+const API_TOKEN='9fK2xP7mQ4vL8sT1zR6aW3nY5';
+const $=id=>document.getElementById(id);
+const rup=n=>new Intl.NumberFormat('id-ID',{style:'currency',currency:'IDR',maximumFractionDigits:0}).format(Number(n||0));
+const esc=v=>String(v??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
+let accounts=[],paymentMethods=[],selectedAccount=null,toastTimer=null;
+
+function toast(title,text){$('toastTitle').textContent=title;$('toastText').textContent=text||'';$('toast').classList.remove('hidden');clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('toast').classList.add('hidden'),3500)}
+function loadingBtn(btn,on,label){if(!btn)return;if(on){btn.dataset.old=btn.innerHTML;btn.disabled=true;btn.classList.add('opacity-60','cursor-not-allowed');btn.innerHTML=`<i data-lucide="loader-circle" class="w-5 h-5 animate-spin"></i>${esc(label||'Memproses...')}`}else{btn.disabled=false;btn.classList.remove('opacity-60','cursor-not-allowed');if(btn.dataset.old)btn.innerHTML=btn.dataset.old}lucide.createIcons()}
+async function apiGet(action,params={}){const u=new URL(API_URL);u.searchParams.set('action',action);u.searchParams.set('token',API_TOKEN);Object.entries(params).forEach(([k,v])=>{if(v!==undefined&&v!==null)u.searchParams.set(k,v)});let r;try{r=await fetch(u,{cache:'no-store',redirect:'follow'})}catch(_){throw new Error('Tidak dapat menghubungi backend.')}const t=await r.text();let d;try{d=JSON.parse(t)}catch(_){throw new Error('Respons backend tidak valid.')}if(!r.ok||d.success===false)throw new Error(d.error||'Request gagal.');return d}
+async function apiPost(action,payload={}){let r;try{r=await fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=UTF-8',Accept:'application/json'},body:JSON.stringify({...payload,action,token:API_TOKEN}),cache:'no-store',redirect:'follow'})}catch(_){throw new Error('Tidak dapat menghubungi backend.')}const t=await r.text();let d;try{d=JSON.parse(t)}catch(_){throw new Error('Respons backend tidak valid.')}if(!r.ok||d.success===false)throw new Error(d.error||'Request gagal.');return d}
+
+function tagsHtml(tags){const arr=Array.isArray(tags)?tags:[];return arr.slice(0,4).map(x=>`<span class="rounded-lg border border-white/10 bg-white/[.03] px-2 py-1 text-[10px] text-white/55">${esc(x)}</span>`).join('')}
+function renderFilters(){const games=[...new Map(accounts.map(a=>[String(a.game_code||a.game_name),a.game_name||a.game_code])).entries()];$('gameFilter').innerHTML='<option value="all">Semua Game</option>'+games.map(([code,name])=>`<option value="${esc(code)}">${esc(name)}</option>`).join('')}
+function renderAccounts(){const q=$('searchInput').value.trim().toLowerCase(),game=$('gameFilter').value;const rows=accounts.filter(a=>(game==='all'||String(a.game_code||a.game_name)===game)&&`${a.game_name||''} ${a.game_code||''} ${a.title||''} ${a.description||''}`.toLowerCase().includes(q));$('stockCount').textContent=accounts.length;$('loadingBox').classList.add('hidden');$('errorBox').classList.add('hidden');$('accountsGrid').classList.toggle('hidden',rows.length===0);$('emptyBox').classList.toggle('hidden',rows.length!==0);if(!rows.length)return;$('accountsGrid').innerHTML=rows.map(a=>`<article class="account-card rounded-3xl border border-white/5 bg-[#202124] overflow-hidden flex flex-col"><div class="aspect-[1.65] bg-[#191919] relative overflow-hidden">${a.image_url?`<img src="${esc(a.image_url)}" alt="${esc(a.title)}" class="w-full h-full object-cover" onerror="this.style.display='none';this.nextElementSibling.classList.remove('hidden')">`:''}<div class="${a.image_url?'hidden ':''}absolute inset-0 grid place-items-center bg-gradient-to-br from-violet-500/10 to-black"><i data-lucide="user-round-check" class="w-12 h-12 text-violet-300"></i></div><span class="absolute top-3 left-3 rounded-lg bg-black/60 backdrop-blur px-2 py-1 text-[10px] font-bold">${esc(a.game_name||a.game_code)}</span></div><div class="p-5 flex-1 flex flex-col"><h2 class="font-extrabold text-lg">${esc(a.title)}</h2><p class="text-xs text-white/40 mt-2 leading-5 line-clamp-3">${esc(a.description||'Akun game siap digunakan.')}</p><div class="flex flex-wrap gap-1.5 mt-3">${tagsHtml(a.tags)}</div><div class="mt-auto pt-5 flex items-end justify-between gap-3"><div><div class="text-[10px] text-white/30 uppercase tracking-wider">Harga</div><div class="text-xl font-extrabold text-ub-300 mt-1">${rup(a.price)}</div></div><button type="button" data-buy="${a.id}" class="rounded-xl bg-ub-500 hover:bg-ub-400 text-black font-extrabold px-4 py-3 text-sm">Beli</button></div></div></article>`).join('');document.querySelectorAll('[data-buy]').forEach(b=>b.addEventListener('click',()=>openCheckout(Number(b.dataset.buy))));lucide.createIcons()}
+async function loadAccounts(){try{$('loadingBox').classList.remove('hidden');$('accountsGrid').classList.add('hidden');$('emptyBox').classList.add('hidden');const r=await apiGet('getAvailableAccounts');accounts=Array.isArray(r.data)?r.data:[];renderFilters();renderAccounts()}catch(e){$('loadingBox').classList.add('hidden');$('accountsGrid').classList.add('hidden');$('emptyBox').classList.add('hidden');$('errorText').textContent=e.message;$('errorBox').classList.remove('hidden');lucide.createIcons()}}
+function paymentIcon(m){
+  const code=String(m.code||'').toUpperCase();
+  const localIcons={
+    DANA:'images/payment/dana.webp',
+    GOPAY:'images/payment/gopay.webp',
+    SEABANK:'images/payment/seabank.webp',
+    SHOPEEPAY:'images/payment/shopeepay.webp',
+    QRIS:'images/payment/qris-logo.webp'
+  };
+
+  // QRIS selalu memakai logo kecil terpisah.
+  // qris.webp dipakai nanti sebagai QR statis pada halaman pesanan.
+  const icon=code==='QRIS'
+    ? localIcons.QRIS
+    : (m.icon_url||localIcons[code]||'');
+
+  return icon
+    ? `<img src="${esc(icon)}" class="h-8 max-w-[90px] object-contain" alt="${esc(m.name)}" onerror="this.style.display='none';this.nextElementSibling?.classList.remove('hidden')"><i data-lucide="${code==='QRIS'?'qr-code':'wallet-cards'}" class="hidden w-7 h-7 text-ub-300"></i>`
+    : `<i data-lucide="${code==='QRIS'?'qr-code':'wallet-cards'}" class="w-7 h-7 text-ub-300"></i>`;
+}
+function renderPayments(){
+  const container=$('paymentMethods');
+  if(!container)return;
+
+  if(!paymentMethods.length){
+    container.innerHTML='<div class="col-span-full rounded-2xl border border-white/10 bg-[#171717] p-5 text-center text-sm text-white/45">Belum ada metode pembayaran aktif.</div>';
+    return;
+  }
+
+  const localPaymentIcons={
+    DANA:'images/payment/dana.webp',
+    GOPAY:'images/payment/gopay.webp',
+    SEABANK:'images/payment/seabank.webp',
+    SHOPEEPAY:'images/payment/shopeepay.webp',
+    QRIS:'images/payment/qris-logo.webp'
+  };
+
+  container.innerHTML=paymentMethods.map(method=>{
+    const code=String(method.code||'').toUpperCase();
+    const icon=method.icon_url||localPaymentIcons[code]||'';
+    const image=icon
+      ? `<img src="${esc(icon)}" alt="${esc(method.name||code)}" class="h-9 max-w-[105px] object-contain" onerror="this.style.display='none';this.nextElementSibling?.classList.remove('hidden')"><i data-lucide="wallet-cards" class="hidden w-8 h-8 text-ub-300"></i>`
+      : `<i data-lucide="wallet-cards" class="w-8 h-8 text-ub-300"></i>`;
+
+    return `
+      <label class="pay cursor-pointer">
+        <input class="sr-only" type="radio" name="payment" value="${esc(method.code)}">
+        <div class="relative min-h-[100px] rounded-2xl border border-white/10 bg-[#171717] flex flex-col items-center justify-center gap-2 p-3 transition hover:border-ub-500/40">
+          <i class="dot absolute right-3 top-3 w-4 h-4 rounded-full bg-ub-500 opacity-0 scale-50 transition"></i>
+          ${image}
+          <span class="text-xs font-bold text-white/80 text-center">${esc(method.name||code)}</span>
+          ${Number(method.fee||0)>0
+            ? `<span class="text-[10px] text-white/35 text-center">Admin ${rup(method.fee)}</span>`
+            : '<span class="text-[10px] text-white/35 text-center">Tanpa biaya admin</span>'}
+        </div>
+      </label>`;
+  }).join('');
+
+  container.querySelectorAll('[name="payment"]').forEach(input=>input.addEventListener('change',updateSummary));
+  updateSummary();
+  lucide.createIcons();
+}
+function selectedPayment(){const c=document.querySelector('[name="payment"]:checked')?.value;return paymentMethods.find(x=>String(x.code)===String(c))||null}
+function updateSummary(){const p=selectedPayment();$('sumPrice').textContent=rup(selectedAccount?.price||0);$('sumFee').textContent=rup(p?.fee||0);$('sumTotal').textContent=rup(Number(selectedAccount?.price||0)+Number(p?.fee||0))}
+function openCheckout(id){selectedAccount=accounts.find(a=>Number(a.id)===Number(id));if(!selectedAccount)return;const a=selectedAccount;$('selectedAccountBox').innerHTML=`<div class="rounded-2xl border border-white/5 bg-[#171717] p-4 flex gap-4 items-center"><div class="w-20 h-16 rounded-xl bg-[#222] overflow-hidden shrink-0">${a.image_url?`<img src="${esc(a.image_url)}" class="w-full h-full object-cover" alt="${esc(a.title)}">`:'<div class="w-full h-full grid place-items-center"><i data-lucide="user-round-check" class="w-7 h-7 text-ub-300"></i></div>'}</div><div class="min-w-0"><div class="text-[10px] text-white/35 uppercase tracking-wider">${esc(a.game_name||a.game_code)}</div><b class="block truncate mt-1">${esc(a.title)}</b><div class="text-ub-300 font-extrabold mt-1">${rup(a.price)}</div></div></div>`;updateSummary();$('checkoutModal').classList.remove('hidden');document.body.classList.add('modal-open');lucide.createIcons()}
+function closeCheckout(){if($('checkoutBtn').disabled)return;$('checkoutModal').classList.add('hidden');document.body.classList.remove('modal-open')}
+async function submitCheckout(e){e.preventDefault();if(!selectedAccount)return toast('Akun belum dipilih','Pilih akun terlebih dahulu.');const pay=selectedPayment();if(!pay)return toast('Pembayaran belum dipilih','Pilih metode pembayaran.');const btn=$('checkoutBtn');loadingBtn(btn,true,'Membuat pesanan...');try{const r=await apiPost('createAccountOrder',{account_id:selectedAccount.id,nama:$('customerName').value.trim(),whatsapp:$('customerWa').value.trim(),payment:pay.code,website_session_token:localStorage.getItem('ub_site_session')||''});const d=r.data||{};localStorage.setItem(`ub_account_order_${d.order_code}`,JSON.stringify(d));localStorage.setItem(`ub_account_order_whatsapp_${d.order_code}`,$('customerWa').value.trim());location.href=`/pesanan-akun?code=${encodeURIComponent(d.order_code)}`}catch(err){toast('Pesanan gagal',err.message);if(/tidak tersedia|direservasi/i.test(err.message))loadAccounts()}finally{loadingBtn(btn,false)}}
+$('searchInput').addEventListener('input',renderAccounts);$('gameFilter').addEventListener('change',renderAccounts);$('retryBtn').addEventListener('click',loadAccounts);$('closeCheckout').addEventListener('click',closeCheckout);$('checkoutModal').addEventListener('click',e=>{if(e.target===$('checkoutModal'))closeCheckout()});$('checkoutForm').addEventListener('submit',submitCheckout);
+Promise.all([loadAccounts(),loadPayments()]).finally(()=>lucide.createIcons());
+</script>
+
+<script id="ub-global-feedback-adapter">
+(function(){
+  if(!window.UBFeedback) return;
+  window.UBFeedback.bindLegacy();
+
+  // Beberapa halaman membuat toast lama setelah DOM siap.
+  setTimeout(function(){ window.UBFeedback.bindLegacy(); },0);
+  setTimeout(function(){ window.UBFeedback.bindLegacy(); },350);
+})();
+</script>
+
+
+<script id="ub-member-checkout-autofill">
+(function(){
+  const token=localStorage.getItem('ub_site_session')||'';
+  if(!token)return;
+
+  const apiUrl='https://script.google.com/macros/s/AKfycbxzv5Q1e8Ety6HbmMYgTsoa_DIDyAkP_15M3xF8Fzpx302f5CS69xaRv5UekDUMMPFq/exec';
+  const apiToken='9fK2xP7mQ4vL8sT1zR6aW3nY5';
+
+  fetch(apiUrl,{
+    method:'POST',
+    headers:{'Content-Type':'text/plain;charset=UTF-8','Accept':'application/json'},
+    body:JSON.stringify({
+      action:'websiteGetProfile',
+      token:apiToken,
+      session_token:token
+    }),
+    cache:'no-store',
+    redirect:'follow',
+    ubSilent:true
+  })
+  .then(r=>r.text())
+  .then(t=>{
+    const d=JSON.parse(t);
+    if(!d.success||!d.data)return;
+    const u=d.data;
+
+    [
+      'nama',
+      'customerName'
+    ].forEach(id=>{
+      const el=document.getElementById(id);
+      if(el&&!String(el.value||'').trim())el.value=u.full_name||'';
+    });
+
+    [
+      'wa',
+      'customerWa'
+    ].forEach(id=>{
+      const el=document.getElementById(id);
+      if(el&&!String(el.value||'').trim())el.value=u.whatsapp||'';
+    });
+  })
+  .catch(()=>{});
+})();
+</script>
+
+
+<script id="ub-contextual-loader-core">
+(function(){
+  if(window.UBContextLoader) return;
+
+  let activeCount=0;
+  let delayedTimer=null;
+
+  const $=id=>document.getElementById(id);
+
+  function show(title,text,delay){
+    const wait=Number.isFinite(Number(delay))?Number(delay):120;
+    activeCount++;
+
+    clearTimeout(delayedTimer);
+    delayedTimer=setTimeout(function(){
+      const el=$('ubContextLoader');
+      if(!el||activeCount<=0)return;
+      $('ubContextLoaderTitle').textContent=String(title||'Memproses...');
+      $('ubContextLoaderText').textContent=String(text||'Mohon tunggu sebentar.');
+      el.classList.add('ub-show');
+    },Math.max(0,wait));
+  }
+
+  function hide(force){
+    clearTimeout(delayedTimer);
+    activeCount=force?0:Math.max(0,activeCount-1);
+    if(activeCount===0){
+      const el=$('ubContextLoader');
+      if(el)el.classList.remove('ub-show');
+    }
+  }
+
+  function withLoader(promise,title,text,delay){
+    show(title,text,delay);
+    return Promise.resolve(promise).finally(function(){hide();});
+  }
+
+  window.UBContextLoader={show,hide,withLoader};
+
+  // Compatibility with pages that already call loading(true/false)
+  // but do NOT create automatic loading for navigation or GET polling.
+  const oldLoading=window.loading;
+  window.ubLoading=function(on,title,text){
+    if(on)show(title||'Memproses...',text||'Mohon tunggu sebentar.',80);
+    else hide();
+  };
+
+  // Only POST/PUT/PATCH/DELETE requests trigger loader automatically.
+  // GET/polling/navigation stay silent.
+  const originalFetch=window.fetch?window.fetch.bind(window):null;
+  if(originalFetch){
+    window.fetch=async function(input,init){
+      const method=String((init&&init.method)||'GET').toUpperCase();
+      const silent=!!(init&&init.ubSilent===true);
+      const shouldLoad=!silent&&['POST','PUT','PATCH','DELETE'].includes(method);
+      if(shouldLoad){
+        show('Memproses...','Sedang menghubungkan ke server UB Store.',140);
+      }
+      try{
+        return await originalFetch(input,init);
+      }finally{
+        if(shouldLoad)hide();
+      }
+    };
+  }
+})();
+</script>
+
+</body>
+</html>

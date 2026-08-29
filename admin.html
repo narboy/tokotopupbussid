@@ -1,0 +1,2215 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#171717">
+  <meta name="robots" content="noindex,nofollow,noarchive">
+  <title>Topup UB Store - Panel Admin</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config={theme:{extend:{fontFamily:{sans:['Inter','system-ui','sans-serif']},colors:{ub:{300:'#ffd05a',400:'#f7bd32',500:'#d99a17'}}}}}
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    body{background:#171717}.no-scrollbar::-webkit-scrollbar{display:none}.no-scrollbar{scrollbar-width:none}
+    .modal-backdrop{background:rgba(0,0,0,.76);backdrop-filter:blur(5px)}
+  </style>
+<link rel="icon" type="image/png" href="images/logo/logo.png"/>
+
+<!-- UB GLOBAL FEEDBACK UI -->
+<style id="ub-global-feedback-style">
+  :root{
+    --ub-feedback-bg:rgba(28,29,31,.97);
+    --ub-feedback-border:rgba(255,255,255,.10);
+    --ub-feedback-yellow:#d99a17;
+  }
+
+  /* ========= SIMPLE GLOBAL LOADER ========= */
+  #ubGlobalLoader{
+    position:fixed;
+    inset:0;
+    z-index:2147483600;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:16px;
+    background:rgba(10,10,10,.34);
+    -webkit-backdrop-filter:blur(2px);
+    backdrop-filter:blur(2px);
+    opacity:0;
+    visibility:hidden;
+    pointer-events:none;
+    transition:opacity .18s ease,visibility .18s ease;
+  }
+  #ubGlobalLoader.ub-show{
+    opacity:1;
+    visibility:visible;
+    pointer-events:auto;
+  }
+  .ub-loader-box{
+    display:flex;
+    align-items:center;
+    gap:11px;
+    min-width:145px;
+    max-width:min(88vw,280px);
+    padding:12px 15px;
+    border-radius:15px;
+    border:1px solid var(--ub-feedback-border);
+    background:rgba(32,33,36,.96);
+    box-shadow:0 16px 45px rgba(0,0,0,.34);
+    transform:translateY(5px) scale(.985);
+    transition:transform .18s ease;
+  }
+  #ubGlobalLoader.ub-show .ub-loader-box{
+    transform:translateY(0) scale(1);
+  }
+  .ub-loader-spinner{
+    width:21px;
+    height:21px;
+    flex:0 0 21px;
+    border:2.5px solid rgba(255,255,255,.14);
+    border-top-color:var(--ub-feedback-yellow);
+    border-radius:999px;
+    animation:ubSimpleSpin .72s linear infinite;
+  }
+  .ub-loader-copy{
+    min-width:0;
+  }
+  .ub-loader-title{
+    margin:0;
+    font-size:11px;
+    line-height:1.3;
+    font-weight:800;
+    color:#fff;
+  }
+  .ub-loader-text{
+    margin:2px 0 0;
+    font-size:9px;
+    line-height:1.35;
+    color:rgba(255,255,255,.42);
+  }
+  @keyframes ubSimpleSpin{to{transform:rotate(360deg)}}
+
+  /* ========= MODERN ALERT / TOAST ========= */
+  #ubGlobalToast{
+    position:fixed;
+    z-index:2147483640;
+    right:14px;
+    bottom:14px;
+    width:min(390px,calc(100vw - 28px));
+    pointer-events:none;
+    opacity:0;
+    visibility:hidden;
+    transform:translateY(14px) scale(.985);
+    transition:opacity .22s ease,transform .22s ease,visibility .22s ease;
+  }
+  #ubGlobalToast.ub-show{
+    opacity:1;
+    visibility:visible;
+    transform:translateY(0) scale(1);
+  }
+  .ub-toast-card{
+    position:relative;
+    overflow:hidden;
+    display:grid;
+    grid-template-columns:38px minmax(0,1fr) 28px;
+    gap:10px;
+    align-items:start;
+    padding:13px 12px 13px 13px;
+    border-radius:17px;
+    border:1px solid var(--ub-feedback-border);
+    background:var(--ub-feedback-bg);
+    box-shadow:0 18px 55px rgba(0,0,0,.42);
+    -webkit-backdrop-filter:blur(18px);
+    backdrop-filter:blur(18px);
+    pointer-events:auto;
+  }
+  .ub-toast-icon{
+    width:38px;
+    height:38px;
+    border-radius:12px;
+    display:grid;
+    place-items:center;
+    border:1px solid rgba(255,255,255,.07);
+  }
+  .ub-toast-icon svg{
+    width:19px;
+    height:19px;
+    fill:none;
+    stroke:currentColor;
+    stroke-width:2;
+    stroke-linecap:round;
+    stroke-linejoin:round;
+  }
+  .ub-toast-title{
+    margin:1px 0 0;
+    color:#fff;
+    font-size:12px;
+    line-height:1.35;
+    font-weight:800;
+  }
+  .ub-toast-message{
+    margin:3px 0 0;
+    color:rgba(255,255,255,.52);
+    font-size:10px;
+    line-height:1.55;
+    overflow-wrap:anywhere;
+  }
+  .ub-toast-close{
+    width:28px;
+    height:28px;
+    display:grid;
+    place-items:center;
+    padding:0;
+    border:0;
+    border-radius:9px;
+    background:transparent;
+    color:rgba(255,255,255,.35);
+    cursor:pointer;
+    transition:background .15s ease,color .15s ease;
+  }
+  .ub-toast-close:hover{
+    background:rgba(255,255,255,.06);
+    color:#fff;
+  }
+  .ub-toast-close svg{
+    width:15px;
+    height:15px;
+    stroke:currentColor;
+    fill:none;
+    stroke-width:2;
+    stroke-linecap:round;
+  }
+  .ub-toast-progress{
+    position:absolute;
+    left:0;
+    right:0;
+    bottom:0;
+    height:2px;
+    background:rgba(255,255,255,.05);
+  }
+  .ub-toast-progress > span{
+    display:block;
+    width:100%;
+    height:100%;
+    transform-origin:left;
+    animation:ubToastProgress var(--ub-toast-duration,3200ms) linear forwards;
+  }
+  @keyframes ubToastProgress{to{transform:scaleX(0)}}
+
+  #ubGlobalToast[data-type="success"] .ub-toast-icon{
+    background:rgba(52,211,153,.10);
+    color:#6ee7b7;
+  }
+  #ubGlobalToast[data-type="success"] .ub-toast-progress > span{background:#34d399}
+
+  #ubGlobalToast[data-type="error"] .ub-toast-icon{
+    background:rgba(248,113,113,.10);
+    color:#fca5a5;
+  }
+  #ubGlobalToast[data-type="error"] .ub-toast-progress > span{background:#f87171}
+
+  #ubGlobalToast[data-type="warning"] .ub-toast-icon{
+    background:rgba(251,191,36,.10);
+    color:#fcd34d;
+  }
+  #ubGlobalToast[data-type="warning"] .ub-toast-progress > span{background:#fbbf24}
+
+  #ubGlobalToast[data-type="info"] .ub-toast-icon{
+    background:rgba(217,154,23,.11);
+    color:#f7bd32;
+  }
+  #ubGlobalToast[data-type="info"] .ub-toast-progress > span{background:#d99a17}
+
+  @media(max-width:640px){
+    #ubGlobalToast{
+      left:12px;
+      right:12px;
+      bottom:12px;
+      width:auto;
+    }
+    .ub-toast-card{
+      grid-template-columns:35px minmax(0,1fr) 26px;
+      padding:12px 10px 12px 12px;
+      border-radius:16px;
+    }
+    .ub-toast-icon{
+      width:35px;
+      height:35px;
+      border-radius:11px;
+    }
+  }
+
+  @media(prefers-reduced-motion:reduce){
+    #ubGlobalLoader,#ubGlobalToast,.ub-loader-box{
+      transition:none!important;
+    }
+    .ub-loader-spinner,.ub-toast-progress > span{
+      animation:none!important;
+    }
+  }
+</style>
+
+
+<style id="ub-global-mobile-guard">
+  html,body{width:100%;max-width:100%;overflow-x:hidden}
+  *,*::before,*::after{box-sizing:border-box}
+  img,video,canvas{max-width:100%;height:auto}
+  input,select,textarea,button{max-width:100%}
+  @media(max-width:639.98px){
+    main{max-width:100%}
+  }
+</style>
+
+
+<style id="ub-contextual-loader-style">
+  :root{
+    --ub-loader-yellow:#d99a17;
+    --ub-loader-yellow-soft:#f7bd32;
+  }
+
+  #ubContextLoader{
+    position:fixed;
+    inset:0;
+    z-index:2147483600;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:16px;
+    background:rgba(6,7,8,.46);
+    -webkit-backdrop-filter:blur(5px);
+    backdrop-filter:blur(5px);
+    opacity:0;
+    visibility:hidden;
+    pointer-events:none;
+    transition:opacity .2s ease,visibility .2s ease;
+  }
+  #ubContextLoader.ub-show{
+    opacity:1;
+    visibility:visible;
+    pointer-events:auto;
+  }
+
+  .ub-context-loader-card{
+    width:min(88vw,290px);
+    border-radius:24px;
+    border:1px solid rgba(255,255,255,.10);
+    background:
+      radial-gradient(circle at 50% -10%,rgba(217,154,23,.12),transparent 48%),
+      rgba(29,30,32,.97);
+    box-shadow:0 24px 70px rgba(0,0,0,.48);
+    padding:20px 18px 17px;
+    text-align:center;
+    transform:translateY(7px) scale(.975);
+    transition:transform .22s ease;
+  }
+  #ubContextLoader.ub-show .ub-context-loader-card{
+    transform:translateY(0) scale(1);
+  }
+
+  .ub-orbit-loader{
+    position:relative;
+    width:56px;
+    height:56px;
+    margin:0 auto 13px;
+  }
+  .ub-orbit-loader::before{
+    content:"";
+    position:absolute;
+    inset:8px;
+    border-radius:50%;
+    border:1px solid rgba(255,255,255,.09);
+  }
+  .ub-orbit-loader::after{
+    content:"";
+    position:absolute;
+    inset:0;
+    border-radius:50%;
+    border:2px solid transparent;
+    border-top-color:var(--ub-loader-yellow-soft);
+    border-right-color:rgba(217,154,23,.32);
+    animation:ubOrbitSpin .9s linear infinite;
+  }
+  .ub-orbit-dot{
+    position:absolute;
+    left:50%;
+    top:50%;
+    width:8px;
+    height:8px;
+    margin:-4px;
+    border-radius:50%;
+    background:var(--ub-loader-yellow-soft);
+    box-shadow:0 0 16px rgba(247,189,50,.75);
+    animation:ubDotPulse 1.1s ease-in-out infinite;
+  }
+  .ub-orbit-loader .ub-inner-ring{
+    position:absolute;
+    inset:16px;
+    border-radius:50%;
+    border:2px solid rgba(217,154,23,.18);
+    border-bottom-color:var(--ub-loader-yellow);
+    animation:ubOrbitSpinReverse 1.35s linear infinite;
+  }
+
+  .ub-context-loader-title{
+    margin:0;
+    font-size:12px;
+    line-height:1.35;
+    font-weight:800;
+    color:#fff;
+  }
+  .ub-context-loader-text{
+    margin:4px auto 0;
+    max-width:220px;
+    font-size:9px;
+    line-height:1.55;
+    color:rgba(255,255,255,.42);
+  }
+
+  .ub-context-loader-dots{
+    display:flex;
+    justify-content:center;
+    gap:4px;
+    margin-top:12px;
+  }
+  .ub-context-loader-dots span{
+    width:4px;
+    height:4px;
+    border-radius:999px;
+    background:rgba(247,189,50,.35);
+    animation:ubLoadingDots 1s ease-in-out infinite;
+  }
+  .ub-context-loader-dots span:nth-child(2){animation-delay:.12s}
+  .ub-context-loader-dots span:nth-child(3){animation-delay:.24s}
+
+  @keyframes ubOrbitSpin{to{transform:rotate(360deg)}}
+  @keyframes ubOrbitSpinReverse{to{transform:rotate(-360deg)}}
+  @keyframes ubDotPulse{
+    0%,100%{transform:scale(.8);opacity:.55}
+    50%{transform:scale(1.2);opacity:1}
+  }
+  @keyframes ubLoadingDots{
+    0%,100%{transform:translateY(0);opacity:.35}
+    50%{transform:translateY(-3px);opacity:1}
+  }
+
+  @media(max-width:640px){
+    .ub-context-loader-card{
+      width:min(84vw,265px);
+      border-radius:21px;
+      padding:18px 16px 15px;
+    }
+    .ub-orbit-loader{
+      width:50px;
+      height:50px;
+      margin-bottom:11px;
+    }
+  }
+
+  @media(prefers-reduced-motion:reduce){
+    #ubContextLoader,
+    .ub-context-loader-card{
+      transition:none!important;
+    }
+    .ub-orbit-loader::after,
+    .ub-orbit-loader .ub-inner-ring,
+    .ub-orbit-dot,
+    .ub-context-loader-dots span{
+      animation:none!important;
+    }
+  }
+</style>
+
+</head>
+<body class="text-white font-sans antialiased min-h-screen">
+
+<div id="ubContextLoader" role="status" aria-live="polite" aria-label="Memproses">
+  <div class="ub-context-loader-card">
+    <div class="ub-orbit-loader" aria-hidden="true">
+      <span class="ub-inner-ring"></span>
+      <span class="ub-orbit-dot"></span>
+    </div>
+    <p id="ubContextLoaderTitle" class="ub-context-loader-title">Memproses...</p>
+    <p id="ubContextLoaderText" class="ub-context-loader-text">Mohon tunggu sebentar.</p>
+    <div class="ub-context-loader-dots" aria-hidden="true"><span></span><span></span><span></span></div>
+  </div>
+</div>
+
+
+
+<!-- UB GLOBAL FEEDBACK COMPONENT -->
+<div id="ubGlobalLoader" class="hidden" aria-hidden="true">
+  <div class="ub-loader-box">
+    <span class="ub-loader-spinner" aria-hidden="true"></span>
+    <div class="ub-loader-copy">
+      <p id="ubLoaderTitle" class="ub-loader-title">Memuat...</p>
+      <p id="ubLoaderText" class="ub-loader-text">Mohon tunggu sebentar.</p>
+    </div>
+  </div>
+</div>
+
+<div id="ubGlobalToast" data-type="info" role="status" aria-live="polite" aria-atomic="true">
+  <div class="ub-toast-card">
+    <div id="ubToastIcon" class="ub-toast-icon" aria-hidden="true"></div>
+    <div class="min-w-0">
+      <p id="ubToastTitle" class="ub-toast-title">Informasi</p>
+      <p id="ubToastMessage" class="ub-toast-message"></p>
+    </div>
+    <button id="ubToastClose" type="button" class="ub-toast-close" aria-label="Tutup notifikasi">
+      <svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg>
+    </button>
+    <div class="ub-toast-progress"><span id="ubToastProgress"></span></div>
+  </div>
+</div>
+
+<script id="ub-global-feedback-core">
+(function(){
+  if(window.UBFeedback) return;
+
+  const icons = {
+    success:'<svg viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/></svg>',
+    error:'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m9 9 6 6M15 9l-6 6"/></svg>',
+    warning:'<svg viewBox="0 0 24 24"><path d="M12 4 3.5 19h17L12 4Z"/><path d="M12 9v4M12 16h.01"/></svg>',
+    info:'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7h.01"/></svg>'
+  };
+
+  let toastTimer = null;
+  let loaderCount = 0;
+  let initialLoad = false;
+  let postDelayTimer = null;
+
+  const get = id => document.getElementById(id);
+
+  function inferType(title,message){
+    const x=(String(title||'')+' '+String(message||'')).toLowerCase();
+    if(/gagal|error|salah|tidak valid|ditolak|dibatalkan|habis|expired|kosong/.test(x)) return 'error';
+    if(/berhasil|sukses|selesai|terkirim|disimpan|disalin|ditemukan|disetujui/.test(x)) return 'success';
+    if(/peringatan|tunggu|menunggu|perhatian|belum|cek admin|verifikasi/.test(x)) return 'warning';
+    return 'info';
+  }
+
+  function hideToast(){
+    const el=get('ubGlobalToast');
+    if(!el) return;
+    el.classList.remove('ub-show');
+  }
+
+  function toast(title,message,type,duration){
+    const el=get('ubGlobalToast');
+    if(!el) return;
+    const t=type||inferType(title,message);
+    const ms=Math.max(1800,Number(duration||3200));
+
+    el.dataset.type=t;
+    get('ubToastIcon').innerHTML=icons[t]||icons.info;
+    get('ubToastTitle').textContent=String(title||'Informasi');
+    get('ubToastMessage').textContent=String(message||'');
+
+    const progress=get('ubToastProgress');
+    progress.style.animation='none';
+    progress.style.setProperty('--ub-toast-duration',ms+'ms');
+    progress.parentElement.style.setProperty('--ub-toast-duration',ms+'ms');
+    void progress.offsetWidth;
+    progress.style.animation='ubToastProgress '+ms+'ms linear forwards';
+
+    clearTimeout(toastTimer);
+    el.classList.add('ub-show');
+    toastTimer=setTimeout(hideToast,ms);
+  }
+
+  function showLoading(title,text){ if(window.UBContextLoader) window.UBContextLoader.show(title,text,80); }
+
+  function hideLoading(force){ if(window.UBContextLoader) window.UBContextLoader.hide(!!force); }
+
+  function finishInitialLoad(){
+    initialLoad=false;
+    loaderCount=0;
+    setTimeout(function(){
+      const el=get('ubGlobalLoader');
+      if(el) el.classList.remove('ub-show');
+    },120);
+  }
+
+  window.UBFeedback={
+    toast,
+    alert:toast,
+    loading:showLoading,
+    done:hideLoading,
+    hideToast,
+    inferType,
+    bindLegacy:function(){
+      try{
+        if(typeof window.showToast==='function'){
+          window.showToast=function(title,text,type){ toast(title,text,type); };
+        }
+      }catch(_){}
+      try{
+        if(typeof window.toast==='function'){
+          window.toast=function(title,text,type){ toast(title,text,type); };
+        }
+      }catch(_){}
+    }
+  };
+
+  // Native alert dibuat non-blocking dan mengikuti desain UB Store.
+  window.alert=function(message){
+    toast('Informasi',String(message||''),'info',3800);
+  };
+
+  get('ubToastClose')?.addEventListener('click',hideToast);
+
+  // Loading sederhana saat request POST (checkout, upload, perubahan admin, dll).
+  // GET sengaja tidak dipaksa agar polling status tidak membuat loader berkedip.
+  const originalFetch=window.fetch ? window.fetch.bind(window) : null;
+  if(originalFetch){
+    window.fetch=async function(input,init){
+      const method=String((init&&init.method)||'GET').toUpperCase();
+      const useLoader=false;
+      if(useLoader){
+        clearTimeout(postDelayTimer);
+        postDelayTimer=setTimeout(function(){
+          showLoading('Memproses...','Menghubungkan ke server UB Store.');
+        },140);
+      }
+      try{
+        return await originalFetch(input,init);
+      }finally{
+        if(useLoader){
+          clearTimeout(postDelayTimer);
+          setTimeout(function(){ hideLoading(); },80);
+        }
+      }
+    };
+  }
+})();
+</script>
+
+
+
+  <div id="loginScreen" class="fixed inset-0 z-[100] bg-[#171717] grid place-items-center p-4">
+    <div class="w-full max-w-md rounded-3xl border border-white/10 bg-[#202124] p-6 sm:p-8 shadow-2xl">
+      <img src="images/logo/logo.png" alt="Topup UB Store" class="w-20 h-20 object-contain" />
+      <h1 class="text-2xl font-extrabold mt-5">Admin UB Store</h1>
+      <p class="text-sm text-white/45 mt-2 leading-6">Masukkan token admin untuk mengelola pesanan. Token hanya disimpan selama tab browser ini terbuka.</p>
+      <form id="loginForm" class="mt-6 space-y-4">
+        <label class="block">
+          <span class="text-sm font-semibold">Admin Token</span>
+          <input id="adminTokenInput" type="password" autocomplete="off" class="mt-2 w-full rounded-xl bg-[#171717] border border-white/10 px-4 py-3.5 outline-none focus:border-ub-500" placeholder="Masukkan ADMIN_TOKEN">
+        </label>
+        <div id="loginError" class="hidden rounded-xl border border-red-400/20 bg-red-400/10 p-3 text-sm text-red-200"></div>
+        <button class="w-full rounded-xl bg-ub-500 hover:bg-ub-400 text-black font-extrabold py-3.5 inline-flex items-center justify-center gap-2"><i data-lucide="log-in" class="w-5 h-5"></i>Masuk Panel Admin</button>
+      </form>
+    </div>
+  </div>
+
+  <header class="sticky top-0 z-40 border-b border-white/5 bg-[#191919]/95 backdrop-blur-xl">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 h-[72px] flex items-center justify-between gap-4">
+      <div class="flex items-center gap-3 min-w-0">
+        <img src="images/logo/logo.png" alt="Topup UB Store" class="w-12 h-12 object-contain shrink-0" />
+        <div class="min-w-0"><b class="block truncate">TOPUP UB · ADMIN</b><div class="text-[10px] tracking-[.18em] text-white/35">ADMIN CENTER</div></div>
+      </div>
+      <div class="flex items-center gap-2">
+        <button id="refreshBtn" class="w-10 h-10 rounded-xl border border-white/10 grid place-items-center text-white/65 hover:text-white" title="Refresh"><i data-lucide="refresh-cw" class="w-4 h-4"></i></button>
+        <button id="logoutBtn" class="rounded-xl border border-white/10 px-3 sm:px-4 py-2.5 text-xs sm:text-sm font-bold text-white/65 hover:text-white inline-flex gap-2 items-center"><i data-lucide="log-out" class="w-4 h-4"></i><span class="hidden sm:inline">Keluar</span></button>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 py-7 sm:py-10">
+    <nav class="mb-7 rounded-2xl border border-white/5 bg-[#202124] p-1.5 flex gap-1.5 overflow-x-auto no-scrollbar" aria-label="Menu admin">
+      <button id="tabTopupBtn" type="button" data-admin-tab="topup" class="admin-tab shrink-0 rounded-xl bg-ub-500 text-black px-4 sm:px-5 py-3 text-sm font-extrabold inline-flex items-center gap-2">
+        <i data-lucide="receipt-text" class="w-4 h-4"></i>Pesanan Top Up
+        <span id="topupTabCount" class="min-w-5 h-5 px-1.5 rounded-full bg-black/15 grid place-items-center text-[10px]">0</span>
+      </button>
+      <button id="tabAccountBtn" type="button" data-admin-tab="account" class="admin-tab shrink-0 rounded-xl text-white/55 hover:text-white px-4 sm:px-5 py-3 text-sm font-bold inline-flex items-center gap-2">
+        <i data-lucide="key-round" class="w-4 h-4"></i>Pesanan Akun
+        <span id="accountTabCount" class="min-w-5 h-5 px-1.5 rounded-full bg-white/10 grid place-items-center text-[10px]">0</span>
+      </button>
+      <button id="tabObbBtn" type="button" data-admin-tab="obb" class="admin-tab shrink-0 rounded-xl text-white/55 hover:text-white px-4 sm:px-5 py-3 text-sm font-bold inline-flex items-center gap-2">
+        <i data-lucide="package-check" class="w-4 h-4"></i>Jasa OBB
+        <span id="obbTabCount" class="min-w-5 h-5 px-1.5 rounded-full bg-white/10 grid place-items-center text-[10px]">0</span>
+      </button>
+      <button id="tabKodenameBtn" type="button" data-admin-tab="kodename" class="admin-tab shrink-0 rounded-xl text-white/55 hover:text-white px-4 sm:px-5 py-3 text-sm font-bold inline-flex items-center gap-2">
+        <i data-lucide="code-2" class="w-4 h-4"></i>Jasa Kodename
+        <span id="kodenameTabCount" class="min-w-5 h-5 px-1.5 rounded-full bg-white/10 grid place-items-center text-[10px]">0</span>
+      </button>
+      <button id="tabDeviceBtn" type="button" data-admin-tab="device" class="admin-tab shrink-0 rounded-xl text-white/55 hover:text-white px-4 sm:px-5 py-3 text-sm font-bold inline-flex items-center gap-2">
+        <i data-lucide="fingerprint" class="w-4 h-4"></i>Device ID
+        <span id="deviceTabCount" class="min-w-5 h-5 px-1.5 rounded-full bg-white/10 grid place-items-center text-[10px]">0</span>
+      </button>
+      <button id="tabToolsBtn" type="button" data-admin-tab="tools" class="admin-tab shrink-0 rounded-xl text-white/55 hover:text-white px-4 sm:px-5 py-3 text-sm font-bold inline-flex items-center gap-2">
+        <i data-lucide="wrench" class="w-4 h-4"></i>Tools Topup
+        <span id="toolsTabCount" class="min-w-5 h-5 px-1.5 rounded-full bg-white/10 grid place-items-center text-[10px]">0</span>
+      </button>
+    </nav>
+
+    <section id="topupAdminPanel">
+    <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+      <div>
+        <div class="inline-flex items-center gap-2 rounded-full border border-ub-500/20 bg-ub-500/10 px-3 py-1.5 text-xs font-bold text-ub-300"><i data-lucide="layout-dashboard" class="w-4 h-4"></i>PANEL PESANAN</div>
+        <h1 class="text-3xl sm:text-4xl font-extrabold mt-4">Kelola Pesanan</h1>
+        <p class="text-sm text-white/40 mt-2">Daftar diperbarui otomatis setiap 20 detik.</p>
+      </div>
+      <div id="lastUpdated" class="text-xs text-white/35">Belum dimuat</div>
+    </div>
+
+    <section class="grid grid-cols-2 lg:grid-cols-4 gap-3 mt-7">
+      <button data-filter="all" class="stat-filter text-left rounded-2xl border border-ub-500/35 bg-ub-500/10 p-4">
+        <div class="text-xs text-white/40">Antrean Aktif</div><div id="statTotal" class="text-2xl font-extrabold mt-1">0</div>
+      </button>
+      <button data-filter="waiting_verification" class="stat-filter text-left rounded-2xl border border-white/5 bg-[#202124] p-4">
+        <div class="text-xs text-white/40">Cek Bukti</div><div id="statWaitingVerification" class="text-2xl font-extrabold mt-1 text-amber-300">0</div>
+      </button>
+      <button data-filter="paid" class="stat-filter text-left rounded-2xl border border-white/5 bg-[#202124] p-4">
+        <div class="text-xs text-white/40">Sudah Bayar</div><div id="statPaid" class="text-2xl font-extrabold mt-1 text-emerald-300">0</div>
+      </button>
+      <button data-filter="processing" class="stat-filter text-left rounded-2xl border border-white/5 bg-[#202124] p-4">
+        <div class="text-xs text-white/40">Diproses</div><div id="statProcessing" class="text-2xl font-extrabold mt-1 text-sky-300">0</div>
+      </button>
+    </section>
+
+    <section class="mt-5 rounded-3xl border border-white/5 bg-[#202124] overflow-hidden">
+      <div class="p-4 sm:p-5 border-b border-white/5 flex flex-col lg:flex-row gap-3 lg:items-center lg:justify-between">
+        <div class="relative flex-1 max-w-xl">
+          <i data-lucide="search" class="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30"></i>
+          <input id="searchInput" class="w-full rounded-xl bg-[#171717] border border-white/10 pl-11 pr-4 py-3 outline-none focus:border-ub-500 text-sm" placeholder="Cari kode order, nama, WhatsApp, ID game...">
+        </div>
+        <div class="text-xs text-white/35"><span id="resultCount">0</span> pesanan ditampilkan</div>
+      </div>
+
+      <div id="loadingBox" class="p-12 text-center">
+        <i data-lucide="loader-circle" class="w-7 h-7 animate-spin text-ub-300 mx-auto"></i>
+        <p class="text-sm text-white/40 mt-3">Memuat pesanan...</p>
+      </div>
+      <div id="emptyBox" class="hidden p-12 text-center">
+        <i data-lucide="inbox" class="w-8 h-8 text-white/25 mx-auto"></i>
+        <b class="block mt-3">Tidak ada pesanan</b>
+        <p class="text-xs text-white/35 mt-1">Coba ubah pencarian atau filter.</p>
+      </div>
+      <div id="ordersList" class="hidden divide-y divide-white/5"></div>
+    </section>
+  
+    </section>
+
+    <section id="accountAdminPanel" class="hidden">
+      <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+        <div>
+          <div class="inline-flex items-center gap-2 rounded-full border border-ub-500/20 bg-ub-500/10 px-3 py-1.5 text-xs font-bold text-ub-300"><i data-lucide="key-round" class="w-4 h-4"></i>PESANAN AKUN</div>
+          <h1 class="text-3xl sm:text-4xl font-extrabold mt-4">Kelola Pembelian Akun</h1>
+          <p class="text-sm text-white/40 mt-2">Hanya pesanan akun yang sudah mengirim bukti pembayaran yang masuk ke antrean.</p>
+        </div>
+        <div id="accountLastUpdated" class="text-xs text-white/35">Belum dimuat</div>
+      </div>
+
+      <section class="grid sm:grid-cols-2 gap-3 mt-7 max-w-2xl">
+        <div class="rounded-2xl border border-amber-400/20 bg-amber-400/[.07] p-4">
+          <div class="text-xs text-white/40">Menunggu Verifikasi</div>
+          <div id="accountStatPending" class="text-2xl font-extrabold mt-1 text-amber-300">0</div>
+        </div>
+        <div class="rounded-2xl border border-white/5 bg-[#202124] p-4">
+          <div class="text-xs text-white/40">Antrean Aktif</div>
+          <div id="accountStatTotal" class="text-2xl font-extrabold mt-1">0</div>
+        </div>
+      </section>
+
+      <section class="mt-5 rounded-3xl border border-white/5 bg-[#202124] overflow-hidden">
+        <div class="p-4 sm:p-5 border-b border-white/5 flex flex-col lg:flex-row gap-3 lg:items-center lg:justify-between">
+          <div class="relative flex-1 max-w-xl">
+            <i data-lucide="search" class="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30"></i>
+            <input id="accountSearchInput" class="w-full rounded-xl bg-[#171717] border border-white/10 pl-11 pr-4 py-3 outline-none focus:border-ub-500 text-sm" placeholder="Cari kode order, nama, WhatsApp, atau akun...">
+          </div>
+          <div class="text-xs text-white/35"><span id="accountResultCount">0</span> pesanan ditampilkan</div>
+        </div>
+
+        <div id="accountLoadingBox" class="p-12 text-center">
+          <i data-lucide="loader-circle" class="w-7 h-7 animate-spin text-ub-300 mx-auto"></i>
+          <p class="text-sm text-white/40 mt-3">Memuat pesanan akun...</p>
+        </div>
+        <div id="accountEmptyBox" class="hidden p-12 text-center">
+          <i data-lucide="package-check" class="w-8 h-8 text-white/25 mx-auto"></i>
+          <b class="block mt-3">Tidak ada pesanan akun</b>
+          <p class="text-xs text-white/35 mt-1">Belum ada pembelian akun yang menunggu verifikasi.</p>
+        </div>
+        <div id="accountOrdersList" class="hidden divide-y divide-white/5"></div>
+      </section>
+    </section>
+
+    <section id="obbAdminPanel" class="hidden">
+      <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+        <div><div class="inline-flex items-center gap-2 rounded-full border border-emerald-400/20 bg-emerald-400/[.07] px-3 py-1.5 text-xs font-bold text-emerald-300"><i data-lucide="package-check" class="w-4 h-4"></i>JASA OBB</div><h1 class="text-3xl sm:text-4xl font-extrabold mt-4">Kelola Jasa Pasang OBB</h1><p class="text-sm text-white/40 mt-2">Pesanan masuk setelah pembeli mengirim bukti pembayaran.</p></div>
+        <div id="obbLastUpdated" class="text-xs text-white/35">Belum dimuat</div>
+      </div>
+      <section class="grid grid-cols-2 lg:grid-cols-4 gap-3 mt-7">
+        <div class="rounded-2xl border border-white/5 bg-[#202124] p-4"><div class="text-xs text-white/40">Antrean Aktif</div><div id="obbStatTotal" class="text-2xl font-extrabold mt-1">0</div></div>
+        <div class="rounded-2xl border border-amber-400/20 bg-amber-400/[.07] p-4"><div class="text-xs text-white/40">Cek Bukti</div><div id="obbStatPending" class="text-2xl font-extrabold mt-1 text-amber-300">0</div></div>
+        <div class="rounded-2xl border border-emerald-400/20 bg-emerald-400/[.05] p-4"><div class="text-xs text-white/40">Sudah Bayar</div><div id="obbStatPaid" class="text-2xl font-extrabold mt-1 text-emerald-300">0</div></div>
+        <div class="rounded-2xl border border-sky-400/20 bg-sky-400/[.05] p-4"><div class="text-xs text-white/40">Diproses</div><div id="obbStatProcessing" class="text-2xl font-extrabold mt-1 text-sky-300">0</div></div>
+      </section>
+      <section class="mt-5 rounded-3xl border border-white/5 bg-[#202124] overflow-hidden"><div class="p-4 sm:p-5 border-b border-white/5 flex flex-col lg:flex-row gap-3 lg:items-center lg:justify-between"><div class="relative flex-1 max-w-xl"><i data-lucide="search" class="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30"></i><input id="obbSearchInput" class="w-full rounded-xl bg-[#171717] border border-white/10 pl-11 pr-4 py-3 outline-none focus:border-ub-500 text-sm" placeholder="Cari kode order, nama, WhatsApp, game, atau OBB..."></div><div class="text-xs text-white/35"><span id="obbResultCount">0</span> pesanan ditampilkan</div></div><div id="obbLoadingBox" class="p-12 text-center"><i data-lucide="loader-circle" class="w-7 h-7 animate-spin text-ub-300 mx-auto"></i><p class="text-sm text-white/40 mt-3">Memuat pesanan OBB...</p></div><div id="obbEmptyBox" class="hidden p-12 text-center"><i data-lucide="package-open" class="w-8 h-8 text-white/25 mx-auto"></i><b class="block mt-3">Tidak ada pesanan OBB</b><p class="text-xs text-white/35 mt-1">Belum ada pesanan aktif yang sudah mengirim bukti.</p></div><div id="obbOrdersList" class="hidden divide-y divide-white/5"></div></section>
+    </section>
+
+    <section id="kodenameAdminPanel" class="hidden">
+      <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+        <div>
+          <div class="inline-flex items-center gap-2 rounded-full border border-cyan-400/20 bg-cyan-400/[.07] px-3 py-1.5 text-xs font-bold text-cyan-300"><i data-lucide="code-2" class="w-4 h-4"></i>JASA KODENAME</div>
+          <h1 class="text-3xl sm:text-4xl font-extrabold mt-4">Kelola Jasa Pasang Kodename</h1>
+          <p class="text-sm text-white/40 mt-2">Harga Rp5.000 per kodename. Pesanan masuk setelah bukti pembayaran dikirim.</p>
+        </div>
+        <div id="kodenameLastUpdated" class="text-xs text-white/35">Belum dimuat</div>
+      </div>
+
+      <section class="grid grid-cols-2 lg:grid-cols-4 gap-3 mt-7">
+        <div class="rounded-2xl border border-white/5 bg-[#202124] p-4"><div class="text-xs text-white/40">Antrean Aktif</div><div id="kodenameStatTotal" class="text-2xl font-extrabold mt-1">0</div></div>
+        <div class="rounded-2xl border border-amber-400/20 bg-amber-400/[.07] p-4"><div class="text-xs text-white/40">Cek Bukti</div><div id="kodenameStatPending" class="text-2xl font-extrabold mt-1 text-amber-300">0</div></div>
+        <div class="rounded-2xl border border-emerald-400/20 bg-emerald-400/[.05] p-4"><div class="text-xs text-white/40">Sudah Bayar</div><div id="kodenameStatPaid" class="text-2xl font-extrabold mt-1 text-emerald-300">0</div></div>
+        <div class="rounded-2xl border border-sky-400/20 bg-sky-400/[.05] p-4"><div class="text-xs text-white/40">Diproses</div><div id="kodenameStatProcessing" class="text-2xl font-extrabold mt-1 text-sky-300">0</div></div>
+      </section>
+
+      <section class="mt-5 rounded-3xl border border-white/5 bg-[#202124] overflow-hidden">
+        <div class="p-4 sm:p-5 border-b border-white/5 flex flex-col lg:flex-row gap-3 lg:items-center lg:justify-between">
+          <div class="relative flex-1 max-w-xl"><i data-lucide="search" class="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30"></i><input id="kodenameSearchInput" class="w-full rounded-xl bg-[#171717] border border-white/10 pl-11 pr-4 py-3 outline-none focus:border-ub-500 text-sm" placeholder="Cari kode order, nama, WhatsApp, atau kodename..."></div>
+          <div class="text-xs text-white/35"><span id="kodenameResultCount">0</span> pesanan ditampilkan</div>
+        </div>
+        <div id="kodenameLoadingBox" class="p-12 text-center"><i data-lucide="loader-circle" class="w-7 h-7 animate-spin text-ub-300 mx-auto"></i><p class="text-sm text-white/40 mt-3">Memuat pesanan Kodename...</p></div>
+        <div id="kodenameEmptyBox" class="hidden p-12 text-center"><i data-lucide="code-2" class="w-8 h-8 text-white/25 mx-auto"></i><b class="block mt-3">Tidak ada pesanan Kodename</b><p class="text-xs text-white/35 mt-1">Belum ada pesanan aktif yang sudah mengirim bukti.</p></div>
+        <div id="kodenameOrdersList" class="hidden divide-y divide-white/5"></div>
+      </section>
+    </section>
+
+    <section id="deviceAdminPanel" class="hidden">
+      <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+        <div>
+          <div class="inline-flex items-center gap-2 rounded-full border border-amber-400/20 bg-amber-400/[.07] px-3 py-1.5 text-xs font-bold text-amber-300"><i data-lucide="fingerprint" class="w-4 h-4"></i>DEVICE ID</div>
+          <h1 class="text-3xl sm:text-4xl font-extrabold mt-4">Kelola Jasa Ambil Device ID</h1>
+          <p class="text-sm text-white/40 mt-2">Harga Rp30.000. Setelah pembayaran diverifikasi, hubungi pembeli melalui WhatsApp.</p>
+        </div>
+        <div id="deviceLastUpdated" class="text-xs text-white/35">Belum dimuat</div>
+      </div>
+
+      <section class="grid grid-cols-2 lg:grid-cols-4 gap-3 mt-7">
+        <div class="rounded-2xl border border-white/5 bg-[#202124] p-4"><div class="text-xs text-white/40">Antrean Aktif</div><div id="deviceStatTotal" class="text-2xl font-extrabold mt-1">0</div></div>
+        <div class="rounded-2xl border border-amber-400/20 bg-amber-400/[.07] p-4"><div class="text-xs text-white/40">Cek Bukti</div><div id="deviceStatPending" class="text-2xl font-extrabold mt-1 text-amber-300">0</div></div>
+        <div class="rounded-2xl border border-violet-400/20 bg-violet-400/[.05] p-4"><div class="text-xs text-white/40">Hubungi WA</div><div id="deviceStatContact" class="text-2xl font-extrabold mt-1 text-violet-300">0</div></div>
+        <div class="rounded-2xl border border-sky-400/20 bg-sky-400/[.05] p-4"><div class="text-xs text-white/40">Diproses</div><div id="deviceStatProcessing" class="text-2xl font-extrabold mt-1 text-sky-300">0</div></div>
+      </section>
+
+      <section class="mt-5 rounded-3xl border border-white/5 bg-[#202124] overflow-hidden">
+        <div class="p-4 sm:p-5 border-b border-white/5 flex flex-col lg:flex-row gap-3 lg:items-center lg:justify-between">
+          <div class="relative flex-1 max-w-xl"><i data-lucide="search" class="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30"></i><input id="deviceSearchInput" class="w-full rounded-xl bg-[#171717] border border-white/10 pl-11 pr-4 py-3 outline-none focus:border-ub-500 text-sm" placeholder="Cari kode order, nama, atau WhatsApp..."></div>
+          <div class="text-xs text-white/35"><span id="deviceResultCount">0</span> pesanan ditampilkan</div>
+        </div>
+        <div id="deviceLoadingBox" class="p-12 text-center"><i data-lucide="loader-circle" class="w-7 h-7 animate-spin text-ub-300 mx-auto"></i><p class="text-sm text-white/40 mt-3">Memuat pesanan Device ID...</p></div>
+        <div id="deviceEmptyBox" class="hidden p-12 text-center"><i data-lucide="fingerprint" class="w-8 h-8 text-white/25 mx-auto"></i><b class="block mt-3">Tidak ada pesanan Device ID</b><p class="text-xs text-white/35 mt-1">Belum ada pesanan aktif yang sudah mengirim bukti.</p></div>
+        <div id="deviceOrdersList" class="hidden divide-y divide-white/5"></div>
+      </section>
+    </section>
+
+    <section id="toolsAdminPanel" class="hidden">
+      <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+        <div>
+          <div class="inline-flex items-center gap-2 rounded-full border border-ub-500/20 bg-ub-500/[.07] px-3 py-1.5 text-xs font-bold text-ub-300">
+            <i data-lucide="wrench" class="w-4 h-4"></i>TOOLS TOPUP
+          </div>
+          <h1 class="text-3xl sm:text-4xl font-extrabold mt-4">Kelola Tools Topup</h1>
+          <p class="text-sm text-white/40 mt-2">Kelola pengguna Tools, saldo Credit, dan pembelian Credit dari satu panel.</p>
+        </div>
+        <div id="toolsLastUpdated" class="text-xs text-white/35">Belum dimuat</div>
+      </div>
+
+      <section class="grid grid-cols-2 lg:grid-cols-4 gap-3 mt-7">
+        <div class="rounded-2xl border border-white/5 bg-[#202124] p-4">
+          <div class="text-xs text-white/40">Total Pengguna</div>
+          <div id="toolsStatUsers" class="text-2xl font-extrabold mt-1">0</div>
+        </div>
+        <div class="rounded-2xl border border-emerald-400/15 bg-emerald-400/[.05] p-4">
+          <div class="text-xs text-white/40">Pengguna Aktif</div>
+          <div id="toolsStatActiveUsers" class="text-2xl font-extrabold mt-1 text-emerald-300">0</div>
+        </div>
+        <div class="rounded-2xl border border-ub-500/20 bg-ub-500/[.06] p-4">
+          <div class="text-xs text-white/40">Total Credit User</div>
+          <div id="toolsStatCredit" class="text-2xl font-extrabold mt-1 text-ub-300">0</div>
+        </div>
+        <div class="rounded-2xl border border-amber-400/20 bg-amber-400/[.07] p-4">
+          <div class="text-xs text-white/40">Menunggu Verifikasi</div>
+          <div id="toolsStatPending" class="text-2xl font-extrabold mt-1 text-amber-300">0</div>
+        </div>
+      </section>
+
+      <section class="mt-5 rounded-3xl border border-white/5 bg-[#202124] overflow-hidden">
+        <div class="p-4 sm:p-5 border-b border-white/5">
+          <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
+            <div>
+              <h2 class="font-extrabold text-lg">Pembelian Credit</h2>
+              <p class="text-xs text-white/35 mt-1">Periksa bukti pembayaran sebelum menambah Credit ke pengguna.</p>
+            </div>
+            <div class="flex flex-col sm:flex-row gap-2">
+              <div class="relative min-w-0 sm:w-72">
+                <i data-lucide="search" class="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30"></i>
+                <input id="toolsOrderSearchInput" class="w-full rounded-xl bg-[#171717] border border-white/10 pl-10 pr-3 py-2.5 outline-none focus:border-ub-500 text-xs" placeholder="Cari order atau username...">
+              </div>
+              <select id="toolsOrderStatusFilter" class="rounded-xl bg-[#171717] border border-white/10 px-3 py-2.5 text-xs outline-none focus:border-ub-500">
+                <option value="PENDING">Menunggu</option>
+                <option value="ALL">Semua</option>
+                <option value="APPROVED">Disetujui</option>
+                <option value="REJECTED">Ditolak</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div id="toolsOrdersLoading" class="p-10 text-center">
+          <i data-lucide="loader-circle" class="w-7 h-7 animate-spin text-ub-300 mx-auto"></i>
+          <p class="text-sm text-white/40 mt-3">Memuat pembelian Credit...</p>
+        </div>
+        <div id="toolsOrdersEmpty" class="hidden p-10 text-center">
+          <i data-lucide="receipt-text" class="w-8 h-8 text-white/20 mx-auto"></i>
+          <b class="block mt-3">Tidak ada pembelian Credit</b>
+          <p class="text-xs text-white/35 mt-1">Tidak ada data yang sesuai filter.</p>
+        </div>
+        <div id="toolsOrdersList" class="hidden divide-y divide-white/5"></div>
+      </section>
+
+      <section class="mt-5 rounded-3xl border border-white/5 bg-[#202124] overflow-hidden">
+        <div class="p-4 sm:p-5 border-b border-white/5 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
+          <div>
+            <h2 class="font-extrabold text-lg">Pengguna Tools</h2>
+            <p class="text-xs text-white/35 mt-1">Lihat akun dan lakukan penyesuaian Credit jika diperlukan.</p>
+          </div>
+          <div class="relative min-w-0 lg:w-80">
+            <i data-lucide="search" class="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30"></i>
+            <input id="toolsUserSearchInput" class="w-full rounded-xl bg-[#171717] border border-white/10 pl-10 pr-3 py-2.5 outline-none focus:border-ub-500 text-xs" placeholder="Cari username, email, atau nomor HP...">
+          </div>
+        </div>
+
+        <div id="toolsUsersLoading" class="p-10 text-center">
+          <i data-lucide="loader-circle" class="w-7 h-7 animate-spin text-ub-300 mx-auto"></i>
+          <p class="text-sm text-white/40 mt-3">Memuat pengguna Tools...</p>
+        </div>
+        <div id="toolsUsersEmpty" class="hidden p-10 text-center">
+          <i data-lucide="users" class="w-8 h-8 text-white/20 mx-auto"></i>
+          <b class="block mt-3">Pengguna tidak ditemukan</b>
+        </div>
+        <div id="toolsUsersList" class="hidden divide-y divide-white/5"></div>
+      </section>
+    </section>
+  </main>
+
+
+  <div id="toolsOrderModal" class="hidden fixed inset-0 z-[91] modal-backdrop overflow-y-auto p-3 sm:p-6">
+    <div class="min-h-full grid place-items-center">
+      <div class="w-full max-w-2xl rounded-3xl border border-white/10 bg-[#202124] shadow-2xl overflow-hidden">
+        <div class="p-5 border-b border-white/5 flex items-center justify-between gap-4">
+          <div>
+            <div class="text-xs font-bold tracking-[.16em] text-ub-300">PEMBELIAN CREDIT</div>
+            <h2 id="toolsOrderModalCode" class="text-xl font-extrabold mt-1">-</h2>
+          </div>
+          <button id="toolsOrderCloseBtn" class="w-10 h-10 rounded-xl border border-white/10 grid place-items-center text-white/60 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
+        </div>
+        <div id="toolsOrderModalBody" class="p-5 sm:p-6"></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="toolsUserModal" class="hidden fixed inset-0 z-[92] modal-backdrop overflow-y-auto p-3 sm:p-6">
+    <div class="min-h-full grid place-items-center">
+      <div class="w-full max-w-lg rounded-3xl border border-white/10 bg-[#202124] shadow-2xl overflow-hidden">
+        <div class="p-5 border-b border-white/5 flex items-center justify-between gap-4">
+          <div>
+            <div class="text-xs font-bold tracking-[.16em] text-ub-300">PENGGUNA TOOLS</div>
+            <h2 id="toolsUserModalName" class="text-xl font-extrabold mt-1">-</h2>
+          </div>
+          <button id="toolsUserCloseBtn" class="w-10 h-10 rounded-xl border border-white/10 grid place-items-center text-white/60 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
+        </div>
+        <div id="toolsUserModalBody" class="p-5 sm:p-6"></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="deviceDetailModal" class="hidden fixed inset-0 z-[88] modal-backdrop overflow-y-auto p-3 sm:p-6">
+    <div class="min-h-full grid place-items-center">
+      <div class="w-full max-w-2xl rounded-3xl border border-white/10 bg-[#202124] shadow-2xl overflow-hidden">
+        <div class="p-5 border-b border-white/5 flex items-center justify-between gap-4">
+          <div><div class="text-xs font-bold tracking-[.16em] text-amber-300">DETAIL DEVICE ID</div><h2 id="deviceModalOrderCode" class="text-xl font-extrabold mt-1">-</h2></div>
+          <button id="deviceCloseModalBtn" class="w-10 h-10 rounded-xl border border-white/10 grid place-items-center text-white/60 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
+        </div>
+        <div id="deviceModalBody" class="p-5 sm:p-6"></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="kodenameDetailModal" class="hidden fixed inset-0 z-[87] modal-backdrop overflow-y-auto p-3 sm:p-6">
+    <div class="min-h-full grid place-items-center">
+      <div class="w-full max-w-3xl rounded-3xl border border-white/10 bg-[#202124] shadow-2xl overflow-hidden">
+        <div class="p-5 border-b border-white/5 flex items-center justify-between gap-4">
+          <div><div class="text-xs font-bold tracking-[.16em] text-cyan-300">DETAIL JASA KODENAME</div><h2 id="kodenameModalOrderCode" class="text-xl font-extrabold mt-1">-</h2></div>
+          <button id="kodenameCloseModalBtn" class="w-10 h-10 rounded-xl border border-white/10 grid place-items-center text-white/60 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
+        </div>
+        <div id="kodenameModalBody" class="p-5 sm:p-6"></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="obbDetailModal" class="hidden fixed inset-0 z-[86] modal-backdrop overflow-y-auto p-3 sm:p-6"><div class="min-h-full grid place-items-center"><div class="w-full max-w-3xl rounded-3xl border border-white/10 bg-[#202124] shadow-2xl overflow-hidden"><div class="p-5 border-b border-white/5 flex items-center justify-between gap-4"><div><div class="text-xs font-bold tracking-[.16em] text-emerald-300">DETAIL JASA OBB</div><h2 id="obbModalOrderCode" class="text-xl font-extrabold mt-1">-</h2></div><button id="obbCloseModalBtn" class="w-10 h-10 rounded-xl border border-white/10 grid place-items-center text-white/60 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button></div><div id="obbModalBody" class="p-5 sm:p-6"></div></div></div></div>
+
+
+  <div id="accountDetailModal" class="hidden fixed inset-0 z-[85] modal-backdrop overflow-y-auto p-3 sm:p-6">
+    <div class="min-h-full grid place-items-center">
+      <div class="w-full max-w-3xl rounded-3xl border border-white/10 bg-[#202124] shadow-2xl overflow-hidden">
+        <div class="p-5 border-b border-white/5 flex items-center justify-between gap-4">
+          <div><div class="text-xs font-bold tracking-[.16em] text-ub-300">DETAIL PESANAN AKUN</div><h2 id="accountModalOrderCode" class="text-xl font-extrabold mt-1">-</h2></div>
+          <button id="accountCloseModalBtn" class="w-10 h-10 rounded-xl border border-white/10 grid place-items-center text-white/60 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
+        </div>
+        <div id="accountModalBody" class="p-5 sm:p-6"></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="detailModal" class="hidden fixed inset-0 z-[80] modal-backdrop overflow-y-auto p-3 sm:p-6">
+    <div class="min-h-full grid place-items-center">
+      <div class="w-full max-w-3xl rounded-3xl border border-white/10 bg-[#202124] shadow-2xl overflow-hidden">
+        <div class="p-5 border-b border-white/5 flex items-center justify-between gap-4">
+          <div><div class="text-xs font-bold tracking-[.16em] text-ub-300">DETAIL PESANAN</div><h2 id="modalOrderCode" class="text-xl font-extrabold mt-1">-</h2></div>
+          <button id="closeModalBtn" class="w-10 h-10 rounded-xl border border-white/10 grid place-items-center text-white/60 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
+        </div>
+        <div id="modalBody" class="p-5 sm:p-6"></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="confirmModal" class="hidden fixed inset-0 z-[110] modal-backdrop p-4">
+    <div class="min-h-full grid place-items-center">
+      <div class="w-full max-w-md rounded-3xl border border-white/10 bg-[#202124] shadow-2xl overflow-hidden">
+        <div class="p-6">
+          <div id="confirmIcon" class="w-12 h-12 rounded-2xl bg-ub-500/10 text-ub-300 grid place-items-center"><i data-lucide="circle-help" class="w-6 h-6"></i></div>
+          <h3 id="confirmTitle" class="text-xl font-extrabold mt-4">Konfirmasi</h3>
+          <p id="confirmText" class="text-sm text-white/50 mt-2 leading-6"></p>
+          <div class="grid grid-cols-2 gap-3 mt-6">
+            <button id="confirmCancelBtn" type="button" class="rounded-xl border border-white/10 py-3 px-4 text-sm font-bold text-white/70 hover:text-white">Kembali</button>
+            <button id="confirmOkBtn" type="button" class="rounded-xl bg-ub-500 hover:bg-ub-400 py-3 px-4 text-sm font-extrabold text-black">Ya, Lanjutkan</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" class="fixed z-[120] right-4 bottom-4 hidden max-w-sm rounded-2xl border border-white/10 bg-[#2b2d31] p-4 shadow-2xl">
+    <b id="toastTitle" class="text-sm"></b><p id="toastText" class="text-xs text-white/50 mt-1 leading-5"></p>
+  </div>
+
+<script>
+const API_URL = 'https://script.google.com/macros/s/AKfycbxzv5Q1e8Ety6HbmMYgTsoa_DIDyAkP_15M3xF8Fzpx302f5CS69xaRv5UekDUMMPFq/exec';
+// API_TOKEN ini memang token API publik yang juga dipakai frontend pembeli.
+// Keamanan panel admin berasal dari ADMIN_TOKEN terpisah, bukan nilai ini.
+const API_TOKEN = '9fK2xP7mQ4vL8sT1zR6aW3nY5';
+const ADMIN_SESSION_KEY = 'ub_admin_token';
+
+let adminToken = sessionStorage.getItem(ADMIN_SESSION_KEY) || '';
+let orders = [];
+let currentFilter = 'all';
+let currentOrder = null;
+let refreshTimer = null;
+let toastTimer = null;
+let confirmResolver = null;
+let activeAdminTab = 'topup';
+let accountOrders = [];
+let currentAccountOrder = null;
+let obbOrders = [];
+let currentObbOrder = null;
+let kodenameOrders = [];
+let currentKodenameOrder = null;
+let deviceOrders = [];
+let currentDeviceOrder = null;
+let toolsOrders = [];
+let toolsUsers = [];
+let currentToolsOrder = null;
+let currentToolsUser = null;
+
+
+const $ = id => document.getElementById(id);
+const rup = n => new Intl.NumberFormat('id-ID',{style:'currency',currency:'IDR',maximumFractionDigits:0}).format(Number(n||0));
+const escapeHtml = value => String(value ?? '').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
+
+function fmtDate(value){
+  if(!value) return '-';
+  try{return new Intl.DateTimeFormat('id-ID',{dateStyle:'medium',timeStyle:'short',timeZone:'Asia/Jakarta'}).format(new Date(value));}catch(_){return value;}
+}
+function normalizeWa(value){
+  let d=String(value||'').replace(/\D/g,'');
+  if(d.startsWith('0'))d='62'+d.slice(1); else if(d.startsWith('8'))d='62'+d;
+  return d;
+}
+function showToast(title,text){
+  $('toastTitle').textContent=title;$('toastText').textContent=text||'';$('toast').classList.remove('hidden');
+  clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('toast').classList.add('hidden'),3500);
+}
+function askConfirmation({title='Konfirmasi',text='',danger=false}={}){
+  return new Promise(resolve=>{
+    confirmResolver=resolve;
+    $('confirmTitle').textContent=title;
+    $('confirmText').textContent=text;
+    const ok=$('confirmOkBtn');
+    ok.textContent=danger?'Ya, Batalkan':'Ya, Lanjutkan';
+    ok.className=danger
+      ? 'rounded-xl bg-red-500 hover:bg-red-400 py-3 px-4 text-sm font-extrabold text-white'
+      : 'rounded-xl bg-ub-500 hover:bg-ub-400 py-3 px-4 text-sm font-extrabold text-black';
+    $('confirmModal').classList.remove('hidden');
+    lucide.createIcons();
+  });
+}
+function resolveConfirmation(value){
+  $('confirmModal').classList.add('hidden');
+  const resolve=confirmResolver;confirmResolver=null;
+  if(resolve)resolve(Boolean(value));
+}
+function setLoginError(message){const el=$('loginError');el.textContent=message;el.classList.toggle('hidden',!message);}
+function setButtonLoading(btn,on,label){
+  if(!btn)return;
+  if(on){btn.dataset.old=btn.innerHTML;btn.disabled=true;btn.classList.add('opacity-60','cursor-not-allowed');btn.innerHTML=`<i data-lucide="loader-circle" class="w-4 h-4 animate-spin"></i>${escapeHtml(label||'Memproses...')}`;}
+  else{btn.disabled=false;btn.classList.remove('opacity-60','cursor-not-allowed');if(btn.dataset.old)btn.innerHTML=btn.dataset.old;}
+  lucide.createIcons();
+}
+
+async function apiPost(action,payload={}){
+  const body={...payload,action,token:API_TOKEN,admin_token:adminToken};
+  let response;
+  try{
+    response=await fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=UTF-8',Accept:'application/json'},body:JSON.stringify(body),cache:'no-store',redirect:'follow'});
+  }catch(_){throw new Error('Tidak dapat menghubungi backend.');}
+  const text=await response.text();
+  let data;try{data=JSON.parse(text);}catch(_){throw new Error('Respons backend tidak valid.');}
+  if(!response.ok||data.success===false){
+    const err=new Error(data.error||`Request gagal (${response.status}).`);err.data=data;throw err;
+  }
+  return data;
+}
+
+function orderBucket(o){
+  const pay=String(o.payment_status||'PENDING').toUpperCase();
+  const tx=String(o.transaction_status||'PENDING').toUpperCase();
+  if(tx==='COMPLETED')return 'completed';
+  if(['CANCELLED','CANCELED'].includes(tx))return 'cancelled';
+  if(['PROCESSING','PROCESSED'].includes(tx))return 'processing';
+  if(['PAID','VERIFIED'].includes(pay))return 'paid';
+  if(o.payment_submitted_at||o.payment_proof_path)return 'waiting_verification';
+  return 'unpaid';
+}
+function statusBadge(o){
+  const bucket=orderBucket(o),pay=String(o.payment_status||'PENDING').toUpperCase();
+  if(bucket==='completed')return '<span class="rounded-full bg-emerald-400/10 border border-emerald-400/20 px-2.5 py-1 text-[11px] font-bold text-emerald-300">SELESAI</span>';
+  if(bucket==='cancelled')return '<span class="rounded-full bg-red-400/10 border border-red-400/20 px-2.5 py-1 text-[11px] font-bold text-red-300">BATAL</span>';
+  if(bucket==='processing')return '<span class="rounded-full bg-sky-400/10 border border-sky-400/20 px-2.5 py-1 text-[11px] font-bold text-sky-300">DIPROSES</span>';
+  if(bucket==='waiting_verification')return '<span class="rounded-full bg-amber-400/10 border border-amber-400/20 px-2.5 py-1 text-[11px] font-bold text-amber-300">CEK BUKTI</span>';
+  if(bucket==='paid')return '<span class="rounded-full bg-emerald-400/10 border border-emerald-400/20 px-2.5 py-1 text-[11px] font-bold text-emerald-300">SUDAH BAYAR</span>';
+  return '<span class="rounded-full bg-white/5 border border-white/10 px-2.5 py-1 text-[11px] font-bold text-white/45">TIDAK AKTIF</span>';
+}
+
+function applyStats(stats={}){
+  const total=stats.total??orders.length;
+  $('statTotal').textContent=total;
+  $('topupTabCount').textContent=total;
+  $('statWaitingVerification').textContent=stats.waiting_verification??0;
+  $('statPaid').textContent=stats.paid??0;
+  $('statProcessing').textContent=stats.processing??0;
+}
+
+function filteredOrders(){
+  const q=$('searchInput').value.trim().toLowerCase();
+  return orders.filter(o=>{
+    if(currentFilter!=='all'&&orderBucket(o)!==currentFilter)return false;
+    if(!q)return true;
+    return [o.order_code,o.customer_name,o.whatsapp,o.game_id_value,o.product_name,o.payment_method_name]
+      .some(v=>String(v||'').toLowerCase().includes(q));
+  });
+}
+
+function renderOrders(){
+  const list=filteredOrders();$('resultCount').textContent=list.length;
+  $('loadingBox').classList.add('hidden');
+  $('ordersList').classList.toggle('hidden',!list.length);
+  $('emptyBox').classList.toggle('hidden',!!list.length);
+  if(!list.length)return;
+
+  $('ordersList').innerHTML=list.map(o=>`
+    <button type="button" data-code="${escapeHtml(o.order_code)}" class="order-row w-full text-left p-4 sm:p-5 hover:bg-white/[.025] transition">
+      <div class="flex flex-col lg:flex-row lg:items-center gap-4">
+        <div class="lg:w-[210px] shrink-0">
+          <div class="flex items-center gap-2 flex-wrap">${statusBadge(o)}</div>
+          <b class="block text-ub-300 mt-2 tracking-wide">${escapeHtml(o.order_code||'-')}</b>
+          <div class="text-[11px] text-white/30 mt-1">${escapeHtml(fmtDate(o.created_at))}</div>
+        </div>
+        <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-3 flex-1 min-w-0">
+          <div><div class="text-[10px] uppercase tracking-wider text-white/30">Pembeli</div><b class="text-sm block truncate mt-1">${escapeHtml(o.customer_name||'-')}</b><div class="text-xs text-white/35 truncate">${escapeHtml(o.whatsapp||'-')}</div></div>
+          <div><div class="text-[10px] uppercase tracking-wider text-white/30">Produk</div><b class="text-sm block truncate mt-1">${escapeHtml(o.product_name||'-')}</b><div class="text-xs text-white/35">ID: ${escapeHtml(o.game_id_value||'-')}</div></div>
+          <div><div class="text-[10px] uppercase tracking-wider text-white/30">Pembayaran</div><b class="text-sm block truncate mt-1">${escapeHtml(o.payment_method_name||'-')}</b><div class="text-xs ${o.payment_submitted_at?'text-amber-300':'text-white/35'}">${o.payment_submitted_at?'Bukti sudah dikirim':'Belum ada bukti'}</div></div>
+          <div class="lg:text-right"><div class="text-[10px] uppercase tracking-wider text-white/30">Total</div><b class="text-base text-ub-300 block mt-1">${rup(o.total)}</b><div class="text-xs text-white/35">${escapeHtml(o.payment_status||'PENDING')} / ${escapeHtml(o.transaction_status||'PENDING')}</div></div>
+        </div>
+        <i data-lucide="chevron-right" class="w-5 h-5 text-white/25 shrink-0 hidden lg:block"></i>
+      </div>
+    </button>`).join('');
+
+  document.querySelectorAll('.order-row').forEach(btn=>btn.addEventListener('click',()=>openOrder(btn.dataset.code)));
+  lucide.createIcons();
+}
+
+async function loadOrders({silent=false}={}){
+  if(!adminToken)return;
+  if(!silent){$('loadingBox').classList.remove('hidden');$('ordersList').classList.add('hidden');$('emptyBox').classList.add('hidden');}
+  try{
+    const result=await apiPost('adminListTransactions',{limit:300});
+    orders=Array.isArray(result.data)?result.data:[];applyStats(result.stats||{});renderOrders();
+    $('lastUpdated').textContent='Diperbarui '+new Intl.DateTimeFormat('id-ID',{timeStyle:'medium'}).format(new Date());
+  }catch(error){
+    if(/admin|akses|token|Unauthorized/i.test(error.message)){logout(false);setLoginError(error.message);}
+    else if(!silent)showToast('Gagal memuat pesanan',error.message);
+  }
+}
+
+function detailLine(label,value,extra=''){
+  return `<div class="p-4 flex justify-between gap-5"><span class="text-white/35 text-sm">${escapeHtml(label)}</span><div class="text-right min-w-0"><b class="text-sm break-words">${value}</b>${extra}</div></div>`;
+}
+
+async function openOrder(code){
+  $('detailModal').classList.remove('hidden');document.body.classList.add('overflow-hidden');
+  $('modalOrderCode').textContent=code||'-';
+  $('modalBody').innerHTML='<div class="py-12 text-center"><i data-lucide="loader-circle" class="w-7 h-7 animate-spin text-ub-300 mx-auto"></i><p class="text-sm text-white/40 mt-3">Memuat detail...</p></div>';lucide.createIcons();
+  try{
+    const result=await apiPost('adminGetTransaction',{order_code:code});currentOrder=result.data;renderDetail(currentOrder);
+  }catch(error){$('modalBody').innerHTML=`<div class="rounded-2xl border border-red-400/20 bg-red-400/10 p-4 text-sm text-red-200">${escapeHtml(error.message)}</div>`;}
+}
+
+function renderDetail(o){
+  const wa=normalizeWa(o.whatsapp);
+  const bucket=orderBucket(o);
+  $('modalOrderCode').textContent=o.order_code||'-';
+  $('modalBody').innerHTML=`
+    <div class="flex items-center justify-between gap-3 flex-wrap mb-4">${statusBadge(o)}<div class="text-xs text-white/35">Dibuat ${escapeHtml(fmtDate(o.created_at))}</div></div>
+
+    <div class="rounded-2xl border border-white/5 bg-[#171717] divide-y divide-white/5 overflow-hidden">
+      ${detailLine('Nama',escapeHtml(o.customer_name||'-'))}
+      ${detailLine('WhatsApp',`<a class="text-emerald-300 hover:underline" target="_blank" rel="noopener" href="https://wa.me/${wa}">${escapeHtml(o.whatsapp||'-')}</a>`)}
+      ${detailLine('ID Game',`<span class="font-mono">${escapeHtml(o.game_id_value||'-')}</span>`)}
+      ${detailLine('Produk',escapeHtml(o.product_name||'-'),o.product_amount?`<div class="text-xs text-white/35 mt-1">${Number(o.product_amount).toLocaleString('id-ID')} koin</div>`:'')}
+      ${detailLine('Pembayaran',escapeHtml(o.payment_method_name||'-'))}
+      ${detailLine('Promo',escapeHtml(o.promo_code||'-'))}
+      ${detailLine('Subtotal',rup(o.subtotal))}
+      ${detailLine('Diskon',rup(o.discount))}
+      ${detailLine('Biaya Admin',rup(o.payment_fee))}
+      ${detailLine('Kode Unik',rup(o.unique_code))}
+      ${detailLine('Total',`<span class="text-ub-300 text-lg">${rup(o.total)}</span>`)}
+      ${detailLine('Status Bayar',escapeHtml(o.payment_status||'PENDING'))}
+      ${detailLine('Status Pesanan',escapeHtml(o.transaction_status||'PENDING'))}
+      ${detailLine('Bukti Dikirim',escapeHtml(fmtDate(o.payment_submitted_at)))}
+      ${detailLine('Diverifikasi',escapeHtml(fmtDate(o.paid_at)))}
+      ${detailLine('Diproses',escapeHtml(fmtDate(o.processed_at)))}
+      ${detailLine('Selesai',escapeHtml(fmtDate(o.completed_at)))}
+    </div>
+
+    <div class="mt-5">
+      <div class="flex items-center justify-between gap-3"><h3 class="font-bold">Bukti Pembayaran</h3>${o.payment_proof_name?`<span class="text-[11px] text-white/35">${escapeHtml(o.payment_proof_name)}</span>`:''}</div>
+      <div id="proofArea" class="mt-3 rounded-2xl border border-white/10 bg-[#171717] min-h-28 grid place-items-center overflow-hidden">
+        ${o.payment_proof_path?'<button id="loadProofBtn" class="rounded-xl border border-white/10 px-4 py-3 text-sm font-bold text-ub-300 inline-flex gap-2 items-center"><i data-lucide="image" class="w-4 h-4"></i>Tampilkan Bukti</button>':'<div class="p-6 text-center text-sm text-white/35">Pembeli belum mengirim bukti pembayaran.</div>'}
+      </div>
+    </div>
+
+    <div class="mt-5 pt-5 border-t border-white/5">
+      <div class="text-xs font-bold tracking-[.14em] text-white/35 mb-3">AKSI ADMIN</div>
+      <div class="grid sm:grid-cols-2 gap-3">
+        ${bucket==='waiting_verification'?'<button data-command="VERIFY_PAYMENT" class="admin-action rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black font-extrabold py-3 px-4 inline-flex justify-center items-center gap-2"><i data-lucide="badge-check" class="w-4 h-4"></i>Verifikasi Pembayaran</button>':''}
+        ${bucket==='paid'?'<button data-command="PROCESS" class="admin-action rounded-xl bg-sky-500 hover:bg-sky-400 text-black font-extrabold py-3 px-4 inline-flex justify-center items-center gap-2"><i data-lucide="loader-circle" class="w-4 h-4"></i>Proses Top Up</button>':''}
+        ${bucket==='processing'?'<button data-command="COMPLETE" class="admin-action rounded-xl bg-ub-500 hover:bg-ub-400 text-black font-extrabold py-3 px-4 inline-flex justify-center items-center gap-2"><i data-lucide="circle-check-big" class="w-4 h-4"></i>Tandai Selesai</button>':''}
+        ${!['completed','cancelled'].includes(bucket)?'<button data-command="CANCEL" class="admin-action rounded-xl border border-red-400/25 bg-red-400/10 text-red-200 font-extrabold py-3 px-4 inline-flex justify-center items-center gap-2"><i data-lucide="circle-x" class="w-4 h-4"></i>Batalkan Pesanan</button>':''}
+      </div>
+    </div>`;
+
+  $('loadProofBtn')?.addEventListener('click',loadProof);
+  document.querySelectorAll('.admin-action').forEach(btn=>btn.addEventListener('click',()=>updateOrder(btn.dataset.command,btn)));
+  lucide.createIcons();
+}
+
+async function loadProof(){
+  if(!currentOrder)return;
+  const btn=$('loadProofBtn');setButtonLoading(btn,true,'Membuka...');
+  try{
+    const result=await apiPost('adminGetPaymentProofUrl',{order_code:currentOrder.order_code});
+    $('proofArea').innerHTML=`<a href="${escapeHtml(result.data.url)}" target="_blank" rel="noopener" class="block w-full"><img src="${escapeHtml(result.data.url)}" alt="Bukti pembayaran ${escapeHtml(currentOrder.order_code)}" class="max-h-[520px] w-full object-contain bg-black/20"></a><div class="p-3 text-center text-[11px] text-white/35">URL bukti berlaku sementara. Klik gambar untuk membuka ukuran penuh.</div>`;
+  }catch(error){$('proofArea').innerHTML=`<div class="p-5 text-sm text-red-200">${escapeHtml(error.message)}</div>`;}
+  finally{setButtonLoading(btn,false);}
+}
+
+const commandLabels={VERIFY_PAYMENT:'verifikasi pembayaran',PROCESS:'memproses top up',COMPLETE:'menyelesaikan pesanan',CANCEL:'membatalkan pesanan'};
+async function updateOrder(command,btn){
+  if(!currentOrder)return;
+  const label=commandLabels[command]||command;
+  const code=currentOrder.order_code;
+  const approved=await askConfirmation({
+    title: command==='CANCEL'?'Batalkan Pesanan?':'Konfirmasi Aksi',
+    text:`Yakin ingin ${label} untuk pesanan ${code}?`,
+    danger:command==='CANCEL'
+  });
+  if(!approved)return;
+  setButtonLoading(btn,true,'Memproses...');
+  try{
+    await apiPost('adminUpdateOrder',{order_code:code,command});
+    showToast('Pesanan diperbarui',`${code}: ${label}.`);
+    if(['COMPLETE','CANCEL'].includes(command)){
+      closeModal();
+      await loadOrders({silent:true});
+      return;
+    }
+    await loadOrders({silent:true});
+    const result=await apiPost('adminGetTransaction',{order_code:code});currentOrder=result.data;renderDetail(currentOrder);
+  }catch(error){showToast('Update gagal',error.message);}
+  finally{setButtonLoading(btn,false);}
+}
+
+
+function filteredAccountOrders(){
+  const q=$('accountSearchInput').value.trim().toLowerCase();
+  if(!q)return accountOrders;
+  return accountOrders.filter(o=>[
+    o.order_code,o.customer_name,o.whatsapp,o.account_title,o.game_name,o.game_code,o.payment_method_name
+  ].some(v=>String(v||'').toLowerCase().includes(q)));
+}
+
+function renderAccountOrders(){
+  const list=filteredAccountOrders();
+  $('accountResultCount').textContent=list.length;
+  $('accountLoadingBox').classList.add('hidden');
+  $('accountOrdersList').classList.toggle('hidden',!list.length);
+  $('accountEmptyBox').classList.toggle('hidden',!!list.length);
+  if(!list.length){$('accountOrdersList').innerHTML='';return;}
+
+  $('accountOrdersList').innerHTML=list.map(o=>`
+    <button type="button" data-account-code="${escapeHtml(o.order_code)}" class="w-full text-left p-4 sm:p-5 hover:bg-white/[.025] transition">
+      <div class="flex flex-col lg:flex-row lg:items-center gap-4">
+        <div class="lg:w-[215px] shrink-0">
+          <span class="rounded-full bg-amber-400/10 border border-amber-400/20 px-2.5 py-1 text-[11px] font-bold text-amber-300">CEK BUKTI</span>
+          <b class="block text-ub-300 mt-2 tracking-wide">${escapeHtml(o.order_code||'-')}</b>
+          <div class="text-[11px] text-white/30 mt-1">${escapeHtml(fmtDate(o.payment_submitted_at||o.created_at))}</div>
+        </div>
+        <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-3 flex-1 min-w-0">
+          <div class="min-w-0"><div class="text-[10px] text-white/30 uppercase tracking-wide">Akun</div><b class="block text-sm mt-1 truncate">${escapeHtml(o.account_title||'-')}</b><div class="text-xs text-white/35 mt-1 truncate">${escapeHtml(o.game_name||o.game_code||'-')}</div></div>
+          <div class="min-w-0"><div class="text-[10px] text-white/30 uppercase tracking-wide">Pembeli</div><b class="block text-sm mt-1 truncate">${escapeHtml(o.customer_name||'-')}</b><div class="text-xs text-white/35 mt-1 truncate">${escapeHtml(o.whatsapp||'-')}</div></div>
+          <div class="min-w-0"><div class="text-[10px] text-white/30 uppercase tracking-wide">Pembayaran</div><b class="block text-sm mt-1 truncate">${escapeHtml(o.payment_method_name||'-')}</b><div class="text-xs text-white/35 mt-1">Bukti sudah masuk</div></div>
+          <div class="lg:text-right"><div class="text-[10px] text-white/30 uppercase tracking-wide">Total</div><b class="block text-ub-300 mt-1">${rup(o.total)}</b></div>
+        </div>
+      </div>
+    </button>`).join('');
+
+  document.querySelectorAll('[data-account-code]').forEach(btn=>btn.addEventListener('click',()=>openAccountOrder(btn.dataset.accountCode)));
+  lucide.createIcons();
+}
+
+async function loadAccountOrders({silent=false}={}){
+  if(!silent){
+    $('accountLoadingBox').classList.remove('hidden');
+    $('accountOrdersList').classList.add('hidden');
+    $('accountEmptyBox').classList.add('hidden');
+  }
+  try{
+    const result=await apiPost('adminListAccountOrders',{limit:300});
+    accountOrders=Array.isArray(result.data)?result.data:[];
+    const total=result.stats?.total??accountOrders.length;
+    const waiting=result.stats?.waiting_verification??accountOrders.length;
+    $('accountStatTotal').textContent=total;
+    $('accountStatPending').textContent=waiting;
+    $('accountTabCount').textContent=total;
+    renderAccountOrders();
+    $('accountLastUpdated').textContent='Diperbarui '+new Intl.DateTimeFormat('id-ID',{timeStyle:'medium'}).format(new Date());
+  }catch(error){
+    $('accountLoadingBox').classList.add('hidden');
+    if(/admin|akses|token|Unauthorized/i.test(error.message)){logout(false);setLoginError(error.message);}
+    else if(!silent)showToast('Gagal memuat pesanan akun',error.message);
+  }
+}
+
+function accountDetailLine(label,value){
+  return `<div class="p-4 flex justify-between gap-5"><span class="text-white/35 text-sm">${escapeHtml(label)}</span><div class="text-right min-w-0"><b class="text-sm break-words">${value}</b></div></div>`;
+}
+
+function openAccountOrder(code){
+  currentAccountOrder=accountOrders.find(x=>String(x.order_code)===String(code));
+  if(!currentAccountOrder){showToast('Pesanan tidak ditemukan','Muat ulang panel lalu coba lagi.');return;}
+  const o=currentAccountOrder;
+  $('accountModalOrderCode').textContent=o.order_code||'-';
+  $('accountModalBody').innerHTML=`
+    <div class="flex items-center justify-between gap-3 flex-wrap mb-4">
+      <span class="rounded-full bg-amber-400/10 border border-amber-400/20 px-2.5 py-1 text-[11px] font-bold text-amber-300">MENUNGGU VERIFIKASI</span>
+      <div class="text-xs text-white/35">Bukti masuk ${escapeHtml(fmtDate(o.payment_submitted_at))}</div>
+    </div>
+    <div class="grid sm:grid-cols-[120px_1fr] gap-4 mb-4">
+      <div class="rounded-2xl border border-white/5 bg-[#171717] overflow-hidden min-h-24 grid place-items-center">
+        ${o.account_image_url?`<img src="${escapeHtml(o.account_image_url)}" alt="${escapeHtml(o.account_title||'Akun')}" class="w-full h-full min-h-24 object-cover">`:'<i data-lucide="gamepad-2" class="w-8 h-8 text-white/20"></i>'}
+      </div>
+      <div class="rounded-2xl border border-white/5 bg-[#171717] p-4">
+        <div class="text-[10px] text-white/30 uppercase">Akun Dibeli</div>
+        <b class="block text-lg mt-1">${escapeHtml(o.account_title||'-')}</b>
+        <div class="text-xs text-white/40 mt-1">${escapeHtml(o.game_name||o.game_code||'-')}</div>
+        <div class="text-ub-300 font-extrabold mt-3">${rup(o.account_price||o.subtotal)}</div>
+      </div>
+    </div>
+    <div class="rounded-2xl border border-white/5 bg-[#171717] divide-y divide-white/5 overflow-hidden">
+      ${accountDetailLine('Nama Pembeli',escapeHtml(o.customer_name||'-'))}
+      ${accountDetailLine('WhatsApp',escapeHtml(o.whatsapp||'-'))}
+      ${accountDetailLine('Metode Pembayaran',escapeHtml(o.payment_method_name||'-'))}
+      ${accountDetailLine('Subtotal',rup(o.subtotal))}
+      ${accountDetailLine('Biaya Admin',rup(o.payment_fee))}
+      ${accountDetailLine('Kode Unik',rup(o.unique_code))}
+      ${accountDetailLine('Total Transfer',`<span class="text-ub-300 text-lg">${rup(o.total)}</span>`)}
+      ${accountDetailLine('Bukti Dikirim',escapeHtml(fmtDate(o.payment_submitted_at)))}
+    </div>
+    <div class="mt-5">
+      <div class="text-xs font-bold tracking-[.14em] text-white/35 mb-3">AKSI ADMIN</div>
+      <div class="grid sm:grid-cols-3 gap-3">
+        <button id="accountProofBtn" class="rounded-xl border border-white/10 py-3 px-4 text-sm font-bold text-white/75 inline-flex items-center justify-center gap-2"><i data-lucide="image" class="w-4 h-4"></i>Lihat Bukti</button>
+        <button id="accountCompleteBtn" class="rounded-xl bg-emerald-400 hover:bg-emerald-300 py-3 px-4 text-sm font-extrabold text-black inline-flex items-center justify-center gap-2"><i data-lucide="badge-check" class="w-4 h-4"></i>Verifikasi & Kirim</button>
+        <button id="accountCancelBtn" class="rounded-xl border border-red-400/25 bg-red-400/[.06] py-3 px-4 text-sm font-bold text-red-300 inline-flex items-center justify-center gap-2"><i data-lucide="x-circle" class="w-4 h-4"></i>Batalkan</button>
+      </div>
+      <p class="text-xs text-white/35 leading-5 mt-4">Setelah <b class="text-white/55">Verifikasi & Kirim</b>, akun berubah menjadi <b class="text-white/55">SOLD</b> dan detail login dapat dibuka pembeli di halaman pesanannya.</p>
+    </div>`;
+  $('accountDetailModal').classList.remove('hidden');
+  document.body.classList.add('overflow-hidden');
+  $('accountProofBtn').addEventListener('click',viewAccountProof);
+  $('accountCompleteBtn').addEventListener('click',completeAccountOrder);
+  $('accountCancelBtn').addEventListener('click',cancelAccountOrder);
+  lucide.createIcons();
+}
+
+async function viewAccountProof(){
+  if(!currentAccountOrder)return;
+  const btn=$('accountProofBtn');setButtonLoading(btn,true,'Membuka...');
+  try{
+    const result=await apiPost('adminGetAccountPaymentProofUrl',{order_code:currentAccountOrder.order_code});
+    window.open(result.data.url,'_blank','noopener,noreferrer');
+  }catch(error){showToast('Bukti gagal dibuka',error.message);}
+  finally{setButtonLoading(btn,false);}
+}
+
+async function completeAccountOrder(){
+  if(!currentAccountOrder)return;
+  const code=currentAccountOrder.order_code;
+  const approved=await askConfirmation({
+    title:'Verifikasi & Kirim Akun?',
+    text:`Pastikan bukti dan nominal pesanan ${code} sudah benar. Setelah dilanjutkan, stok menjadi SOLD dan detail login dapat dibuka pembeli.`
+  });
+  if(!approved)return;
+  const btn=$('accountCompleteBtn');setButtonLoading(btn,true,'Memproses...');
+  try{
+    await apiPost('adminCompleteAccountOrder',{order_code:code});
+    showToast('Pesanan akun selesai',`${code}: akun sudah ditandai terjual dan detail tersedia untuk pembeli.`);
+    closeAccountModal();
+    await loadAccountOrders({silent:true});
+  }catch(error){showToast('Verifikasi gagal',error.message);}
+  finally{setButtonLoading(btn,false);}
+}
+
+async function cancelAccountOrder(){
+  if(!currentAccountOrder)return;
+  const code=currentAccountOrder.order_code;
+  const approved=await askConfirmation({
+    title:'Batalkan Pesanan Akun?',
+    text:`Pesanan ${code} akan dibatalkan dan akun dikembalikan ke stok AVAILABLE.`,
+    danger:true
+  });
+  if(!approved)return;
+  const btn=$('accountCancelBtn');setButtonLoading(btn,true,'Membatalkan...');
+  try{
+    await apiPost('adminCancelAccountOrder',{order_code:code});
+    showToast('Pesanan akun dibatalkan',`${code}: stok akun sudah dikembalikan.`);
+    closeAccountModal();
+    await loadAccountOrders({silent:true});
+  }catch(error){showToast('Pembatalan gagal',error.message);}
+  finally{setButtonLoading(btn,false);}
+}
+
+function closeAccountModal(){
+  $('accountDetailModal').classList.add('hidden');
+  document.body.classList.remove('overflow-hidden');
+  currentAccountOrder=null;
+}
+
+
+function obbBucket(o){const pay=String(o.payment_status||'PENDING').toUpperCase(),st=String(o.order_status||'PENDING').toUpperCase();if(['PROCESSING','PROCESSED'].includes(st))return 'processing';if(['PAID','VERIFIED'].includes(pay))return 'paid';return 'waiting';}
+function renderObbOrders(){const q=String($('obbSearchInput').value||'').trim().toLowerCase();const rows=obbOrders.filter(o=>`${o.order_code||''} ${o.customer_name||''} ${o.whatsapp||''} ${o.game_name||o.game_code||''} ${o.obb_request||''}`.toLowerCase().includes(q));$('obbResultCount').textContent=rows.length;$('obbLoadingBox').classList.add('hidden');$('obbOrdersList').classList.toggle('hidden',rows.length===0);$('obbEmptyBox').classList.toggle('hidden',rows.length!==0);if(!rows.length)return;$('obbOrdersList').innerHTML=rows.map(o=>{const b=obbBucket(o),badge=b==='processing'?'<span class="rounded-full bg-sky-400/10 border border-sky-400/20 px-2.5 py-1 text-[11px] font-bold text-sky-300">DIPROSES</span>':b==='paid'?'<span class="rounded-full bg-emerald-400/10 border border-emerald-400/20 px-2.5 py-1 text-[11px] font-bold text-emerald-300">SUDAH BAYAR</span>':'<span class="rounded-full bg-amber-400/10 border border-amber-400/20 px-2.5 py-1 text-[11px] font-bold text-amber-300">CEK BUKTI</span>';return `<button data-obb-code="${escapeHtml(o.order_code||'')}" class="w-full text-left p-4 sm:p-5 hover:bg-white/[.025] transition"><div class="flex flex-col lg:flex-row lg:items-center gap-4"><div class="lg:w-[215px] shrink-0">${badge}<b class="block text-ub-300 mt-2 tracking-wide">${escapeHtml(o.order_code||'-')}</b><div class="text-[11px] text-white/30 mt-1">${escapeHtml(fmtDate(o.payment_submitted_at||o.created_at))}</div></div><div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-3 flex-1 min-w-0"><div class="min-w-0"><div class="text-[10px] text-white/30 uppercase">Game</div><b class="block text-sm mt-1 truncate">${escapeHtml(o.game_name||o.game_code||'-')}</b><div class="text-xs text-white/35 mt-1 truncate">Rp50.000 + kode unik</div></div><div class="min-w-0"><div class="text-[10px] text-white/30 uppercase">Pembeli</div><b class="block text-sm mt-1 truncate">${escapeHtml(o.customer_name||'-')}</b><div class="text-xs text-white/35 mt-1 truncate">${escapeHtml(o.whatsapp||'-')}</div></div><div class="min-w-0"><div class="text-[10px] text-white/30 uppercase">OBB</div><b class="block text-sm mt-1 truncate">${escapeHtml(o.obb_request||'-')}</b><div class="text-xs text-white/35 mt-1">${escapeHtml(o.payment_method_name||'-')}</div></div><div class="lg:text-right"><div class="text-[10px] text-white/30 uppercase">Total</div><b class="block text-ub-300 mt-1">${rup(o.total)}</b></div></div></div></button>`}).join('');document.querySelectorAll('[data-obb-code]').forEach(b=>b.addEventListener('click',()=>openObbOrder(b.dataset.obbCode)));lucide.createIcons();}
+async function loadObbOrders({silent=false}={}){if(!silent){$('obbLoadingBox').classList.remove('hidden');$('obbOrdersList').classList.add('hidden');$('obbEmptyBox').classList.add('hidden')}try{const r=await apiPost('adminListObbOrders',{limit:300});obbOrders=Array.isArray(r.data)?r.data:[];const s=r.stats||{};$('obbStatTotal').textContent=s.total??obbOrders.length;$('obbStatPending').textContent=s.waiting_verification??0;$('obbStatPaid').textContent=s.paid??0;$('obbStatProcessing').textContent=s.processing??0;$('obbTabCount').textContent=s.total??obbOrders.length;renderObbOrders();$('obbLastUpdated').textContent='Diperbarui '+new Intl.DateTimeFormat('id-ID',{timeStyle:'medium'}).format(new Date())}catch(e){$('obbLoadingBox').classList.add('hidden');if(/admin|akses|token|Unauthorized/i.test(e.message)){logout(false);setLoginError(e.message)}else if(!silent)showToast('Gagal memuat jasa OBB',e.message)}}
+function obbDetailLine(label,value){return `<div class="p-4 flex justify-between gap-5"><span class="text-white/35 text-sm shrink-0">${escapeHtml(label)}</span><div class="text-right min-w-0"><b class="text-sm break-words">${value}</b></div></div>`}
+function openObbOrder(code){currentObbOrder=obbOrders.find(x=>String(x.order_code)===String(code));if(!currentObbOrder)return showToast('Pesanan tidak ditemukan','Muat ulang panel lalu coba lagi.');const o=currentObbOrder,pay=String(o.payment_status||'PENDING').toUpperCase(),st=String(o.order_status||'PENDING').toUpperCase(),bucket=obbBucket(o);$('obbModalOrderCode').textContent=o.order_code||'-';let primary='';if(!['PAID','VERIFIED'].includes(pay))primary='<button id="obbPrimaryBtn" data-command="VERIFY_PAYMENT" class="rounded-xl bg-emerald-400 hover:bg-emerald-300 py-3 px-4 text-sm font-extrabold text-black inline-flex items-center justify-center gap-2"><i data-lucide="badge-check" class="w-4 h-4"></i>Verifikasi Bayar</button>';else if(!['PROCESSING','PROCESSED'].includes(st))primary='<button id="obbPrimaryBtn" data-command="PROCESS" class="rounded-xl bg-sky-400 hover:bg-sky-300 py-3 px-4 text-sm font-extrabold text-black inline-flex items-center justify-center gap-2"><i data-lucide="play" class="w-4 h-4"></i>Mulai Proses</button>';else primary='<button id="obbPrimaryBtn" data-command="COMPLETE" class="rounded-xl bg-emerald-400 hover:bg-emerald-300 py-3 px-4 text-sm font-extrabold text-black inline-flex items-center justify-center gap-2"><i data-lucide="circle-check-big" class="w-4 h-4"></i>Tandai Selesai</button>';$('obbModalBody').innerHTML=`<div class="flex items-center justify-between gap-3 flex-wrap mb-4"><span class="rounded-full ${bucket==='processing'?'bg-sky-400/10 border-sky-400/20 text-sky-300':bucket==='paid'?'bg-emerald-400/10 border-emerald-400/20 text-emerald-300':'bg-amber-400/10 border-amber-400/20 text-amber-300'} border px-2.5 py-1 text-[11px] font-bold">${bucket==='processing'?'DIPROSES':bucket==='paid'?'SUDAH BAYAR':'MENUNGGU VERIFIKASI'}</span><div class="text-xs text-white/35">Bukti masuk ${escapeHtml(fmtDate(o.payment_submitted_at))}</div></div><div class="rounded-2xl border border-white/5 bg-[#171717] divide-y divide-white/5 overflow-hidden">${obbDetailLine('Game',escapeHtml(o.game_name||o.game_code||'-'))}${obbDetailLine('Nama',escapeHtml(o.customer_name||'-'))}${obbDetailLine('WhatsApp',escapeHtml(o.whatsapp||'-'))}${obbDetailLine('OBB yang Diinginkan',escapeHtml(o.obb_request||'-'))}${obbDetailLine('Video YouTube',o.youtube_url?`<a href="${escapeHtml(o.youtube_url)}" target="_blank" rel="noopener noreferrer" class="text-red-300 hover:underline">Buka Referensi ↗</a>`:'-')}${obbDetailLine('Metode Pembayaran',escapeHtml(o.payment_method_name||'-'))}${obbDetailLine('Harga Jasa',rup(o.subtotal))}${obbDetailLine('Biaya Admin',rup(o.payment_fee))}${obbDetailLine('Kode Unik',rup(o.unique_code))}${obbDetailLine('Total Transfer',`<span class="text-ub-300 text-lg">${rup(o.total)}</span>`)}</div><div class="mt-5"><div class="text-xs font-bold tracking-[.14em] text-white/35 mb-3">AKSI ADMIN</div><div class="grid sm:grid-cols-3 gap-3"><button id="obbProofBtn" class="rounded-xl border border-white/10 py-3 px-4 text-sm font-bold text-white/75 inline-flex items-center justify-center gap-2"><i data-lucide="image" class="w-4 h-4"></i>Lihat Bukti</button>${primary}<button id="obbCancelBtn" class="rounded-xl border border-red-400/25 bg-red-400/[.06] py-3 px-4 text-sm font-bold text-red-300 inline-flex items-center justify-center gap-2"><i data-lucide="x-circle" class="w-4 h-4"></i>Batalkan</button></div><p class="text-xs text-white/35 leading-5 mt-4">Harga jasa Rp50.000 sudah termasuk panduan/cara pemasangan. Gunakan link YouTube sebagai acuan pengerjaan.</p></div>`;$('obbDetailModal').classList.remove('hidden');document.body.classList.add('overflow-hidden');$('obbProofBtn').addEventListener('click',viewObbProof);$('obbPrimaryBtn')?.addEventListener('click',()=>updateObbOrder($('obbPrimaryBtn').dataset.command));$('obbCancelBtn').addEventListener('click',()=>updateObbOrder('CANCEL'));lucide.createIcons();}
+async function viewObbProof(){if(!currentObbOrder)return;const b=$('obbProofBtn');setButtonLoading(b,true,'Membuka...');try{const r=await apiPost('adminGetObbPaymentProofUrl',{order_code:currentObbOrder.order_code});window.open(r.data.url,'_blank','noopener,noreferrer')}catch(e){showToast('Bukti gagal dibuka',e.message)}finally{setButtonLoading(b,false)}}
+async function updateObbOrder(command){if(!currentObbOrder)return;const code=currentObbOrder.order_code,names={VERIFY_PAYMENT:'Verifikasi Pembayaran?',PROCESS:'Mulai Proses OBB?',COMPLETE:'Tandai Pesanan Selesai?',CANCEL:'Batalkan Pesanan OBB?'},texts={VERIFY_PAYMENT:`Pastikan nominal dan bukti ${code} sudah benar.`,PROCESS:`Pesanan ${code} akan ditandai sedang dikerjakan.`,COMPLETE:`Pastikan OBB dan cara pemasangan untuk ${code} sudah selesai diberikan.`,CANCEL:`Pesanan ${code} akan dibatalkan.`};const ok=await askConfirmation({title:names[command]||'Konfirmasi',text:texts[command]||'',danger:command==='CANCEL'});if(!ok)return;const b=command==='CANCEL'?$('obbCancelBtn'):$('obbPrimaryBtn');setButtonLoading(b,true,'Memproses...');try{const r=await apiPost('adminUpdateObbOrder',{order_code:code,command});showToast('Jasa OBB diperbarui',r.message||code);closeObbModal();await loadObbOrders({silent:true})}catch(e){showToast('Update gagal',e.message)}finally{setButtonLoading(b,false)}}
+function closeObbModal(){$('obbDetailModal').classList.add('hidden');document.body.classList.remove('overflow-hidden');currentObbOrder=null}
+
+
+function kodenameBucket(o){
+  const pay=String(o.payment_status||'PENDING').toUpperCase(),st=String(o.order_status||'PENDING').toUpperCase();
+  if(['PROCESSING','PROCESSED'].includes(st))return 'processing';
+  if(['PAID','VERIFIED'].includes(pay))return 'paid';
+  return 'waiting';
+}
+function kodenameItemsArray(o){return Array.isArray(o.kodename_items)?o.kodename_items:[]}
+function renderKodenameOrders(){
+  const q=String($('kodenameSearchInput').value||'').trim().toLowerCase();
+  const rows=kodenameOrders.filter(o=>`${o.order_code||''} ${o.customer_name||''} ${o.whatsapp||''} ${kodenameItemsArray(o).join(' ')}`.toLowerCase().includes(q));
+  $('kodenameResultCount').textContent=rows.length;
+  $('kodenameLoadingBox').classList.add('hidden');
+  $('kodenameOrdersList').classList.toggle('hidden',rows.length===0);
+  $('kodenameEmptyBox').classList.toggle('hidden',rows.length!==0);
+  if(!rows.length)return;
+  $('kodenameOrdersList').innerHTML=rows.map(o=>{
+    const b=kodenameBucket(o);
+    const badge=b==='processing'?'<span class="rounded-full bg-sky-400/10 border border-sky-400/20 px-2.5 py-1 text-[11px] font-bold text-sky-300">DIPROSES</span>':b==='paid'?'<span class="rounded-full bg-emerald-400/10 border border-emerald-400/20 px-2.5 py-1 text-[11px] font-bold text-emerald-300">SUDAH BAYAR</span>':'<span class="rounded-full bg-amber-400/10 border border-amber-400/20 px-2.5 py-1 text-[11px] font-bold text-amber-300">CEK BUKTI</span>';
+    const items=kodenameItemsArray(o),preview=items.slice(0,2).join(' • ')+(items.length>2?` • +${items.length-2} lainnya`:'');
+    return `<button data-kodename-code="${escapeHtml(o.order_code||'')}" class="w-full text-left p-4 sm:p-5 hover:bg-white/[.025] transition">
+      <div class="flex flex-col lg:flex-row lg:items-center gap-4">
+        <div class="lg:w-[210px] shrink-0">${badge}<b class="block text-ub-300 mt-2 tracking-wide">${escapeHtml(o.order_code||'-')}</b><div class="text-[11px] text-white/30 mt-1">${escapeHtml(fmtDate(o.payment_submitted_at||o.created_at))}</div></div>
+        <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-3 flex-1 min-w-0">
+          <div><div class="text-[10px] text-white/30 uppercase">Jumlah</div><b class="block text-sm mt-1">${Number(o.item_count||items.length||0).toLocaleString('id-ID')} kodename</b><div class="text-xs text-white/35 mt-1">Rp5.000 / item</div></div>
+          <div class="min-w-0"><div class="text-[10px] text-white/30 uppercase">Pembeli</div><b class="block text-sm mt-1 truncate">${escapeHtml(o.customer_name||'-')}</b><div class="text-xs text-white/35 mt-1 truncate">${escapeHtml(o.whatsapp||'-')}</div></div>
+          <div class="min-w-0"><div class="text-[10px] text-white/30 uppercase">Kodename</div><b class="block text-sm mt-1 truncate">${escapeHtml(preview||'-')}</b><div class="text-xs text-white/35 mt-1">${escapeHtml(o.payment_method_name||'-')}</div></div>
+          <div class="lg:text-right"><div class="text-[10px] text-white/30 uppercase">Total</div><b class="block text-ub-300 mt-1">${rup(o.total)}</b></div>
+        </div>
+      </div>
+    </button>`;
+  }).join('');
+  document.querySelectorAll('[data-kodename-code]').forEach(b=>b.addEventListener('click',()=>openKodenameOrder(b.dataset.kodenameCode)));
+  lucide.createIcons();
+}
+async function loadKodenameOrders({silent=false}={}){
+  if(!silent){$('kodenameLoadingBox').classList.remove('hidden');$('kodenameOrdersList').classList.add('hidden');$('kodenameEmptyBox').classList.add('hidden')}
+  try{
+    const r=await apiPost('adminListKodenameOrders',{limit:300});
+    kodenameOrders=Array.isArray(r.data)?r.data:[];
+    const s=r.stats||{};
+    $('kodenameStatTotal').textContent=s.total??kodenameOrders.length;
+    $('kodenameStatPending').textContent=s.waiting_verification??0;
+    $('kodenameStatPaid').textContent=s.paid??0;
+    $('kodenameStatProcessing').textContent=s.processing??0;
+    $('kodenameTabCount').textContent=s.total??kodenameOrders.length;
+    renderKodenameOrders();
+    $('kodenameLastUpdated').textContent='Diperbarui '+new Intl.DateTimeFormat('id-ID',{timeStyle:'medium'}).format(new Date());
+  }catch(e){
+    $('kodenameLoadingBox').classList.add('hidden');
+    if(/admin|akses|token|Unauthorized/i.test(e.message)){logout(false);setLoginError(e.message)}
+    else if(!silent)showToast('Gagal memuat jasa Kodename',e.message);
+  }
+}
+function kodenameDetailLine(label,value){return `<div class="p-4 flex justify-between gap-5"><span class="text-white/35 text-sm shrink-0">${escapeHtml(label)}</span><div class="text-right min-w-0"><b class="text-sm break-words">${value}</b></div></div>`}
+function openKodenameOrder(code){
+  currentKodenameOrder=kodenameOrders.find(x=>String(x.order_code)===String(code));
+  if(!currentKodenameOrder)return showToast('Pesanan tidak ditemukan','Muat ulang panel lalu coba lagi.');
+  const o=currentKodenameOrder,pay=String(o.payment_status||'PENDING').toUpperCase(),st=String(o.order_status||'PENDING').toUpperCase(),bucket=kodenameBucket(o),items=kodenameItemsArray(o);
+  $('kodenameModalOrderCode').textContent=o.order_code||'-';
+  let primary='';
+  if(!['PAID','VERIFIED'].includes(pay))primary='<button id="kodenamePrimaryBtn" data-command="VERIFY_PAYMENT" class="rounded-xl bg-emerald-400 hover:bg-emerald-300 py-3 px-4 text-sm font-extrabold text-black inline-flex items-center justify-center gap-2"><i data-lucide="badge-check" class="w-4 h-4"></i>Verifikasi Bayar</button>';
+  else if(!['PROCESSING','PROCESSED'].includes(st))primary='<button id="kodenamePrimaryBtn" data-command="PROCESS" class="rounded-xl bg-sky-400 hover:bg-sky-300 py-3 px-4 text-sm font-extrabold text-black inline-flex items-center justify-center gap-2"><i data-lucide="play" class="w-4 h-4"></i>Mulai Proses</button>';
+  else primary='<button id="kodenamePrimaryBtn" data-command="COMPLETE" class="rounded-xl bg-emerald-400 hover:bg-emerald-300 py-3 px-4 text-sm font-extrabold text-black inline-flex items-center justify-center gap-2"><i data-lucide="circle-check-big" class="w-4 h-4"></i>Tandai Selesai</button>';
+
+  const itemHtml=items.map((x,i)=>`<div class="rounded-xl border border-white/5 bg-[#202124] px-3 py-2.5 flex gap-3"><span class="w-6 h-6 rounded-lg bg-cyan-400/10 text-cyan-300 grid place-items-center text-[10px] font-bold shrink-0">${i+1}</span><div class="text-xs text-white/65 leading-5 break-words">${escapeHtml(x)}</div></div>`).join('');
+
+  $('kodenameModalBody').innerHTML=`
+    <div class="flex items-center justify-between gap-3 flex-wrap mb-4">
+      <span class="rounded-full ${bucket==='processing'?'bg-sky-400/10 border-sky-400/20 text-sky-300':bucket==='paid'?'bg-emerald-400/10 border-emerald-400/20 text-emerald-300':'bg-amber-400/10 border-amber-400/20 text-amber-300'} border px-2.5 py-1 text-[11px] font-bold">${bucket==='processing'?'DIPROSES':bucket==='paid'?'SUDAH BAYAR':'MENUNGGU VERIFIKASI'}</span>
+      <div class="text-xs text-white/35">Bukti masuk ${escapeHtml(fmtDate(o.payment_submitted_at))}</div>
+    </div>
+    <div class="rounded-2xl border border-white/5 bg-[#171717] divide-y divide-white/5 overflow-hidden">
+      ${kodenameDetailLine('Nama',escapeHtml(o.customer_name||'-'))}
+      ${kodenameDetailLine('WhatsApp',escapeHtml(o.whatsapp||'-'))}
+      ${kodenameDetailLine('Jumlah',`${Number(o.item_count||items.length||0).toLocaleString('id-ID')} kodename`)}
+      ${kodenameDetailLine('Harga Satuan',rup(o.unit_price||5000))}
+      ${kodenameDetailLine('Subtotal',rup(o.subtotal))}
+      ${kodenameDetailLine('Biaya Admin',rup(o.payment_fee))}
+      ${kodenameDetailLine('Kode Unik',rup(o.unique_code))}
+      ${kodenameDetailLine('Total Transfer',`<span class="text-ub-300 text-lg">${rup(o.total)}</span>`)}
+    </div>
+    <div class="mt-4 rounded-2xl border border-white/5 bg-[#171717] p-4">
+      <div class="text-xs font-bold tracking-[.14em] text-white/35 mb-3">DAFTAR KODENAME</div>
+      <div class="space-y-2">${itemHtml||'<div class="text-xs text-white/35">Tidak ada item.</div>'}</div>
+    </div>
+    <div class="mt-5">
+      <div class="text-xs font-bold tracking-[.14em] text-white/35 mb-3">AKSI ADMIN</div>
+      <div class="grid sm:grid-cols-3 gap-3">
+        <button id="kodenameProofBtn" class="rounded-xl border border-white/10 py-3 px-4 text-sm font-bold text-white/75 inline-flex items-center justify-center gap-2"><i data-lucide="image" class="w-4 h-4"></i>Lihat Bukti</button>
+        ${primary}
+        <button id="kodenameCancelBtn" class="rounded-xl border border-red-400/25 bg-red-400/[.06] py-3 px-4 text-sm font-bold text-red-300 inline-flex items-center justify-center gap-2"><i data-lucide="x-circle" class="w-4 h-4"></i>Batalkan</button>
+      </div>
+      <p class="text-xs text-white/35 leading-5 mt-4">Harga layanan Rp5.000 per kodename. Pastikan seluruh item pada daftar sudah selesai sebelum menandai pesanan selesai.</p>
+    </div>`;
+
+  $('kodenameDetailModal').classList.remove('hidden');document.body.classList.add('overflow-hidden');
+  $('kodenameProofBtn').addEventListener('click',viewKodenameProof);
+  $('kodenamePrimaryBtn')?.addEventListener('click',()=>updateKodenameOrder($('kodenamePrimaryBtn').dataset.command));
+  $('kodenameCancelBtn').addEventListener('click',()=>updateKodenameOrder('CANCEL'));
+  lucide.createIcons();
+}
+async function viewKodenameProof(){
+  if(!currentKodenameOrder)return;
+  const b=$('kodenameProofBtn');setButtonLoading(b,true,'Membuka...');
+  try{const r=await apiPost('adminGetKodenamePaymentProofUrl',{order_code:currentKodenameOrder.order_code});window.open(r.data.url,'_blank','noopener,noreferrer')}
+  catch(e){showToast('Bukti gagal dibuka',e.message)}
+  finally{setButtonLoading(b,false)}
+}
+async function updateKodenameOrder(command){
+  if(!currentKodenameOrder)return;
+  const code=currentKodenameOrder.order_code;
+  const names={VERIFY_PAYMENT:'Verifikasi Pembayaran?',PROCESS:'Mulai Proses Kodename?',COMPLETE:'Tandai Pesanan Selesai?',CANCEL:'Batalkan Pesanan Kodename?'};
+  const texts={VERIFY_PAYMENT:`Pastikan nominal dan bukti ${code} sudah benar.`,PROCESS:`Pesanan ${code} akan ditandai sedang dikerjakan.`,COMPLETE:`Pastikan seluruh kodename pada ${code} sudah selesai.`,CANCEL:`Pesanan ${code} akan dibatalkan.`};
+  const ok=await askConfirmation({title:names[command]||'Konfirmasi',text:texts[command]||'',danger:command==='CANCEL'});
+  if(!ok)return;
+  const b=command==='CANCEL'?$('kodenameCancelBtn'):$('kodenamePrimaryBtn');setButtonLoading(b,true,'Memproses...');
+  try{const r=await apiPost('adminUpdateKodenameOrder',{order_code:code,command});showToast('Jasa Kodename diperbarui',r.message||code);closeKodenameModal();await loadKodenameOrders({silent:true})}
+  catch(e){showToast('Update gagal',e.message)}
+  finally{setButtonLoading(b,false)}
+}
+function closeKodenameModal(){$('kodenameDetailModal').classList.add('hidden');document.body.classList.remove('overflow-hidden');currentKodenameOrder=null}
+
+
+function normalizeWaLink(value){
+  let digits=String(value||'').replace(/\D/g,'');
+  if(digits.startsWith('0'))digits='62'+digits.slice(1);
+  else if(digits.startsWith('8'))digits='62'+digits;
+  return digits;
+}
+function deviceBucket(o){
+  const pay=String(o.payment_status||'PENDING').toUpperCase(),st=String(o.order_status||'PENDING').toUpperCase();
+  if(['PROCESSING','PROCESSED'].includes(st))return 'processing';
+  if(st==='CONTACTING'||['PAID','VERIFIED'].includes(pay))return 'contact';
+  return 'waiting';
+}
+function renderDeviceOrders(){
+  const q=String($('deviceSearchInput').value||'').trim().toLowerCase();
+  const rows=deviceOrders.filter(o=>`${o.order_code||''} ${o.customer_name||''} ${o.whatsapp||''}`.toLowerCase().includes(q));
+  $('deviceResultCount').textContent=rows.length;
+  $('deviceLoadingBox').classList.add('hidden');
+  $('deviceOrdersList').classList.toggle('hidden',rows.length===0);
+  $('deviceEmptyBox').classList.toggle('hidden',rows.length!==0);
+  if(!rows.length)return;
+
+  $('deviceOrdersList').innerHTML=rows.map(o=>{
+    const b=deviceBucket(o);
+    const badge=b==='processing'
+      ?'<span class="rounded-full bg-sky-400/10 border border-sky-400/20 px-2.5 py-1 text-[11px] font-bold text-sky-300">DIPROSES</span>'
+      :b==='contact'
+      ?'<span class="rounded-full bg-violet-400/10 border border-violet-400/20 px-2.5 py-1 text-[11px] font-bold text-violet-300">HUBUNGI WA</span>'
+      :'<span class="rounded-full bg-amber-400/10 border border-amber-400/20 px-2.5 py-1 text-[11px] font-bold text-amber-300">CEK BUKTI</span>';
+
+    return `<button data-device-code="${escapeHtml(o.order_code||'')}" class="w-full text-left p-4 sm:p-5 hover:bg-white/[.025] transition">
+      <div class="flex flex-col lg:flex-row lg:items-center gap-4">
+        <div class="lg:w-[210px] shrink-0">${badge}<b class="block text-ub-300 mt-2 tracking-wide">${escapeHtml(o.order_code||'-')}</b><div class="text-[11px] text-white/30 mt-1">${escapeHtml(fmtDate(o.payment_submitted_at||o.created_at))}</div></div>
+        <div class="grid sm:grid-cols-3 gap-3 flex-1 min-w-0">
+          <div class="min-w-0"><div class="text-[10px] text-white/30 uppercase">Pembeli</div><b class="block text-sm mt-1 truncate">${escapeHtml(o.customer_name||'-')}</b><div class="text-xs text-white/35 mt-1 truncate">${escapeHtml(o.whatsapp||'-')}</div></div>
+          <div><div class="text-[10px] text-white/30 uppercase">Layanan</div><b class="block text-sm mt-1">Ambil Device ID</b><div class="text-xs text-white/35 mt-1">${escapeHtml(o.payment_method_name||'-')}</div></div>
+          <div class="sm:text-right"><div class="text-[10px] text-white/30 uppercase">Total</div><b class="block text-ub-300 mt-1">${rup(o.total)}</b></div>
+        </div>
+      </div>
+    </button>`;
+  }).join('');
+
+  document.querySelectorAll('[data-device-code]').forEach(b=>b.addEventListener('click',()=>openDeviceOrder(b.dataset.deviceCode)));
+  lucide.createIcons();
+}
+async function loadDeviceOrders({silent=false}={}){
+  if(!silent){$('deviceLoadingBox').classList.remove('hidden');$('deviceOrdersList').classList.add('hidden');$('deviceEmptyBox').classList.add('hidden')}
+  try{
+    const r=await apiPost('adminListDeviceIdOrders',{limit:300});
+    deviceOrders=Array.isArray(r.data)?r.data:[];
+    const s=r.stats||{};
+    $('deviceStatTotal').textContent=s.total??deviceOrders.length;
+    $('deviceStatPending').textContent=s.waiting_verification??0;
+    $('deviceStatContact').textContent=s.waiting_contact??0;
+    $('deviceStatProcessing').textContent=s.processing??0;
+    $('deviceTabCount').textContent=s.total??deviceOrders.length;
+    renderDeviceOrders();
+    $('deviceLastUpdated').textContent='Diperbarui '+new Intl.DateTimeFormat('id-ID',{timeStyle:'medium'}).format(new Date());
+  }catch(e){
+    $('deviceLoadingBox').classList.add('hidden');
+    if(/admin|akses|token|Unauthorized/i.test(e.message)){logout(false);setLoginError(e.message)}
+    else if(!silent)showToast('Gagal memuat Device ID',e.message);
+  }
+}
+function deviceDetailLine(label,value){return `<div class="p-4 flex justify-between gap-5"><span class="text-white/35 text-sm shrink-0">${escapeHtml(label)}</span><div class="text-right min-w-0"><b class="text-sm break-words">${value}</b></div></div>`}
+function openDeviceOrder(code){
+  currentDeviceOrder=deviceOrders.find(x=>String(x.order_code)===String(code));
+  if(!currentDeviceOrder)return showToast('Pesanan tidak ditemukan','Muat ulang panel lalu coba lagi.');
+  const o=currentDeviceOrder,pay=String(o.payment_status||'PENDING').toUpperCase(),st=String(o.order_status||'PENDING').toUpperCase(),bucket=deviceBucket(o);
+  $('deviceModalOrderCode').textContent=o.order_code||'-';
+
+  let primary='';
+  if(!['PAID','VERIFIED'].includes(pay)){
+    primary='<button id="devicePrimaryBtn" data-command="VERIFY_PAYMENT" class="rounded-xl bg-emerald-400 hover:bg-emerald-300 py-3 px-4 text-sm font-extrabold text-black inline-flex items-center justify-center gap-2"><i data-lucide="badge-check" class="w-4 h-4"></i>Verifikasi Bayar</button>';
+  }else if(st==='CONTACTING'||!['PROCESSING','PROCESSED'].includes(st)){
+    primary='<button id="devicePrimaryBtn" data-command="MARK_CONTACTED" class="rounded-xl bg-sky-400 hover:bg-sky-300 py-3 px-4 text-sm font-extrabold text-black inline-flex items-center justify-center gap-2"><i data-lucide="check-check" class="w-4 h-4"></i>Sudah Dihubungi & Proses</button>';
+  }else{
+    primary='<button id="devicePrimaryBtn" data-command="COMPLETE" class="rounded-xl bg-emerald-400 hover:bg-emerald-300 py-3 px-4 text-sm font-extrabold text-black inline-flex items-center justify-center gap-2"><i data-lucide="circle-check-big" class="w-4 h-4"></i>Tandai Selesai</button>';
+  }
+
+  const wa=normalizeWaLink(o.whatsapp);
+  const waText=encodeURIComponent(`Halo ${o.customer_name||''}, kami admin UB Store terkait pesanan Jasa Ambil Device ID ${o.order_code||''}. Kami ingin melanjutkan proses pesanan Anda.`);
+  const waLink=wa?`https://wa.me/${wa}?text=${waText}`:'#';
+
+  $('deviceModalBody').innerHTML=`
+    <div class="rounded-2xl border border-amber-400/15 bg-amber-400/[.04] p-4 mb-4 flex gap-3">
+      <i data-lucide="shield-alert" class="w-5 h-5 text-amber-300 shrink-0"></i>
+      <p class="text-xs text-white/50 leading-5">Website hanya menyimpan nama dan WhatsApp. Email/password tidak tersimpan di modul Device ID dan tidak boleh dikirim melalui Telegram.</p>
+    </div>
+    <div class="rounded-2xl border border-white/5 bg-[#171717] divide-y divide-white/5 overflow-hidden">
+      ${deviceDetailLine('Nama',escapeHtml(o.customer_name||'-'))}
+      ${deviceDetailLine('WhatsApp',escapeHtml(o.whatsapp||'-'))}
+      ${deviceDetailLine('Harga Jasa',rup(o.service_price||30000))}
+      ${deviceDetailLine('Biaya Admin',rup(o.payment_fee))}
+      ${deviceDetailLine('Kode Unik',rup(o.unique_code))}
+      ${deviceDetailLine('Total Transfer',`<span class="text-ub-300 text-lg">${rup(o.total)}</span>`)}
+    </div>
+    <div class="mt-5">
+      <div class="text-xs font-bold tracking-[.14em] text-white/35 mb-3">AKSI ADMIN</div>
+      <div class="grid sm:grid-cols-2 gap-3">
+        <button id="deviceProofBtn" class="rounded-xl border border-white/10 py-3 px-4 text-sm font-bold text-white/75 inline-flex items-center justify-center gap-2"><i data-lucide="image" class="w-4 h-4"></i>Lihat Bukti</button>
+        <a href="${waLink}" target="_blank" rel="noopener noreferrer" class="rounded-xl border border-emerald-400/20 bg-emerald-400/[.06] py-3 px-4 text-sm font-bold text-emerald-300 inline-flex items-center justify-center gap-2 ${wa?'':'pointer-events-none opacity-50'}"><i data-lucide="message-circle" class="w-4 h-4"></i>Hubungi WhatsApp</a>
+        ${primary}
+        <button id="deviceCancelBtn" class="rounded-xl border border-red-400/25 bg-red-400/[.06] py-3 px-4 text-sm font-bold text-red-300 inline-flex items-center justify-center gap-2"><i data-lucide="x-circle" class="w-4 h-4"></i>Batalkan</button>
+      </div>
+      <p class="text-xs text-white/35 leading-5 mt-4">Setelah pembayaran terverifikasi, hubungi pembeli melalui WhatsApp. Setelah komunikasi dilakukan, klik <b class="text-white/60">Sudah Dihubungi & Proses</b>.</p>
+    </div>`;
+
+  $('deviceDetailModal').classList.remove('hidden');document.body.classList.add('overflow-hidden');
+  $('deviceProofBtn').addEventListener('click',viewDeviceProof);
+  $('devicePrimaryBtn')?.addEventListener('click',()=>updateDeviceOrder($('devicePrimaryBtn').dataset.command));
+  $('deviceCancelBtn').addEventListener('click',()=>updateDeviceOrder('CANCEL'));
+  lucide.createIcons();
+}
+async function viewDeviceProof(){
+  if(!currentDeviceOrder)return;
+  const b=$('deviceProofBtn');setButtonLoading(b,true,'Membuka...');
+  try{const r=await apiPost('adminGetDeviceIdPaymentProofUrl',{order_code:currentDeviceOrder.order_code});window.open(r.data.url,'_blank','noopener,noreferrer')}
+  catch(e){showToast('Bukti gagal dibuka',e.message)}
+  finally{setButtonLoading(b,false)}
+}
+async function updateDeviceOrder(command){
+  if(!currentDeviceOrder)return;
+  const code=currentDeviceOrder.order_code;
+  const names={VERIFY_PAYMENT:'Verifikasi Pembayaran?',MARK_CONTACTED:'Pembeli Sudah Dihubungi?',COMPLETE:'Tandai Device ID Selesai?',CANCEL:'Batalkan Pesanan Device ID?'};
+  const texts={VERIFY_PAYMENT:`Pastikan nominal dan bukti ${code} sudah benar. Setelah verifikasi, hubungi pembeli melalui WhatsApp.`,MARK_CONTACTED:`Pastikan pembeli ${code} sudah dihubungi melalui WhatsApp sebelum memulai proses.`,COMPLETE:`Pastikan proses Device ID ${code} benar-benar sudah selesai.`,CANCEL:`Pesanan ${code} akan dibatalkan.`};
+  const ok=await askConfirmation({title:names[command]||'Konfirmasi',text:texts[command]||'',danger:command==='CANCEL'});
+  if(!ok)return;
+  const b=command==='CANCEL'?$('deviceCancelBtn'):$('devicePrimaryBtn');setButtonLoading(b,true,'Memproses...');
+  try{const r=await apiPost('adminUpdateDeviceIdOrder',{order_code:code,command});showToast('Device ID diperbarui',r.message||code);closeDeviceModal();await loadDeviceOrders({silent:true})}
+  catch(e){showToast('Update gagal',e.message)}
+  finally{setButtonLoading(b,false)}
+}
+function closeDeviceModal(){$('deviceDetailModal').classList.add('hidden');document.body.classList.remove('overflow-hidden');currentDeviceOrder=null}
+
+
+function toolsOrderStatusBadge(o){
+  const st=String(o.order_status||'PENDING').toUpperCase();
+  if(st==='APPROVED')return '<span class="rounded-full border border-emerald-400/20 bg-emerald-400/[.07] px-2.5 py-1 text-[10px] font-bold text-emerald-300">DISETUJUI</span>';
+  if(st==='REJECTED')return '<span class="rounded-full border border-red-400/20 bg-red-400/[.07] px-2.5 py-1 text-[10px] font-bold text-red-300">DITOLAK</span>';
+  if(o.payment_submitted_at)return '<span class="rounded-full border border-amber-400/20 bg-amber-400/[.07] px-2.5 py-1 text-[10px] font-bold text-amber-300">CEK BUKTI</span>';
+  return '<span class="rounded-full border border-white/10 bg-white/[.03] px-2.5 py-1 text-[10px] font-bold text-white/45">MENUNGGU BAYAR</span>';
+}
+
+function renderToolsOrders(){
+  const q=String($('toolsOrderSearchInput').value||'').trim().toLowerCase();
+  const filter=String($('toolsOrderStatusFilter').value||'PENDING').toUpperCase();
+
+  const rows=toolsOrders.filter(o=>{
+    const st=String(o.order_status||'PENDING').toUpperCase();
+    if(filter!=='ALL'&&st!==filter)return false;
+    return `${o.order_code||''} ${o.username||''} ${o.user_code||''} ${o.package_code||''}`.toLowerCase().includes(q);
+  });
+
+  $('toolsOrdersLoading').classList.add('hidden');
+  $('toolsOrdersList').classList.toggle('hidden',rows.length===0);
+  $('toolsOrdersEmpty').classList.toggle('hidden',rows.length!==0);
+
+  if(!rows.length)return;
+
+  $('toolsOrdersList').innerHTML=rows.map(o=>`
+    <button type="button" data-tools-order="${escapeHtml(o.order_code||'')}" class="w-full p-4 sm:p-5 text-left hover:bg-white/[.025] transition">
+      <div class="flex flex-col lg:flex-row lg:items-center gap-4">
+        <div class="lg:w-[210px] shrink-0">
+          ${toolsOrderStatusBadge(o)}
+          <b class="block text-ub-300 mt-2 text-sm">${escapeHtml(o.order_code||'-')}</b>
+          <div class="text-[10px] text-white/30 mt-1">${escapeHtml(fmtDate(o.created_at))}</div>
+        </div>
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 flex-1 min-w-0">
+          <div class="min-w-0">
+            <div class="text-[9px] uppercase text-white/30">Pengguna</div>
+            <b class="block text-sm mt-1 truncate">${escapeHtml(o.username||o.user_code||'-')}</b>
+          </div>
+          <div>
+            <div class="text-[9px] uppercase text-white/30">Credit</div>
+            <b class="block text-sm mt-1 text-ub-300">+${Number(o.credit_amount||0).toLocaleString('id-ID')}</b>
+          </div>
+          <div class="min-w-0">
+            <div class="text-[9px] uppercase text-white/30">Pembayaran</div>
+            <b class="block text-sm mt-1 truncate">${escapeHtml(o.payment_method_name||'-')}</b>
+          </div>
+          <div class="lg:text-right">
+            <div class="text-[9px] uppercase text-white/30">Total</div>
+            <b class="block text-sm mt-1">${rup(o.total)}</b>
+          </div>
+        </div>
+      </div>
+    </button>
+  `).join('');
+
+  document.querySelectorAll('[data-tools-order]').forEach(b=>b.addEventListener('click',()=>openToolsOrder(b.dataset.toolsOrder)));
+  lucide.createIcons();
+}
+
+function renderToolsUsers(){
+  const q=String($('toolsUserSearchInput').value||'').trim().toLowerCase();
+  const rows=toolsUsers.filter(u=>
+    `${u.username||''} ${u.user_code||''} ${u.email||''} ${u.phone||''}`.toLowerCase().includes(q)
+  );
+
+  $('toolsUsersLoading').classList.add('hidden');
+  $('toolsUsersList').classList.toggle('hidden',rows.length===0);
+  $('toolsUsersEmpty').classList.toggle('hidden',rows.length!==0);
+
+  if(!rows.length)return;
+
+  $('toolsUsersList').innerHTML=rows.map(u=>{
+    const active=String(u.status||'ACTIVE').toUpperCase()==='ACTIVE';
+    return `<button type="button" data-tools-user="${escapeHtml(String(u.id))}" class="w-full p-4 sm:p-5 text-left hover:bg-white/[.025] transition">
+      <div class="flex items-center gap-3 sm:gap-4">
+        <div class="w-10 h-10 rounded-xl ${active?'bg-emerald-400/10 text-emerald-300':'bg-red-400/10 text-red-300'} grid place-items-center shrink-0">
+          <i data-lucide="user" class="w-5 h-5"></i>
+        </div>
+        <div class="min-w-0 flex-1">
+          <div class="flex flex-wrap items-center gap-2">
+            <b class="text-sm truncate">${escapeHtml(u.username||'-')}</b>
+            <span class="text-[9px] rounded-full border ${active?'border-emerald-400/15 text-emerald-300':'border-red-400/15 text-red-300'} px-2 py-0.5">${escapeHtml(u.status||'ACTIVE')}</span>
+          </div>
+          <div class="text-[10px] text-white/35 mt-1 truncate">${escapeHtml(u.email||'-')} · ${escapeHtml(u.phone||'-')}</div>
+        </div>
+        <div class="text-right shrink-0">
+          <div class="text-[9px] uppercase text-white/30">Credit</div>
+          <b class="block text-sm text-ub-300 mt-1">${Number(u.credit||0).toLocaleString('id-ID')}</b>
+        </div>
+      </div>
+    </button>`;
+  }).join('');
+
+  document.querySelectorAll('[data-tools-user]').forEach(b=>b.addEventListener('click',()=>openToolsUser(Number(b.dataset.toolsUser))));
+  lucide.createIcons();
+}
+
+async function loadToolsAdmin({silent=false}={}){
+  if(!silent){
+    $('toolsOrdersLoading').classList.remove('hidden');
+    $('toolsUsersLoading').classList.remove('hidden');
+    $('toolsOrdersList').classList.add('hidden');
+    $('toolsUsersList').classList.add('hidden');
+  }
+
+  try{
+    const r=await apiPost('adminGetToolsData',{});
+    const d=r.data||{};
+    toolsOrders=Array.isArray(d.orders)?d.orders:[];
+    toolsUsers=Array.isArray(d.users)?d.users:[];
+    const s=d.stats||{};
+
+    $('toolsStatUsers').textContent=Number(s.users||0).toLocaleString('id-ID');
+    $('toolsStatActiveUsers').textContent=Number(s.active_users||0).toLocaleString('id-ID');
+    $('toolsStatCredit').textContent=Number(s.total_credit||0).toLocaleString('id-ID');
+    $('toolsStatPending').textContent=Number(s.pending||0).toLocaleString('id-ID');
+    $('toolsTabCount').textContent=Number(s.pending||0).toLocaleString('id-ID');
+
+    renderToolsOrders();
+    renderToolsUsers();
+
+    $('toolsLastUpdated').textContent='Diperbarui '+new Intl.DateTimeFormat('id-ID',{timeStyle:'medium'}).format(new Date());
+  }catch(e){
+    $('toolsOrdersLoading').classList.add('hidden');
+    $('toolsUsersLoading').classList.add('hidden');
+    if(/admin|akses|token|Unauthorized/i.test(e.message)){logout(false);setLoginError(e.message)}
+    else if(!silent)showToast('Gagal memuat Tools',e.message);
+  }
+}
+
+function toolsDetailLine(label,value){
+  return `<div class="p-3.5 sm:p-4 flex justify-between gap-4">
+    <span class="text-xs text-white/35 shrink-0">${escapeHtml(label)}</span>
+    <div class="text-right min-w-0"><b class="text-xs sm:text-sm break-words">${value}</b></div>
+  </div>`;
+}
+
+function openToolsOrder(code){
+  currentToolsOrder=toolsOrders.find(o=>String(o.order_code)===String(code));
+  if(!currentToolsOrder)return showToast('Order tidak ditemukan','Muat ulang Tools lalu coba lagi.');
+
+  const o=currentToolsOrder;
+  const st=String(o.order_status||'PENDING').toUpperCase();
+  const pending=st==='PENDING';
+
+  $('toolsOrderModalCode').textContent=o.order_code||'-';
+
+  $('toolsOrderModalBody').innerHTML=`
+    <div class="flex items-center justify-between gap-3 flex-wrap mb-4">
+      ${toolsOrderStatusBadge(o)}
+      <div class="text-[10px] text-white/30">${escapeHtml(fmtDate(o.created_at))}</div>
+    </div>
+
+    <div class="rounded-2xl border border-white/5 bg-[#171717] divide-y divide-white/5 overflow-hidden">
+      ${toolsDetailLine('Username',escapeHtml(o.username||o.user_code||'-'))}
+      ${toolsDetailLine('Paket',escapeHtml(o.package_code||'-'))}
+      ${toolsDetailLine('Credit',`<span class="text-ub-300">+${Number(o.credit_amount||0).toLocaleString('id-ID')} Credit</span>`)}
+      ${toolsDetailLine('Harga',rup(o.base_price))}
+      ${toolsDetailLine('Biaya Admin',rup(o.payment_fee))}
+      ${toolsDetailLine('Total',`<span class="text-ub-300 text-lg">${rup(o.total)}</span>`)}
+      ${toolsDetailLine('Pembayaran',escapeHtml(o.payment_method_name||'-'))}
+      ${toolsDetailLine('Referensi',escapeHtml(o.payment_ref||'-'))}
+      ${toolsDetailLine('Bukti Dikirim',escapeHtml(fmtDate(o.payment_submitted_at)))}
+    </div>
+
+    ${o.admin_note?`<div class="mt-4 rounded-2xl border border-white/5 bg-[#171717] p-4"><div class="text-[9px] uppercase text-white/30">Catatan Admin</div><p class="text-xs text-white/55 mt-2 leading-5">${escapeHtml(o.admin_note)}</p></div>`:''}
+
+    <div class="mt-5">
+      <div class="text-[10px] font-bold tracking-[.14em] text-white/35 mb-3">AKSI ADMIN</div>
+      <div class="grid ${pending?'sm:grid-cols-3':'sm:grid-cols-1'} gap-3">
+        <button id="toolsProofBtn" class="rounded-xl border border-white/10 py-3 px-4 text-xs font-bold text-white/70 inline-flex items-center justify-center gap-2 ${o.payment_submitted_at?'':'opacity-50 cursor-not-allowed'}">
+          <i data-lucide="image" class="w-4 h-4"></i>Lihat Bukti
+        </button>
+        ${pending?`<button id="toolsApproveBtn" class="rounded-xl bg-emerald-400 py-3 px-4 text-xs font-extrabold text-black inline-flex items-center justify-center gap-2 ${o.payment_submitted_at?'':'opacity-50 cursor-not-allowed'}"><i data-lucide="badge-check" class="w-4 h-4"></i>Approve</button>
+        <button id="toolsRejectBtn" class="rounded-xl border border-red-400/20 bg-red-400/[.06] py-3 px-4 text-xs font-bold text-red-300 inline-flex items-center justify-center gap-2"><i data-lucide="x-circle" class="w-4 h-4"></i>Reject</button>`:''}
+      </div>
+      ${pending?`<textarea id="toolsRejectNote" rows="2" maxlength="300" class="mt-3 w-full rounded-xl border border-white/10 bg-[#171717] px-3.5 py-3 text-xs outline-none focus:border-ub-500" placeholder="Catatan penolakan (opsional)"></textarea>`:''}
+    </div>
+  `;
+
+  $('toolsOrderModal').classList.remove('hidden');
+  document.body.classList.add('overflow-hidden');
+
+  $('toolsProofBtn').addEventListener('click',()=>{
+    if(!o.payment_submitted_at)return showToast('Bukti belum ada','Pengguna belum mengirim bukti pembayaran.');
+    viewToolsCreditProof();
+  });
+  $('toolsApproveBtn')?.addEventListener('click',()=>updateToolsCreditOrder('APPROVE'));
+  $('toolsRejectBtn')?.addEventListener('click',()=>updateToolsCreditOrder('REJECT'));
+  lucide.createIcons();
+}
+
+async function viewToolsCreditProof(){
+  if(!currentToolsOrder)return;
+  const b=$('toolsProofBtn');
+  setButtonLoading(b,true,'Membuka...');
+  try{
+    const r=await apiPost('adminGetToolsCreditProofUrl',{order_code:currentToolsOrder.order_code});
+    window.open(r.data.url,'_blank','noopener,noreferrer');
+  }catch(e){showToast('Bukti gagal dibuka',e.message)}
+  finally{setButtonLoading(b,false)}
+}
+
+async function updateToolsCreditOrder(command){
+  if(!currentToolsOrder)return;
+  const o=currentToolsOrder;
+
+  if(command==='APPROVE'&&!o.payment_submitted_at){
+    return showToast('Bukti belum ada','Jangan approve sebelum bukti pembayaran dikirim.');
+  }
+
+  const approve=command==='APPROVE';
+  const ok=await askConfirmation({
+    title:approve?'Approve Pembelian Credit?':'Tolak Pembelian Credit?',
+    text:approve
+      ? `${o.order_code} akan menambahkan ${Number(o.credit_amount||0).toLocaleString('id-ID')} Credit ke ${o.username||o.user_code||'pengguna'}.`
+      : `${o.order_code} akan ditandai ditolak dan tidak menambah Credit.`,
+    danger:!approve
+  });
+  if(!ok)return;
+
+  const b=approve?$('toolsApproveBtn'):$('toolsRejectBtn');
+  setButtonLoading(b,true,'Memproses...');
+
+  try{
+    const note=$('toolsRejectNote')?.value.trim()||'';
+    const r=await apiPost('adminUpdateToolsCreditOrder',{
+      order_code:o.order_code,
+      command:command,
+      note:note
+    });
+    showToast('Pembelian Credit diperbarui',r.message||o.order_code);
+    closeToolsOrderModal();
+    await loadToolsAdmin({silent:true});
+  }catch(e){showToast('Update gagal',e.message)}
+  finally{setButtonLoading(b,false)}
+}
+
+function closeToolsOrderModal(){
+  $('toolsOrderModal').classList.add('hidden');
+  document.body.classList.remove('overflow-hidden');
+  currentToolsOrder=null;
+}
+
+function openToolsUser(id){
+  currentToolsUser=toolsUsers.find(u=>Number(u.id)===Number(id));
+  if(!currentToolsUser)return showToast('User tidak ditemukan','Muat ulang Tools lalu coba lagi.');
+
+  const u=currentToolsUser;
+  const ids=u.device_ids||{};
+  $('toolsUserModalName').textContent=u.username||'-';
+
+  $('toolsUserModalBody').innerHTML=`
+    <div class="rounded-2xl border border-white/5 bg-[#171717] divide-y divide-white/5 overflow-hidden">
+      ${toolsDetailLine('User Code',escapeHtml(u.user_code||'-'))}
+      ${toolsDetailLine('Email',escapeHtml(u.email||'-'))}
+      ${toolsDetailLine('No. HP',escapeHtml(u.phone||'-'))}
+      ${toolsDetailLine('Status',escapeHtml(u.status||'-'))}
+      ${toolsDetailLine('Credit',`<span class="text-ub-300 text-lg">${Number(u.credit||0).toLocaleString('id-ID')} Credit</span>`)}
+      ${toolsDetailLine('Login Terakhir',escapeHtml(fmtDate(u.last_login)))}
+    </div>
+
+    <div class="mt-4 rounded-2xl border border-white/5 bg-[#171717] p-4">
+      <div class="text-[9px] uppercase tracking-[.14em] text-white/30">DEVICE ID TERSIMPAN</div>
+      <div class="grid grid-cols-1 gap-2 mt-3 text-xs">
+        <div class="flex justify-between gap-3"><span class="text-white/35">BUSSID</span><b class="break-all text-right">${escapeHtml(ids.BUSSID||'-')}</b></div>
+        <div class="flex justify-between gap-3"><span class="text-white/35">TRUCKSID</span><b class="break-all text-right">${escapeHtml(ids.TRUCKSID||'-')}</b></div>
+        <div class="flex justify-between gap-3"><span class="text-white/35">BUSSIN</span><b class="break-all text-right">${escapeHtml(ids.BUSSIN||'-')}</b></div>
+      </div>
+    </div>
+
+    <div class="mt-5">
+      <div class="text-[10px] font-bold tracking-[.14em] text-white/35">PENYESUAIAN CREDIT</div>
+      <p class="text-[10px] text-white/35 leading-5 mt-1">Gunakan nilai positif untuk menambah dan negatif untuk mengurangi. Semua perubahan dicatat pada ledger.</p>
+      <input id="toolsAdjustAmount" type="number" step="1" class="mt-3 w-full rounded-xl border border-white/10 bg-[#171717] px-4 py-3 text-sm outline-none focus:border-ub-500" placeholder="Contoh: 50 atau -10">
+      <textarea id="toolsAdjustNote" rows="2" maxlength="300" class="mt-2 w-full rounded-xl border border-white/10 bg-[#171717] px-4 py-3 text-xs outline-none focus:border-ub-500" placeholder="Alasan penyesuaian Credit"></textarea>
+      <button id="toolsAdjustBtn" class="mt-3 w-full rounded-xl bg-ub-500 py-3.5 text-sm font-extrabold text-black inline-flex items-center justify-center gap-2"><i data-lucide="coins" class="w-4 h-4"></i>Simpan Penyesuaian</button>
+    </div>
+  `;
+
+  $('toolsUserModal').classList.remove('hidden');
+  document.body.classList.add('overflow-hidden');
+  $('toolsAdjustBtn').addEventListener('click',adjustToolsCredit);
+  lucide.createIcons();
+}
+
+async function adjustToolsCredit(){
+  if(!currentToolsUser)return;
+
+  const amount=Math.trunc(Number($('toolsAdjustAmount').value||0));
+  const note=$('toolsAdjustNote').value.trim();
+
+  if(!Number.isFinite(amount)||amount===0){
+    return showToast('Nominal tidak valid','Isi angka selain 0. Contoh 50 atau -10.');
+  }
+
+  if(Number(currentToolsUser.credit||0)+amount<0){
+    return showToast('Credit tidak cukup','Pengurangan akan membuat saldo Credit menjadi negatif.');
+  }
+
+  const ok=await askConfirmation({
+    title:amount>0?'Tambah Credit Pengguna?':'Kurangi Credit Pengguna?',
+    text:`Saldo ${currentToolsUser.username} akan berubah ${amount>0?'+':''}${amount} Credit.`,
+    danger:amount<0
+  });
+  if(!ok)return;
+
+  const b=$('toolsAdjustBtn');
+  setButtonLoading(b,true,'Menyimpan...');
+
+  try{
+    const r=await apiPost('adminAdjustToolsCredit',{
+      user_id:currentToolsUser.id,
+      amount:amount,
+      note:note
+    });
+    showToast('Credit diperbarui',`Saldo baru ${Number(r.data?.credit||0).toLocaleString('id-ID')} Credit.`);
+    closeToolsUserModal();
+    await loadToolsAdmin({silent:true});
+  }catch(e){showToast('Penyesuaian gagal',e.message)}
+  finally{setButtonLoading(b,false)}
+}
+
+function closeToolsUserModal(){
+  $('toolsUserModal').classList.add('hidden');
+  document.body.classList.remove('overflow-hidden');
+  currentToolsUser=null;
+}
+
+function paintAdminTabs(){
+  const top=$('tabTopupBtn'),acc=$('tabAccountBtn'),obb=$('tabObbBtn'),kod=$('tabKodenameBtn'),dev=$('tabDeviceBtn'),tools=$('tabToolsBtn');
+  [top,acc,obb,kod,dev,tools].forEach(x=>x.className='admin-tab shrink-0 rounded-xl text-white/55 hover:text-white px-4 sm:px-5 py-3 text-sm font-bold inline-flex items-center gap-2');
+  const active=activeAdminTab==='account'?acc:activeAdminTab==='obb'?obb:activeAdminTab==='kodename'?kod:activeAdminTab==='device'?dev:activeAdminTab==='tools'?tools:top;
+  active.className='admin-tab shrink-0 rounded-xl bg-ub-500 text-black px-4 sm:px-5 py-3 text-sm font-extrabold inline-flex items-center gap-2';
+}
+
+async function switchAdminTab(tab,{force=false}={}){
+  const next=tab==='account'?'account':tab==='obb'?'obb':tab==='kodename'?'kodename':tab==='device'?'device':tab==='tools'?'tools':'topup';
+  if(!force&&next===activeAdminTab)return;
+  activeAdminTab=next;
+  $('topupAdminPanel').classList.toggle('hidden',next!=='topup');
+  $('accountAdminPanel').classList.toggle('hidden',next!=='account');
+  $('obbAdminPanel').classList.toggle('hidden',next!=='obb');
+  $('kodenameAdminPanel').classList.toggle('hidden',next!=='kodename');
+  $('deviceAdminPanel').classList.toggle('hidden',next!=='device');
+  $('toolsAdminPanel').classList.toggle('hidden',next!=='tools');
+  paintAdminTabs();
+  if(next==='account')await loadAccountOrders();
+  else if(next==='obb')await loadObbOrders();
+  else if(next==='kodename')await loadKodenameOrders();
+  else if(next==='device')await loadDeviceOrders();
+  else if(next==='tools')await loadToolsAdmin();
+  else await loadOrders();
+}
+
+function loadActivePanel(){
+  return activeAdminTab==='account' ? loadAccountOrders({silent:true})
+    : activeAdminTab==='obb' ? loadObbOrders({silent:true})
+    : activeAdminTab==='kodename' ? loadKodenameOrders({silent:true})
+    : activeAdminTab==='device' ? loadDeviceOrders({silent:true})
+    : activeAdminTab==='tools' ? loadToolsAdmin({silent:true})
+    : loadOrders({silent:true});
+}
+
+function closeModal(){$('detailModal').classList.add('hidden');document.body.classList.remove('overflow-hidden');currentOrder=null;}
+function logout(show=true){adminToken='';sessionStorage.removeItem(ADMIN_SESSION_KEY);clearInterval(refreshTimer);$('loginScreen').classList.remove('hidden');if(show)setLoginError('');}
+function startDashboard(){
+  $('loginScreen').classList.add('hidden');
+  setLoginError('');
+  switchAdminTab(activeAdminTab,{force:true});
+  clearInterval(refreshTimer);
+  refreshTimer=setInterval(()=>{if(document.visibilityState==='visible')loadActivePanel();},20000);
+}
+
+$('loginForm').addEventListener('submit',async e=>{
+  e.preventDefault();const token=$('adminTokenInput').value.trim();if(!token){setLoginError('Admin token wajib diisi.');return;}
+  adminToken=token;sessionStorage.setItem(ADMIN_SESSION_KEY,token);setLoginError('');
+  const btn=e.currentTarget.querySelector('button');setButtonLoading(btn,true,'Memeriksa akses...');
+  try{await apiPost('adminListTransactions',{limit:1});startDashboard();}
+  catch(error){sessionStorage.removeItem(ADMIN_SESSION_KEY);adminToken='';setLoginError(error.message);}
+  finally{setButtonLoading(btn,false);}
+});
+$('logoutBtn').addEventListener('click',()=>logout());
+$('refreshBtn').addEventListener('click',()=>loadActivePanel());
+$('searchInput').addEventListener('input',renderOrders);
+$('accountSearchInput').addEventListener('input',renderAccountOrders);
+$('obbSearchInput').addEventListener('input',renderObbOrders);
+$('kodenameSearchInput').addEventListener('input',renderKodenameOrders);
+$('deviceSearchInput').addEventListener('input',renderDeviceOrders);
+$('toolsOrderSearchInput').addEventListener('input',renderToolsOrders);
+$('toolsOrderStatusFilter').addEventListener('change',renderToolsOrders);
+$('toolsUserSearchInput').addEventListener('input',renderToolsUsers);
+$('closeModalBtn').addEventListener('click',closeModal);
+$('detailModal').addEventListener('click',e=>{if(e.target===$('detailModal'))closeModal();});
+$('accountCloseModalBtn').addEventListener('click',closeAccountModal);
+$('accountDetailModal').addEventListener('click',e=>{if(e.target===$('accountDetailModal'))closeAccountModal();});
+$('obbCloseModalBtn').addEventListener('click',closeObbModal);
+$('obbDetailModal').addEventListener('click',e=>{if(e.target===$('obbDetailModal'))closeObbModal();});
+$('kodenameCloseModalBtn').addEventListener('click',closeKodenameModal);
+$('kodenameDetailModal').addEventListener('click',e=>{if(e.target===$('kodenameDetailModal'))closeKodenameModal();});
+$('deviceCloseModalBtn').addEventListener('click',closeDeviceModal);
+$('deviceDetailModal').addEventListener('click',e=>{if(e.target===$('deviceDetailModal'))closeDeviceModal();});
+$('toolsOrderCloseBtn').addEventListener('click',closeToolsOrderModal);
+$('toolsOrderModal').addEventListener('click',e=>{if(e.target===$('toolsOrderModal'))closeToolsOrderModal();});
+$('toolsUserCloseBtn').addEventListener('click',closeToolsUserModal);
+$('toolsUserModal').addEventListener('click',e=>{if(e.target===$('toolsUserModal'))closeToolsUserModal();});
+document.querySelectorAll('[data-admin-tab]').forEach(btn=>btn.addEventListener('click',()=>switchAdminTab(btn.dataset.adminTab)));
+$('confirmCancelBtn').addEventListener('click',()=>resolveConfirmation(false));
+$('confirmOkBtn').addEventListener('click',()=>resolveConfirmation(true));
+$('confirmModal').addEventListener('click',e=>{if(e.target===$('confirmModal'))resolveConfirmation(false);});
+document.addEventListener('keydown',e=>{
+  if(e.key!=='Escape')return;
+  if(!$('confirmModal').classList.contains('hidden')){resolveConfirmation(false);return;}
+  if(!$('accountDetailModal').classList.contains('hidden')){closeAccountModal();return;}
+  if(!$('obbDetailModal').classList.contains('hidden')){closeObbModal();return;}
+  if(!$('kodenameDetailModal').classList.contains('hidden')){closeKodenameModal();return;}
+  if(!$('deviceDetailModal').classList.contains('hidden')){closeDeviceModal();return;}
+  if(!$('toolsOrderModal').classList.contains('hidden')){closeToolsOrderModal();return;}
+  if(!$('toolsUserModal').classList.contains('hidden')){closeToolsUserModal();return;}
+  if(!$('detailModal').classList.contains('hidden'))closeModal();
+});
+document.querySelectorAll('.stat-filter').forEach(btn=>btn.addEventListener('click',()=>{
+  currentFilter=btn.dataset.filter;
+  document.querySelectorAll('.stat-filter').forEach(x=>{x.classList.remove('border-ub-500/35','bg-ub-500/10');x.classList.add('border-white/5','bg-[#202124]');});
+  btn.classList.remove('border-white/5','bg-[#202124]');btn.classList.add('border-ub-500/35','bg-ub-500/10');renderOrders();
+}));
+
+lucide.createIcons();
+if(adminToken)startDashboard();
+</script>
+
+<script id="ub-global-feedback-adapter">
+(function(){
+  if(!window.UBFeedback) return;
+  window.UBFeedback.bindLegacy();
+
+  // Beberapa halaman membuat toast lama setelah DOM siap.
+  setTimeout(function(){ window.UBFeedback.bindLegacy(); },0);
+  setTimeout(function(){ window.UBFeedback.bindLegacy(); },350);
+})();
+</script>
+
+
+<script id="ub-contextual-loader-core">
+(function(){
+  if(window.UBContextLoader) return;
+
+  let activeCount=0;
+  let delayedTimer=null;
+
+  const $=id=>document.getElementById(id);
+
+  function show(title,text,delay){
+    const wait=Number.isFinite(Number(delay))?Number(delay):120;
+    activeCount++;
+
+    clearTimeout(delayedTimer);
+    delayedTimer=setTimeout(function(){
+      const el=$('ubContextLoader');
+      if(!el||activeCount<=0)return;
+      $('ubContextLoaderTitle').textContent=String(title||'Memproses...');
+      $('ubContextLoaderText').textContent=String(text||'Mohon tunggu sebentar.');
+      el.classList.add('ub-show');
+    },Math.max(0,wait));
+  }
+
+  function hide(force){
+    clearTimeout(delayedTimer);
+    activeCount=force?0:Math.max(0,activeCount-1);
+    if(activeCount===0){
+      const el=$('ubContextLoader');
+      if(el)el.classList.remove('ub-show');
+    }
+  }
+
+  function withLoader(promise,title,text,delay){
+    show(title,text,delay);
+    return Promise.resolve(promise).finally(function(){hide();});
+  }
+
+  window.UBContextLoader={show,hide,withLoader};
+
+  // Compatibility with pages that already call loading(true/false)
+  // but do NOT create automatic loading for navigation or GET polling.
+  const oldLoading=window.loading;
+  window.ubLoading=function(on,title,text){
+    if(on)show(title||'Memproses...',text||'Mohon tunggu sebentar.',80);
+    else hide();
+  };
+
+  // Only POST/PUT/PATCH/DELETE requests trigger loader automatically.
+  // GET/polling/navigation stay silent.
+  const originalFetch=window.fetch?window.fetch.bind(window):null;
+  if(originalFetch){
+    window.fetch=async function(input,init){
+      const method=String((init&&init.method)||'GET').toUpperCase();
+      const silent=!!(init&&init.ubSilent===true);
+      const shouldLoad=!silent&&['POST','PUT','PATCH','DELETE'].includes(method);
+      if(shouldLoad){
+        show('Memproses...','Sedang menghubungkan ke server UB Store.',140);
+      }
+      try{
+        return await originalFetch(input,init);
+      }finally{
+        if(shouldLoad)hide();
+      }
+    };
+  }
+})();
+</script>
+
+</body>
+</html>

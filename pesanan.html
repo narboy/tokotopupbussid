@@ -1,0 +1,899 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#171717">
+<title>Topup UB Store - Detail Pesanan</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config={theme:{extend:{fontFamily:{sans:['Inter','system-ui','sans-serif']},colors:{ub:{300:'#ffd05a',400:'#f7bd32',500:'#d99a17'}},boxShadow:{glow:'0 18px 60px rgba(0,0,0,.3)'}}}}
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+body{background:#171717}.marquee{animation:marquee 22s linear infinite}@keyframes marquee{to{transform:translateX(-50%)}}
+</style>
+<link rel="icon" type="image/png" href="images/logo/logo.png"/>
+
+<!-- UB GLOBAL FEEDBACK UI -->
+<style id="ub-global-feedback-style">
+  :root{
+    --ub-feedback-bg:rgba(28,29,31,.97);
+    --ub-feedback-border:rgba(255,255,255,.10);
+    --ub-feedback-yellow:#d99a17;
+  }
+
+  /* ========= SIMPLE GLOBAL LOADER ========= */
+  #ubGlobalLoader{
+    position:fixed;
+    inset:0;
+    z-index:2147483600;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:16px;
+    background:rgba(10,10,10,.34);
+    -webkit-backdrop-filter:blur(2px);
+    backdrop-filter:blur(2px);
+    opacity:0;
+    visibility:hidden;
+    pointer-events:none;
+    transition:opacity .18s ease,visibility .18s ease;
+  }
+  #ubGlobalLoader.ub-show{
+    opacity:1;
+    visibility:visible;
+    pointer-events:auto;
+  }
+  .ub-loader-box{
+    display:flex;
+    align-items:center;
+    gap:11px;
+    min-width:145px;
+    max-width:min(88vw,280px);
+    padding:12px 15px;
+    border-radius:15px;
+    border:1px solid var(--ub-feedback-border);
+    background:rgba(32,33,36,.96);
+    box-shadow:0 16px 45px rgba(0,0,0,.34);
+    transform:translateY(5px) scale(.985);
+    transition:transform .18s ease;
+  }
+  #ubGlobalLoader.ub-show .ub-loader-box{
+    transform:translateY(0) scale(1);
+  }
+  .ub-loader-spinner{
+    width:21px;
+    height:21px;
+    flex:0 0 21px;
+    border:2.5px solid rgba(255,255,255,.14);
+    border-top-color:var(--ub-feedback-yellow);
+    border-radius:999px;
+    animation:ubSimpleSpin .72s linear infinite;
+  }
+  .ub-loader-copy{
+    min-width:0;
+  }
+  .ub-loader-title{
+    margin:0;
+    font-size:11px;
+    line-height:1.3;
+    font-weight:800;
+    color:#fff;
+  }
+  .ub-loader-text{
+    margin:2px 0 0;
+    font-size:9px;
+    line-height:1.35;
+    color:rgba(255,255,255,.42);
+  }
+  @keyframes ubSimpleSpin{to{transform:rotate(360deg)}}
+
+  /* ========= MODERN ALERT / TOAST ========= */
+  #ubGlobalToast{
+    position:fixed;
+    z-index:2147483640;
+    right:14px;
+    bottom:14px;
+    width:min(390px,calc(100vw - 28px));
+    pointer-events:none;
+    opacity:0;
+    visibility:hidden;
+    transform:translateY(14px) scale(.985);
+    transition:opacity .22s ease,transform .22s ease,visibility .22s ease;
+  }
+  #ubGlobalToast.ub-show{
+    opacity:1;
+    visibility:visible;
+    transform:translateY(0) scale(1);
+  }
+  .ub-toast-card{
+    position:relative;
+    overflow:hidden;
+    display:grid;
+    grid-template-columns:38px minmax(0,1fr) 28px;
+    gap:10px;
+    align-items:start;
+    padding:13px 12px 13px 13px;
+    border-radius:17px;
+    border:1px solid var(--ub-feedback-border);
+    background:var(--ub-feedback-bg);
+    box-shadow:0 18px 55px rgba(0,0,0,.42);
+    -webkit-backdrop-filter:blur(18px);
+    backdrop-filter:blur(18px);
+    pointer-events:auto;
+  }
+  .ub-toast-icon{
+    width:38px;
+    height:38px;
+    border-radius:12px;
+    display:grid;
+    place-items:center;
+    border:1px solid rgba(255,255,255,.07);
+  }
+  .ub-toast-icon svg{
+    width:19px;
+    height:19px;
+    fill:none;
+    stroke:currentColor;
+    stroke-width:2;
+    stroke-linecap:round;
+    stroke-linejoin:round;
+  }
+  .ub-toast-title{
+    margin:1px 0 0;
+    color:#fff;
+    font-size:12px;
+    line-height:1.35;
+    font-weight:800;
+  }
+  .ub-toast-message{
+    margin:3px 0 0;
+    color:rgba(255,255,255,.52);
+    font-size:10px;
+    line-height:1.55;
+    overflow-wrap:anywhere;
+  }
+  .ub-toast-close{
+    width:28px;
+    height:28px;
+    display:grid;
+    place-items:center;
+    padding:0;
+    border:0;
+    border-radius:9px;
+    background:transparent;
+    color:rgba(255,255,255,.35);
+    cursor:pointer;
+    transition:background .15s ease,color .15s ease;
+  }
+  .ub-toast-close:hover{
+    background:rgba(255,255,255,.06);
+    color:#fff;
+  }
+  .ub-toast-close svg{
+    width:15px;
+    height:15px;
+    stroke:currentColor;
+    fill:none;
+    stroke-width:2;
+    stroke-linecap:round;
+  }
+  .ub-toast-progress{
+    position:absolute;
+    left:0;
+    right:0;
+    bottom:0;
+    height:2px;
+    background:rgba(255,255,255,.05);
+  }
+  .ub-toast-progress > span{
+    display:block;
+    width:100%;
+    height:100%;
+    transform-origin:left;
+    animation:ubToastProgress var(--ub-toast-duration,3200ms) linear forwards;
+  }
+  @keyframes ubToastProgress{to{transform:scaleX(0)}}
+
+  #ubGlobalToast[data-type="success"] .ub-toast-icon{
+    background:rgba(52,211,153,.10);
+    color:#6ee7b7;
+  }
+  #ubGlobalToast[data-type="success"] .ub-toast-progress > span{background:#34d399}
+
+  #ubGlobalToast[data-type="error"] .ub-toast-icon{
+    background:rgba(248,113,113,.10);
+    color:#fca5a5;
+  }
+  #ubGlobalToast[data-type="error"] .ub-toast-progress > span{background:#f87171}
+
+  #ubGlobalToast[data-type="warning"] .ub-toast-icon{
+    background:rgba(251,191,36,.10);
+    color:#fcd34d;
+  }
+  #ubGlobalToast[data-type="warning"] .ub-toast-progress > span{background:#fbbf24}
+
+  #ubGlobalToast[data-type="info"] .ub-toast-icon{
+    background:rgba(217,154,23,.11);
+    color:#f7bd32;
+  }
+  #ubGlobalToast[data-type="info"] .ub-toast-progress > span{background:#d99a17}
+
+  @media(max-width:640px){
+    #ubGlobalToast{
+      left:12px;
+      right:12px;
+      bottom:12px;
+      width:auto;
+    }
+    .ub-toast-card{
+      grid-template-columns:35px minmax(0,1fr) 26px;
+      padding:12px 10px 12px 12px;
+      border-radius:16px;
+    }
+    .ub-toast-icon{
+      width:35px;
+      height:35px;
+      border-radius:11px;
+    }
+  }
+
+  @media(prefers-reduced-motion:reduce){
+    #ubGlobalLoader,#ubGlobalToast,.ub-loader-box{
+      transition:none!important;
+    }
+    .ub-loader-spinner,.ub-toast-progress > span{
+      animation:none!important;
+    }
+  }
+</style>
+
+
+<style id="ub-global-mobile-guard">
+  html,body{width:100%;max-width:100%;overflow-x:hidden}
+  *,*::before,*::after{box-sizing:border-box}
+  img,video,canvas{max-width:100%;height:auto}
+  input,select,textarea,button{max-width:100%}
+  @media(max-width:639.98px){
+    main{max-width:100%}
+  }
+</style>
+
+
+<style id="ub-contextual-loader-style">
+  :root{
+    --ub-loader-yellow:#d99a17;
+    --ub-loader-yellow-soft:#f7bd32;
+  }
+
+  #ubContextLoader{
+    position:fixed;
+    inset:0;
+    z-index:2147483600;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:16px;
+    background:rgba(6,7,8,.46);
+    -webkit-backdrop-filter:blur(5px);
+    backdrop-filter:blur(5px);
+    opacity:0;
+    visibility:hidden;
+    pointer-events:none;
+    transition:opacity .2s ease,visibility .2s ease;
+  }
+  #ubContextLoader.ub-show{
+    opacity:1;
+    visibility:visible;
+    pointer-events:auto;
+  }
+
+  .ub-context-loader-card{
+    width:min(88vw,290px);
+    border-radius:24px;
+    border:1px solid rgba(255,255,255,.10);
+    background:
+      radial-gradient(circle at 50% -10%,rgba(217,154,23,.12),transparent 48%),
+      rgba(29,30,32,.97);
+    box-shadow:0 24px 70px rgba(0,0,0,.48);
+    padding:20px 18px 17px;
+    text-align:center;
+    transform:translateY(7px) scale(.975);
+    transition:transform .22s ease;
+  }
+  #ubContextLoader.ub-show .ub-context-loader-card{
+    transform:translateY(0) scale(1);
+  }
+
+  .ub-orbit-loader{
+    position:relative;
+    width:56px;
+    height:56px;
+    margin:0 auto 13px;
+  }
+  .ub-orbit-loader::before{
+    content:"";
+    position:absolute;
+    inset:8px;
+    border-radius:50%;
+    border:1px solid rgba(255,255,255,.09);
+  }
+  .ub-orbit-loader::after{
+    content:"";
+    position:absolute;
+    inset:0;
+    border-radius:50%;
+    border:2px solid transparent;
+    border-top-color:var(--ub-loader-yellow-soft);
+    border-right-color:rgba(217,154,23,.32);
+    animation:ubOrbitSpin .9s linear infinite;
+  }
+  .ub-orbit-dot{
+    position:absolute;
+    left:50%;
+    top:50%;
+    width:8px;
+    height:8px;
+    margin:-4px;
+    border-radius:50%;
+    background:var(--ub-loader-yellow-soft);
+    box-shadow:0 0 16px rgba(247,189,50,.75);
+    animation:ubDotPulse 1.1s ease-in-out infinite;
+  }
+  .ub-orbit-loader .ub-inner-ring{
+    position:absolute;
+    inset:16px;
+    border-radius:50%;
+    border:2px solid rgba(217,154,23,.18);
+    border-bottom-color:var(--ub-loader-yellow);
+    animation:ubOrbitSpinReverse 1.35s linear infinite;
+  }
+
+  .ub-context-loader-title{
+    margin:0;
+    font-size:12px;
+    line-height:1.35;
+    font-weight:800;
+    color:#fff;
+  }
+  .ub-context-loader-text{
+    margin:4px auto 0;
+    max-width:220px;
+    font-size:9px;
+    line-height:1.55;
+    color:rgba(255,255,255,.42);
+  }
+
+  .ub-context-loader-dots{
+    display:flex;
+    justify-content:center;
+    gap:4px;
+    margin-top:12px;
+  }
+  .ub-context-loader-dots span{
+    width:4px;
+    height:4px;
+    border-radius:999px;
+    background:rgba(247,189,50,.35);
+    animation:ubLoadingDots 1s ease-in-out infinite;
+  }
+  .ub-context-loader-dots span:nth-child(2){animation-delay:.12s}
+  .ub-context-loader-dots span:nth-child(3){animation-delay:.24s}
+
+  @keyframes ubOrbitSpin{to{transform:rotate(360deg)}}
+  @keyframes ubOrbitSpinReverse{to{transform:rotate(-360deg)}}
+  @keyframes ubDotPulse{
+    0%,100%{transform:scale(.8);opacity:.55}
+    50%{transform:scale(1.2);opacity:1}
+  }
+  @keyframes ubLoadingDots{
+    0%,100%{transform:translateY(0);opacity:.35}
+    50%{transform:translateY(-3px);opacity:1}
+  }
+
+  @media(max-width:640px){
+    .ub-context-loader-card{
+      width:min(84vw,265px);
+      border-radius:21px;
+      padding:18px 16px 15px;
+    }
+    .ub-orbit-loader{
+      width:50px;
+      height:50px;
+      margin-bottom:11px;
+    }
+  }
+
+  @media(prefers-reduced-motion:reduce){
+    #ubContextLoader,
+    .ub-context-loader-card{
+      transition:none!important;
+    }
+    .ub-orbit-loader::after,
+    .ub-orbit-loader .ub-inner-ring,
+    .ub-orbit-dot,
+    .ub-context-loader-dots span{
+      animation:none!important;
+    }
+  }
+</style>
+
+</head>
+<body class="text-white font-sans antialiased">
+
+<div id="ubContextLoader" role="status" aria-live="polite" aria-label="Memproses">
+  <div class="ub-context-loader-card">
+    <div class="ub-orbit-loader" aria-hidden="true">
+      <span class="ub-inner-ring"></span>
+      <span class="ub-orbit-dot"></span>
+    </div>
+    <p id="ubContextLoaderTitle" class="ub-context-loader-title">Memproses...</p>
+    <p id="ubContextLoaderText" class="ub-context-loader-text">Mohon tunggu sebentar.</p>
+    <div class="ub-context-loader-dots" aria-hidden="true"><span></span><span></span><span></span></div>
+  </div>
+</div>
+
+
+
+<!-- UB GLOBAL FEEDBACK COMPONENT -->
+<div id="ubGlobalLoader" class="hidden" aria-hidden="true">
+  <div class="ub-loader-box">
+    <span class="ub-loader-spinner" aria-hidden="true"></span>
+    <div class="ub-loader-copy">
+      <p id="ubLoaderTitle" class="ub-loader-title">Memuat...</p>
+      <p id="ubLoaderText" class="ub-loader-text">Mohon tunggu sebentar.</p>
+    </div>
+  </div>
+</div>
+
+<div id="ubGlobalToast" data-type="info" role="status" aria-live="polite" aria-atomic="true">
+  <div class="ub-toast-card">
+    <div id="ubToastIcon" class="ub-toast-icon" aria-hidden="true"></div>
+    <div class="min-w-0">
+      <p id="ubToastTitle" class="ub-toast-title">Informasi</p>
+      <p id="ubToastMessage" class="ub-toast-message"></p>
+    </div>
+    <button id="ubToastClose" type="button" class="ub-toast-close" aria-label="Tutup notifikasi">
+      <svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg>
+    </button>
+    <div class="ub-toast-progress"><span id="ubToastProgress"></span></div>
+  </div>
+</div>
+
+<script id="ub-global-feedback-core">
+(function(){
+  if(window.UBFeedback) return;
+
+  const icons = {
+    success:'<svg viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/></svg>',
+    error:'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m9 9 6 6M15 9l-6 6"/></svg>',
+    warning:'<svg viewBox="0 0 24 24"><path d="M12 4 3.5 19h17L12 4Z"/><path d="M12 9v4M12 16h.01"/></svg>',
+    info:'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7h.01"/></svg>'
+  };
+
+  let toastTimer = null;
+  let loaderCount = 0;
+  let initialLoad = false;
+  let postDelayTimer = null;
+
+  const get = id => document.getElementById(id);
+
+  function inferType(title,message){
+    const x=(String(title||'')+' '+String(message||'')).toLowerCase();
+    if(/gagal|error|salah|tidak valid|ditolak|dibatalkan|habis|expired|kosong/.test(x)) return 'error';
+    if(/berhasil|sukses|selesai|terkirim|disimpan|disalin|ditemukan|disetujui/.test(x)) return 'success';
+    if(/peringatan|tunggu|menunggu|perhatian|belum|cek admin|verifikasi/.test(x)) return 'warning';
+    return 'info';
+  }
+
+  function hideToast(){
+    const el=get('ubGlobalToast');
+    if(!el) return;
+    el.classList.remove('ub-show');
+  }
+
+  function toast(title,message,type,duration){
+    const el=get('ubGlobalToast');
+    if(!el) return;
+    const t=type||inferType(title,message);
+    const ms=Math.max(1800,Number(duration||3200));
+
+    el.dataset.type=t;
+    get('ubToastIcon').innerHTML=icons[t]||icons.info;
+    get('ubToastTitle').textContent=String(title||'Informasi');
+    get('ubToastMessage').textContent=String(message||'');
+
+    const progress=get('ubToastProgress');
+    progress.style.animation='none';
+    progress.style.setProperty('--ub-toast-duration',ms+'ms');
+    progress.parentElement.style.setProperty('--ub-toast-duration',ms+'ms');
+    void progress.offsetWidth;
+    progress.style.animation='ubToastProgress '+ms+'ms linear forwards';
+
+    clearTimeout(toastTimer);
+    el.classList.add('ub-show');
+    toastTimer=setTimeout(hideToast,ms);
+  }
+
+  function showLoading(title,text){ if(window.UBContextLoader) window.UBContextLoader.show(title,text,80); }
+
+  function hideLoading(force){ if(window.UBContextLoader) window.UBContextLoader.hide(!!force); }
+
+  function finishInitialLoad(){
+    initialLoad=false;
+    loaderCount=0;
+    setTimeout(function(){
+      const el=get('ubGlobalLoader');
+      if(el) el.classList.remove('ub-show');
+    },120);
+  }
+
+  window.UBFeedback={
+    toast,
+    alert:toast,
+    loading:showLoading,
+    done:hideLoading,
+    hideToast,
+    inferType,
+    bindLegacy:function(){
+      try{
+        if(typeof window.showToast==='function'){
+          window.showToast=function(title,text,type){ toast(title,text,type); };
+        }
+      }catch(_){}
+      try{
+        if(typeof window.toast==='function'){
+          window.toast=function(title,text,type){ toast(title,text,type); };
+        }
+      }catch(_){}
+    }
+  };
+
+  // Native alert dibuat non-blocking dan mengikuti desain UB Store.
+  window.alert=function(message){
+    toast('Informasi',String(message||''),'info',3800);
+  };
+
+  get('ubToastClose')?.addEventListener('click',hideToast);
+
+  // Loading sederhana saat request POST (checkout, upload, perubahan admin, dll).
+  // GET sengaja tidak dipaksa agar polling status tidak membuat loader berkedip.
+  const originalFetch=window.fetch ? window.fetch.bind(window) : null;
+  if(originalFetch){
+    window.fetch=async function(input,init){
+      const method=String((init&&init.method)||'GET').toUpperCase();
+      const useLoader=false;
+      if(useLoader){
+        clearTimeout(postDelayTimer);
+        postDelayTimer=setTimeout(function(){
+          showLoading('Memproses...','Menghubungkan ke server UB Store.');
+        },140);
+      }
+      try{
+        return await originalFetch(input,init);
+      }finally{
+        if(useLoader){
+          clearTimeout(postDelayTimer);
+          setTimeout(function(){ hideLoading(); },80);
+        }
+      }
+    };
+  }
+})();
+</script>
+
+
+<div class="bg-ub-500 text-black text-xs font-semibold overflow-hidden whitespace-nowrap"><div class="w-max marquee flex"><div class="px-6 py-2">TOPUP UB STORE • Top up cepat dan aman</div><div class="px-6 py-2">Bayar sesuai nominal sampai tiga digit terakhir</div><div class="px-6 py-2">TOPUP UB STORE • Top up cepat dan aman</div><div class="px-6 py-2">Bayar sesuai nominal sampai tiga digit terakhir</div></div></div>
+<header class="sticky top-0 z-50 border-b border-white/5 bg-[#191919]/95 backdrop-blur-xl"><div class="max-w-5xl mx-auto px-4"><div class="h-[72px] flex justify-between items-center"><a href="/" class="flex gap-3 items-center"><img src="images/logo/logo.png" alt="Topup UB Store" class="w-12 h-12 object-contain shrink-0" /><div><b>TOPUP UB</b><div class="text-[10px] tracking-[.2em] text-white/40">STORE</div></div></a><a href="/transaksi" class="inline-flex gap-2 items-center border border-white/10 rounded-xl px-4 py-2 text-sm font-semibold text-white/70"><i data-lucide="search" class="w-4 h-4"></i>Cek Transaksi</a></div></div></header>
+
+<main class="max-w-5xl mx-auto px-4 py-8 sm:py-12">
+  <div class="mb-7">
+    <div class="inline-flex gap-2 items-center px-3 py-1.5 rounded-full bg-ub-500/10 border border-ub-500/20 text-ub-300 text-xs font-bold"><i data-lucide="receipt-text" class="w-4 h-4"></i> DETAIL PESANAN</div>
+    <h1 class="text-3xl sm:text-4xl font-extrabold mt-4">Selesaikan Pembayaran</h1>
+    <p class="text-sm text-white/45 mt-2">Simpan kode order dan transfer persis sesuai total pembayaran.</p>
+  </div>
+
+  <div id="activeNotice" class="hidden mb-5 rounded-2xl border border-amber-400/20 bg-amber-400/[.07] p-4 sm:p-5">
+    <div class="flex gap-3"><i data-lucide="lock-keyhole" class="w-5 h-5 text-amber-300 shrink-0 mt-0.5"></i><div><b class="text-amber-100">Anda masih memiliki pesanan aktif</b><p class="text-xs text-white/50 mt-1 leading-5">Selesaikan atau tunggu konfirmasi pesanan ini sebelum membuat pesanan baru.</p></div></div>
+  </div>
+
+  <div id="loadingBox" class="rounded-3xl border border-white/5 bg-[#202124] p-8 text-center">
+    <div class="w-12 h-12 rounded-2xl bg-ub-500/10 text-ub-300 grid place-items-center mx-auto"><i data-lucide="loader-circle" class="w-6 h-6 animate-spin"></i></div>
+    <b class="block mt-4">Memuat detail pesanan...</b>
+    <p class="text-xs text-white/40 mt-2">Mohon tunggu sebentar.</p>
+  </div>
+
+  <div id="errorBox" class="hidden rounded-3xl border border-red-400/20 bg-red-400/[.07] p-6 sm:p-8 text-center">
+    <i data-lucide="circle-alert" class="w-8 h-8 text-red-300 mx-auto"></i>
+    <h2 class="text-xl font-extrabold mt-3">Pesanan tidak dapat dimuat</h2>
+    <p id="errorMessage" class="text-sm text-white/50 mt-2"></p>
+    <a href="/" class="mt-5 inline-flex items-center gap-2 rounded-xl bg-ub-500 text-black font-bold px-5 py-3 text-sm"><i data-lucide="shopping-cart" class="w-4 h-4"></i>Kembali ke Topup</a>
+  </div>
+
+  <div id="orderContent" class="hidden space-y-5">
+    <section class="rounded-3xl border border-white/5 bg-[#202124] overflow-hidden">
+      <div class="p-5 sm:p-6 border-b border-white/5 flex items-start gap-4">
+        <div id="statusIconBox" class="w-12 h-12 rounded-2xl bg-ub-500/10 text-ub-300 grid place-items-center shrink-0"><i id="statusIcon" data-lucide="receipt-check" class="w-6 h-6"></i></div>
+        <div class="min-w-0 flex-1"><div class="text-xs font-bold tracking-[.18em] text-ub-300 uppercase">Status Pesanan</div><h2 id="statusTitle" class="text-xl sm:text-2xl font-extrabold mt-1">Menunggu Pembayaran</h2><p id="statusText" class="text-sm text-white/45 mt-2 leading-6"></p></div>
+      </div>
+      <div class="p-5 sm:p-6 space-y-4">
+        <div class="grid sm:grid-cols-2 gap-3">
+          <div class="rounded-2xl border border-white/10 bg-[#171717] p-4"><div class="text-[11px] uppercase tracking-wider text-white/35">Kode Order</div><div class="mt-2 flex items-center justify-between gap-3"><b id="orderCodeText" class="text-ub-300 tracking-wide break-all">-</b><button type="button" id="copyOrderBtn" class="shrink-0 w-9 h-9 rounded-xl border border-white/10 grid place-items-center text-white/60 hover:text-white hover:border-ub-500/30"><i data-lucide="copy" class="w-4 h-4"></i></button></div></div>
+          <div class="rounded-2xl border border-ub-500/20 bg-ub-500/10 p-4"><div class="text-[11px] uppercase tracking-wider text-white/40">Total yang harus dibayar</div><div class="mt-2 flex items-center justify-between gap-3"><b id="totalText" class="text-xl text-ub-300">Rp0</b><button type="button" id="copyTotalBtn" class="shrink-0 w-9 h-9 rounded-xl border border-ub-500/20 grid place-items-center text-ub-300"><i data-lucide="copy" class="w-4 h-4"></i></button></div><p class="text-[11px] text-ub-200/70 mt-2 leading-5">Transfer persis sesuai total, termasuk kode unik.</p></div>
+        </div>
+
+        <!-- Detail game dibuat terpisah agar pembeli bisa memastikan
+             BUSSID / TRUCKSID / BUSSIN dan ID tujuan sebelum membayar. -->
+        <div class="rounded-2xl border border-ub-500/15 bg-gradient-to-br from-ub-500/[.07] to-[#171717] overflow-hidden">
+          <div class="p-4 border-b border-white/5 flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-ub-500/10 text-ub-300 grid place-items-center shrink-0">
+              <i id="selectedGameIcon" data-lucide="gamepad-2" class="w-5 h-5"></i>
+            </div>
+            <div class="min-w-0">
+              <div class="text-[10px] font-bold tracking-[.16em] text-ub-300 uppercase">Game yang Dipilih</div>
+              <div class="mt-1 flex flex-wrap items-center gap-2">
+                <b id="gameNameText" class="text-base text-white">-</b>
+                <span id="gameCodeBadge" class="rounded-md border border-ub-500/20 bg-ub-500/10 px-2 py-0.5 text-[9px] font-extrabold text-ub-300">-</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="divide-y divide-white/5 text-sm">
+            <div class="p-4 flex flex-col gap-1.5 sm:flex-row sm:items-center sm:justify-between sm:gap-5">
+              <span class="text-white/40">ID Game Tujuan</span>
+              <b id="gameIdText" class="break-all sm:text-right">-</b>
+            </div>
+            <div class="p-4 flex flex-col gap-1.5 sm:flex-row sm:items-center sm:justify-between sm:gap-5">
+              <span class="text-white/40">Produk / Paket</span>
+              <b id="productNameText" class="sm:text-right">-</b>
+            </div>
+            <div class="p-4 flex flex-col gap-1.5 sm:flex-row sm:items-center sm:justify-between sm:gap-5">
+              <span class="text-white/40">Jumlah Koin</span>
+              <b id="coinAmountText" class="text-ub-300 sm:text-right">-</b>
+            </div>
+          </div>
+
+          <div class="border-t border-amber-400/10 bg-amber-400/[.04] px-4 py-3 flex items-start gap-2.5">
+            <i data-lucide="circle-alert" class="w-4 h-4 text-amber-300 shrink-0 mt-0.5"></i>
+            <p class="text-[10px] leading-5 text-white/45">
+              Pastikan <b class="text-amber-200">game dan ID tujuan sudah benar</b> sebelum melakukan pembayaran.
+            </p>
+          </div>
+        </div>
+
+        <div class="rounded-2xl border border-white/10 bg-[#171717] divide-y divide-white/5 text-sm overflow-hidden">
+          <div class="p-4 flex justify-between gap-5"><span class="text-white/40">Nama Pemesan</span><b id="customerText" class="text-right">-</b></div>
+          <div class="p-4 flex justify-between gap-5"><span class="text-white/40">Produk</span><b id="productText" class="text-right">-</b></div>
+          <div class="p-4 flex justify-between gap-5"><span class="text-white/40">Kode Promo</span><b id="promoText" class="text-right">-</b></div>
+          <div class="p-4 flex justify-between gap-5"><span class="text-white/40">Subtotal</span><b id="subtotalText" class="text-right">Rp0</b></div>
+          <div class="p-4 flex justify-between gap-5"><span class="text-white/40">Diskon</span><b id="discountText" class="text-right">Rp0</b></div>
+          <div class="p-4 flex justify-between gap-5"><span class="text-white/40">Biaya Admin</span><b id="feeText" class="text-right">Rp0</b></div>
+          <div class="p-4 flex justify-between gap-5 bg-ub-500/[.04]"><span class="text-white/55">Kode Unik</span><b id="uniqueText" class="text-ub-300 text-right">+ Rp0</b></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="paymentCard" class="rounded-3xl border border-white/5 bg-[#202124] overflow-hidden">
+      <div class="p-5 border-b border-white/5 flex gap-4 items-center"><div class="w-10 h-10 rounded-xl bg-ub-500 text-black grid place-items-center"><i data-lucide="wallet-cards" class="w-5 h-5"></i></div><div><h2 class="font-bold text-lg">Pembayaran</h2><p class="text-xs text-white/40">Gunakan tujuan pembayaran berikut.</p></div></div>
+      <div class="p-5 sm:p-6">
+        <div class="rounded-2xl border border-white/10 bg-[#171717] p-4 sm:p-5">
+          <div class="flex items-center gap-4"><div class="w-20 h-14 rounded-xl bg-white/95 p-2 grid place-items-center shrink-0"><img id="paymentIcon" class="max-w-full max-h-full object-contain hidden" alt="Pembayaran"><i id="paymentFallbackIcon" data-lucide="wallet-cards" class="w-7 h-7 text-black/70"></i></div><div><div class="text-xs text-white/35">Metode Pembayaran</div><b id="paymentName" class="text-base">-</b><div id="paymentFeeLabel" class="text-xs text-white/35 mt-1"></div></div></div>
+
+          <div id="qrisStaticArea" class="hidden mt-4 pt-4 border-t border-white/5">
+            <div class="rounded-2xl border border-ub-500/20 bg-ub-500/[.05] p-4 sm:p-5 text-center">
+              <div class="inline-flex items-center gap-2 rounded-full border border-ub-500/20 bg-ub-500/10 px-3 py-1.5 text-[11px] font-bold text-ub-300">
+                <i data-lucide="qr-code" class="w-4 h-4"></i>SCAN QRIS
+              </div>
+              <div class="mt-4 mx-auto w-full max-w-[300px] aspect-square rounded-2xl bg-white p-3 sm:p-4 grid place-items-center">
+                <img src="images/payment/qris.webp" alt="QRIS UB Store" class="w-full h-full object-contain" onerror="this.style.display='none';this.nextElementSibling.classList.remove('hidden')">
+                <div class="hidden text-black/60 text-sm font-semibold px-4">Gambar QRIS belum tersedia.</div>
+              </div>
+              <div class="mt-4">
+                <div class="text-xs text-white/40">Total yang harus dibayar</div>
+                <div id="qrisTotalText" class="text-2xl font-extrabold text-ub-300 mt-1">Rp0</div>
+                <p class="text-xs text-white/50 mt-2 leading-5">
+                  Scan QRIS lalu masukkan nominal persis sesuai total di atas. Jangan membulatkan nominal.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div id="accountArea" class="hidden mt-4 pt-4 border-t border-white/5 space-y-3"><div id="accountNumberRow" class="hidden flex items-center justify-between gap-4"><div><div class="text-[11px] text-white/35">Nomor / Rekening</div><b id="accountNumber" class="text-sm sm:text-base break-all">-</b></div><button id="copyAccountBtn" type="button" class="shrink-0 rounded-xl border border-white/10 px-3 py-2 text-xs font-bold text-ub-300 inline-flex items-center gap-2"><i data-lucide="copy" class="w-4 h-4"></i>Salin</button></div><div id="accountNameRow" class="hidden"><div class="text-[11px] text-white/35">Atas Nama</div><b id="accountName" class="text-sm">-</b></div></div>
+          <div id="instructionsArea" class="hidden mt-4 pt-4 border-t border-white/5"><div class="text-[11px] uppercase tracking-wider text-white/35 mb-2">Petunjuk</div><p id="instructionsText" class="text-sm text-white/55 leading-6 whitespace-pre-line"></p></div>
+        </div>
+        <div class="mt-4 rounded-2xl border border-amber-400/15 bg-amber-400/[.05] p-4 flex items-start gap-3"><i data-lucide="triangle-alert" class="w-5 h-5 text-amber-300 shrink-0 mt-0.5"></i><div class="text-xs text-white/55 leading-5"><b class="text-amber-200">Jangan membulatkan nominal.</b><br>Perbedaan kode unik digunakan untuk membantu pencocokan pembayaran.</div></div>
+      </div>
+    </section>
+
+    <section id="proofSection" class="rounded-3xl border border-white/5 bg-[#202124] overflow-hidden">
+      <div class="p-5 border-b border-white/5 flex gap-4 items-center"><div class="w-10 h-10 rounded-xl bg-ub-500 text-black grid place-items-center"><i data-lucide="image-up" class="w-5 h-5"></i></div><div><h2 class="font-bold text-lg">Bukti Pembayaran</h2><p class="text-xs text-white/40">Kirim bukti setelah transfer berhasil.</p></div></div>
+      <div class="p-5 sm:p-6">
+        <div id="proofAlreadyBox" class="hidden rounded-2xl border border-amber-400/20 bg-amber-400/[.07] p-4"><div class="flex gap-3"><i data-lucide="clock-3" class="w-5 h-5 text-amber-300 shrink-0 mt-0.5"></i><div><b class="text-amber-100">Bukti sudah diterima</b><p id="proofAlreadyText" class="text-xs text-white/50 mt-1 leading-5">Bukti pembayaran sedang diperiksa admin.</p></div></div></div>
+        <div id="proofFormArea">
+          <div id="whatsappVerifyArea" class="hidden mb-4"><label class="text-sm font-semibold">Nomor WhatsApp Pesanan</label><input id="proofWhatsapp" inputmode="tel" class="mt-2 w-full rounded-xl bg-[#171717] border border-white/10 px-4 py-3.5 outline-none focus:border-ub-500" placeholder="Contoh: 081234567890"><p class="text-[11px] text-white/35 mt-2">Diperlukan untuk memastikan bukti dikirim ke pesanan yang benar.</p></div>
+          <label class="block cursor-pointer rounded-2xl border border-dashed border-white/15 hover:border-ub-500/40 bg-[#171717] p-5 text-center transition"><input id="paymentProof" type="file" accept="image/jpeg,image/png,image/webp" class="hidden"><div id="proofPickerText"><i data-lucide="upload-cloud" class="w-7 h-7 text-ub-300 mx-auto"></i><div class="text-sm font-semibold mt-2">Pilih bukti pembayaran</div><div class="text-[11px] text-white/35 mt-1">JPG, PNG, atau WEBP • Maksimal 2 MB</div></div><img id="proofPreview" class="hidden mx-auto max-h-56 rounded-xl object-contain" alt="Preview bukti pembayaran"></label>
+          <div id="proofFileInfo" class="hidden mt-3 text-xs text-white/45"></div><div id="proofStatus" class="hidden mt-3"></div>
+          <button id="submitProofBtn" type="button" class="mt-4 w-full rounded-2xl bg-ub-500 hover:bg-ub-400 text-black font-extrabold py-3.5 inline-flex items-center justify-center gap-2"><i data-lucide="badge-check" class="w-5 h-5"></i><span>Kirim Bukti Pembayaran</span></button>
+        </div>
+      </div>
+    </section>
+
+    <div class="grid sm:grid-cols-2 gap-3"><a id="checkStatusLink" href="/transaksi" class="rounded-2xl border border-white/10 px-4 py-3 text-sm font-bold text-center text-white/70 hover:border-ub-500/30 hover:text-white inline-flex justify-center items-center gap-2"><i data-lucide="search" class="w-4 h-4"></i>Cek Status Transaksi</a><a href="/" class="rounded-2xl border border-white/10 px-4 py-3 text-sm font-bold text-center text-white/50 inline-flex justify-center items-center gap-2"><i data-lucide="house" class="w-4 h-4"></i>Kembali ke Beranda</a></div>
+  </div>
+</main>
+
+<div id="toast" class="fixed left-1/2 -translate-x-1/2 bottom-6 z-50 hidden"><div class="rounded-2xl bg-[#2b2d31] border border-white/10 shadow-2xl p-4 min-w-[260px]"><b id="tt"></b><p id="tm" class="text-xs text-white/50 mt-1"></p></div></div>
+
+<script>
+const API_URL='https://script.google.com/macros/s/AKfycbxzv5Q1e8Ety6HbmMYgTsoa_DIDyAkP_15M3xF8Fzpx302f5CS69xaRv5UekDUMMPFq/exec';
+const API_TOKEN='9fK2xP7mQ4vL8sT1zR6aW3nY5';
+const params=new URLSearchParams(location.search);
+const orderCode=String(params.get('code')||'').trim().toUpperCase();
+let currentOrder=null,paymentMethods=[],selectedProofFile=null,savedWhatsapp='';
+const localPaymentIcons={DANA:'images/payment/dana.webp',GOPAY:'images/payment/gopay.webp',SEABANK:'images/payment/seabank.webp',SHOPEEPAY:'images/payment/shopeepay.webp',QRIS:'images/payment/qris-logo.webp'};
+const $=id=>document.getElementById(id);
+const rup=n=>new Intl.NumberFormat('id-ID',{style:'currency',currency:'IDR',maximumFractionDigits:0}).format(Number(n||0));
+const escapeHtml=v=>String(v??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
+function showToast(t,m){$('tt').textContent=t||'';$('tm').textContent=m||'';$('toast').classList.remove('hidden');clearTimeout(window.__toast);window.__toast=setTimeout(()=>$('toast').classList.add('hidden'),3200)}
+function apiUrl(action,p={}){const u=new URL(API_URL);u.searchParams.set('action',action);if(API_TOKEN)u.searchParams.set('token',API_TOKEN);Object.entries(p).forEach(([k,v])=>{if(v!==undefined&&v!==null&&v!=='')u.searchParams.set(k,v)});return u.toString()}
+async function apiGet(action,p={}){const r=await fetch(apiUrl(action,p),{method:'GET',headers:{Accept:'application/json'},cache:'no-store'});const text=await r.text();let d;try{d=JSON.parse(text)}catch(_){throw new Error('Respons backend tidak valid.')}if(!r.ok||d.success===false)throw new Error(d.error||`Request gagal (${r.status}).`);return d}
+async function apiPost(action,p={}){const body={...p,action};if(API_TOKEN)body.token=API_TOKEN;let r;try{r=await fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=UTF-8',Accept:'application/json'},body:JSON.stringify(body),cache:'no-store',redirect:'follow'})}catch(_){throw new Error('Tidak dapat menghubungi server transaksi.')}const text=await r.text();let d;try{d=JSON.parse(text)}catch(_){throw new Error('Respons backend tidak valid.')}if(!r.ok||d.success===false)throw new Error(d.error||`Request gagal (${r.status}).`);return d}
+function setLoading(btn,on,text='Memproses...'){if(!btn)return;if(on){btn.dataset.old=btn.innerHTML;btn.disabled=true;btn.classList.add('opacity-60','cursor-not-allowed');btn.innerHTML=`<i data-lucide="loader-circle" class="w-5 h-5 animate-spin"></i><span>${escapeHtml(text)}</span>`}else{btn.disabled=false;btn.classList.remove('opacity-60','cursor-not-allowed');btn.innerHTML=btn.dataset.old||btn.innerHTML}lucide.createIcons()}
+async function copyText(v){try{if(navigator.clipboard&&window.isSecureContext)await navigator.clipboard.writeText(String(v));else{const t=document.createElement('textarea');t.value=String(v);t.style.position='fixed';t.style.opacity='0';document.body.appendChild(t);t.select();document.execCommand('copy');t.remove()}showToast('Berhasil disalin',String(v))}catch(_){showToast('Gagal menyalin','Silakan salin secara manual.')}}
+function formatDate(v){if(!v)return'-';try{return new Intl.DateTimeFormat('id-ID',{dateStyle:'medium',timeStyle:'short',timeZone:'Asia/Jakarta'}).format(new Date(v))}catch(_){return v}}
+function getCached(){try{return JSON.parse(localStorage.getItem(`ub_order_${orderCode}`)||'null')}catch(_){return null}}
+function saveCache(data){try{localStorage.setItem(`ub_order_${orderCode}`,JSON.stringify(data));if(savedWhatsapp)localStorage.setItem(`ub_order_whatsapp_${orderCode}`,savedWhatsapp)}catch(_){}}
+function statusInfo(d){const pay=String(d.payment_status||'PENDING').toUpperCase(),tx=String(d.transaction_status||'PENDING').toUpperCase();if(tx==='COMPLETED')return{icon:'circle-check-big',title:'Transaksi Selesai',text:'Top up telah selesai diproses.'};if(['CANCELLED','CANCELED','EXPIRED','FAILED'].includes(tx))return{icon:'circle-x',title:'Transaksi Tidak Aktif',text:'Pesanan ini sudah dibatalkan, gagal, atau kedaluwarsa.'};if(['PROCESSING','PROCESSED'].includes(tx))return{icon:'loader-circle',title:'Top Up Sedang Diproses',text:'Pembayaran sudah diterima dan pesanan sedang diproses.'};if(['PAID','VERIFIED'].includes(pay))return{icon:'badge-check',title:'Pembayaran Terverifikasi',text:'Pembayaran sudah dikonfirmasi admin.'};if(tx==='WAITING_CONFIRMATION'||d.payment_submitted_at)return{icon:'clock-3',title:'Menunggu Verifikasi Admin',text:'Bukti pembayaran sudah diterima dan sedang diperiksa admin.'};return{icon:'wallet-cards',title:'Menunggu Pembayaran',text:'Transfer sesuai total di bawah ini, kemudian unggah bukti pembayaran.'}}
+function paymentMethodFor(d){return paymentMethods.find(x=>String(x.code||'').toUpperCase()===String(d.payment_method_code||'').toUpperCase())||{}}
+function topupGameUi(d){
+  const code=String(d.game_code||'').trim().toUpperCase();
+  const rawName=String(d.game_name||d.game||code||'').trim();
+  const name=rawName||code||'Game';
+  const label=code&&name.toUpperCase()!==code?name:name||code||'-';
+
+  const iconMap={
+    BUSSID:'bus-front',
+    TRUCKSID:'truck',
+    BUSSIN:'bus-front'
+  };
+
+  return {
+    code:code||String(d.game||'').trim().toUpperCase()||'-',
+    name:label,
+    icon:iconMap[code]||'gamepad-2'
+  };
+}
+
+function renderOrder(){const d=currentOrder||{},pm=paymentMethodFor(d),st=statusInfo(d);$('loadingBox').classList.add('hidden');$('errorBox').classList.add('hidden');$('orderContent').classList.remove('hidden');if(params.get('active')==='1')$('activeNotice').classList.remove('hidden');$('statusTitle').textContent=st.title;$('statusText').textContent=st.text;$('statusIcon').setAttribute('data-lucide',st.icon);$('orderCodeText').textContent=d.order_code||orderCode;$('customerText').textContent=d.customer_name||'-';
+
+const gameUi=topupGameUi(d);
+$('gameNameText').textContent=gameUi.name;
+$('gameCodeBadge').textContent=gameUi.code;
+$('selectedGameIcon').setAttribute('data-lucide',gameUi.icon);
+
+$('gameIdText').textContent=d.game_id_value||d.game_id||'-';
+
+const amount=Number(d.product_amount||d.amount||0);
+const productName=d.product_name||d.product||'-';
+
+$('productNameText').textContent=productName;
+$('coinAmountText').textContent=amount>0?`${amount.toLocaleString('id-ID')} Koin`:'-';
+
+$('productText').textContent=productName+(amount?` • ${amount.toLocaleString('id-ID')} Koin`:'');
+
+$('promoText').textContent=d.promo_code||'-';$('subtotalText').textContent=rup(d.subtotal);$('discountText').textContent=Number(d.discount||0)>0?`- ${rup(d.discount)}`:rup(0);$('feeText').textContent=rup(d.payment_fee);$('uniqueText').textContent=`+ ${rup(d.unique_code)}`;$('totalText').textContent=rup(d.total);$('checkStatusLink').href=`/transaksi?code=${encodeURIComponent(d.order_code||orderCode)}`;
+const pcode=String(d.payment_method_code||pm.code||'').toUpperCase();
+const isQris=pcode==='QRIS';
+const icon=isQris?localPaymentIcons.QRIS:(d.payment_icon_url||pm.icon_url||localPaymentIcons[pcode]||'');
+$('paymentName').textContent=d.payment_method||d.payment_method_name||pm.name||pcode||'-';
+$('paymentFeeLabel').textContent=Number(d.payment_fee||pm.fee||0)>0?`Biaya admin ${rup(d.payment_fee||pm.fee)}`:'Tanpa biaya admin';
+
+$('paymentIcon').classList.add('hidden');
+$('paymentFallbackIcon').classList.remove('hidden');
+$('paymentFallbackIcon').setAttribute('data-lucide',isQris?'qr-code':'wallet-cards');
+if(icon){
+  $('paymentIcon').src=icon;
+  $('paymentIcon').classList.remove('hidden');
+  $('paymentFallbackIcon').classList.add('hidden');
+}
+
+$('qrisStaticArea').classList.toggle('hidden',!isQris);
+$('qrisTotalText').textContent=rup(d.total);
+const acc=d.payment_account_number||pm.account_number||'',accName=d.payment_account_name||pm.account_name||'',inst=d.payment_instructions||pm.instructions||'';if(acc||accName){$('accountArea').classList.remove('hidden')}if(acc){$('accountNumberRow').classList.remove('hidden');$('accountNumber').textContent=acc;$('copyAccountBtn').dataset.value=acc}if(accName){$('accountNameRow').classList.remove('hidden');$('accountName').textContent=accName}if(inst){$('instructionsArea').classList.remove('hidden');$('instructionsText').textContent=inst}
+const pay=String(d.payment_status||'').toUpperCase(),tx=String(d.transaction_status||'').toUpperCase(),already=!!d.payment_submitted_at||tx==='WAITING_CONFIRMATION'||['PAID','VERIFIED'].includes(pay)||['PROCESSING','PROCESSED','COMPLETED'].includes(tx);if(already){$('proofAlreadyBox').classList.remove('hidden');$('proofFormArea').classList.add('hidden');$('proofAlreadyText').textContent=d.payment_submitted_at?`Dikirim ${formatDate(d.payment_submitted_at)}. Bukti sedang diperiksa admin.`:st.text}else{$('proofAlreadyBox').classList.add('hidden');$('proofFormArea').classList.remove('hidden');if(!savedWhatsapp)$('whatsappVerifyArea').classList.remove('hidden')}
+lucide.createIcons()}
+async function loadOrder(){if(!orderCode){showError('Kode order tidak ditemukan pada URL.');return}try{const cached=getCached()||{};savedWhatsapp=String(cached.whatsapp||localStorage.getItem(`ub_order_whatsapp_${orderCode}`)||'').trim();const [tx,pays]=await Promise.all([apiGet('checkTransaction',{code:orderCode}),apiGet('getPaymentMethods')]);paymentMethods=Array.isArray(pays.data)?pays.data:[];currentOrder={...cached,...tx.data};if(savedWhatsapp)currentOrder.whatsapp=savedWhatsapp;saveCache(currentOrder);renderOrder()}catch(e){showError(e.message)}}
+function showError(m){$('loadingBox').classList.add('hidden');$('orderContent').classList.add('hidden');$('errorMessage').textContent=m||'Terjadi kesalahan.';$('errorBox').classList.remove('hidden');lucide.createIcons()}
+function showProofStatus(type,title,msg){const el=$('proofStatus'),ok=type==='success';el.className=`mt-3 rounded-xl border p-3 ${ok?'border-emerald-400/20 bg-emerald-400/10':'border-red-400/20 bg-red-400/10'}`;el.innerHTML=`<div class="flex gap-3"><i data-lucide="${ok?'badge-check':'circle-x'}" class="w-5 h-5 shrink-0 ${ok?'text-emerald-300':'text-red-300'}"></i><div><b class="text-sm ${ok?'text-emerald-200':'text-red-200'}">${escapeHtml(title)}</b><p class="text-xs text-white/50 mt-1 leading-5">${escapeHtml(msg)}</p></div></div>`;lucide.createIcons()}
+function handleFile(file){selectedProofFile=null;$('proofStatus').className='hidden mt-3';if(!file){$('proofPreview').classList.add('hidden');$('proofPickerText').classList.remove('hidden');$('proofFileInfo').classList.add('hidden');return}if(!['image/jpeg','image/png','image/webp'].includes(file.type)){showProofStatus('error','Format tidak didukung','Gunakan JPG, PNG, atau WEBP.');$('paymentProof').value='';return}if(file.size>2*1024*1024){showProofStatus('error','Ukuran terlalu besar','Maksimal ukuran file adalah 2 MB.');$('paymentProof').value='';return}selectedProofFile=file;$('proofFileInfo').textContent=`${file.name} • ${(file.size/1024).toFixed(0)} KB`;$('proofFileInfo').classList.remove('hidden');const r=new FileReader();r.onload=e=>{$('proofPreview').src=e.target.result;$('proofPreview').classList.remove('hidden');$('proofPickerText').classList.add('hidden')};r.readAsDataURL(file)}
+function toBase64(file){return new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>{const x=String(r.result||'');res(x.includes('base64,')?x.split('base64,').pop():x)};r.onerror=()=>rej(new Error('Gagal membaca file.'));r.readAsDataURL(file)})}
+async function submitProof(){if(!selectedProofFile){showProofStatus('error','Bukti belum dipilih','Pilih gambar bukti pembayaran terlebih dahulu.');return}let wa=savedWhatsapp||String($('proofWhatsapp').value||'').trim();if(!wa){showProofStatus('error','Nomor WhatsApp diperlukan','Masukkan nomor WhatsApp yang digunakan saat memesan.');return}const btn=$('submitProofBtn');setLoading(btn,true,'Mengirim bukti...');try{const base64=await toBase64(selectedProofFile);const r=await apiPost('submitPaymentProof',{order_code:orderCode,whatsapp:wa,file_name:selectedProofFile.name,mime_type:selectedProofFile.type,file_base64:base64});savedWhatsapp=wa;try{localStorage.setItem(`ub_order_whatsapp_${orderCode}`,wa)}catch(_){}currentOrder={...currentOrder,...r.data,whatsapp:wa};saveCache(currentOrder);showToast('Bukti berhasil dikirim','Menunggu verifikasi admin.');await loadOrder()}catch(e){showProofStatus('error','Bukti gagal dikirim',e.message);setLoading(btn,false)}}
+$('copyOrderBtn').addEventListener('click',()=>copyText(orderCode));$('copyTotalBtn').addEventListener('click',()=>copyText(Math.round(Number(currentOrder?.total||0))));$('copyAccountBtn').addEventListener('click',()=>copyText($('copyAccountBtn').dataset.value||''));$('paymentProof').addEventListener('change',()=>handleFile($('paymentProof').files?.[0]||null));$('submitProofBtn').addEventListener('click',submitProof);lucide.createIcons();loadOrder();
+</script>
+
+<script id="ub-global-feedback-adapter">
+(function(){
+  if(!window.UBFeedback) return;
+  window.UBFeedback.bindLegacy();
+
+  // Beberapa halaman membuat toast lama setelah DOM siap.
+  setTimeout(function(){ window.UBFeedback.bindLegacy(); },0);
+  setTimeout(function(){ window.UBFeedback.bindLegacy(); },350);
+})();
+</script>
+
+
+<script id="ub-contextual-loader-core">
+(function(){
+  if(window.UBContextLoader) return;
+
+  let activeCount=0;
+  let delayedTimer=null;
+
+  const $=id=>document.getElementById(id);
+
+  function show(title,text,delay){
+    const wait=Number.isFinite(Number(delay))?Number(delay):120;
+    activeCount++;
+
+    clearTimeout(delayedTimer);
+    delayedTimer=setTimeout(function(){
+      const el=$('ubContextLoader');
+      if(!el||activeCount<=0)return;
+      $('ubContextLoaderTitle').textContent=String(title||'Memproses...');
+      $('ubContextLoaderText').textContent=String(text||'Mohon tunggu sebentar.');
+      el.classList.add('ub-show');
+    },Math.max(0,wait));
+  }
+
+  function hide(force){
+    clearTimeout(delayedTimer);
+    activeCount=force?0:Math.max(0,activeCount-1);
+    if(activeCount===0){
+      const el=$('ubContextLoader');
+      if(el)el.classList.remove('ub-show');
+    }
+  }
+
+  function withLoader(promise,title,text,delay){
+    show(title,text,delay);
+    return Promise.resolve(promise).finally(function(){hide();});
+  }
+
+  window.UBContextLoader={show,hide,withLoader};
+
+  // Compatibility with pages that already call loading(true/false)
+  // but do NOT create automatic loading for navigation or GET polling.
+  const oldLoading=window.loading;
+  window.ubLoading=function(on,title,text){
+    if(on)show(title||'Memproses...',text||'Mohon tunggu sebentar.',80);
+    else hide();
+  };
+
+  // Only POST/PUT/PATCH/DELETE requests trigger loader automatically.
+  // GET/polling/navigation stay silent.
+  const originalFetch=window.fetch?window.fetch.bind(window):null;
+  if(originalFetch){
+    window.fetch=async function(input,init){
+      const method=String((init&&init.method)||'GET').toUpperCase();
+      const silent=!!(init&&init.ubSilent===true);
+      const shouldLoad=!silent&&['POST','PUT','PATCH','DELETE'].includes(method);
+      if(shouldLoad){
+        show('Memproses...','Sedang menghubungkan ke server UB Store.',140);
+      }
+      try{
+        return await originalFetch(input,init);
+      }finally{
+        if(shouldLoad)hide();
+      }
+    };
+  }
+})();
+</script>
+
+</body>
+</html>
