@@ -689,7 +689,7 @@ body{background:#171717}.marquee{animation:marquee 22s linear infinite}@keyframe
                 <i data-lucide="qr-code" class="w-4 h-4"></i>SCAN QRIS
               </div>
               <div class="mt-4 mx-auto w-full max-w-[300px] aspect-square rounded-2xl bg-white p-3 sm:p-4 grid place-items-center">
-                <img src="images/payment/qris.webp" alt="QRIS UB Store" class="w-full h-full object-contain" onerror="this.style.display='none';this.nextElementSibling.classList.remove('hidden')">
+                <img src="images/payment/qris-logo.webp" alt="QRIS UB Store" class="w-full h-full object-contain" onerror="this.style.display='none';this.nextElementSibling.classList.remove('hidden')">
                 <div class="hidden text-black/60 text-sm font-semibold px-4">Gambar QRIS belum tersedia.</div>
               </div>
               <div class="mt-4">
@@ -734,7 +734,7 @@ const API_TOKEN='9fK2xP7mQ4vL8sT1zR6aW3nY5';
 const params=new URLSearchParams(location.search);
 const orderCode=String(params.get('code')||'').trim().toUpperCase();
 let currentOrder=null,paymentMethods=[],selectedProofFile=null,savedWhatsapp='';
-const localPaymentIcons={DANA:'images/payment/dana.webp',GOPAY:'images/payment/gopay.webp',SEABANK:'images/payment/seabank.webp',SHOPEEPAY:'images/payment/shopeepay.webp',QRIS:'images/payment/qris-logo.webp'};
+const localPaymentIcons={DANA:'images/payment/dana.webp',GOPAY:'images/payment/gopay.webp',SEABANK:'images/payment/seabank.webp',SHOPEEPAY:'images/payment/shopeepay.webp',QRIS:'images/payment/qris.webp'};
 const $=id=>document.getElementById(id);
 const rup=n=>new Intl.NumberFormat('id-ID',{style:'currency',currency:'IDR',maximumFractionDigits:0}).format(Number(n||0));
 const escapeHtml=v=>String(v??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
