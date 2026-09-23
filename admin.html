@@ -2071,7 +2071,7 @@ function startDashboard(){
   setLoginError('');
   switchAdminTab(activeAdminTab,{force:true});
   clearInterval(refreshTimer);
-  refreshTimer=setInterval(()=>{if(document.visibilityState==='visible')loadActivePanel();},20000);
+  refreshTimer=setInterval(()=>{if(document.visibilityState==='visible')loadActivePanel();},100000);
 }
 
 $('loginForm').addEventListener('submit',async e=>{
