@@ -2065,13 +2065,14 @@ function loadActivePanel(){
 }
 
 function closeModal(){$('detailModal').classList.add('hidden');document.body.classList.remove('overflow-hidden');currentOrder=null;}
-function logout(show=true){adminToken='';sessionStorage.removeItem(ADMIN_SESSION_KEY);clearInterval(refreshTimer);$('loginScreen').classList.remove('hidden');if(show)setLoginError('');}
+function logout(show=true){adminToken='';sessionStorage.removeItem(ADMIN_SESSION_KEY);clearInterval(refreshTimer);refreshTimer=null;$('loginScreen').classList.remove('hidden');if(show)setLoginError('');}
 function startDashboard(){
   $('loginScreen').classList.add('hidden');
   setLoginError('');
-  switchAdminTab(activeAdminTab,{force:true});
+  // Tidak ada auto-refresh. Data hanya diperbarui saat admin menekan tombol Refresh.
   clearInterval(refreshTimer);
-  refreshTimer=setInterval(()=>{if(document.visibilityState==='visible')loadActivePanel();},20000);
+  refreshTimer=null;
+  switchAdminTab(activeAdminTab,{force:true});
 }
 
 $('loginForm').addEventListener('submit',async e=>{
