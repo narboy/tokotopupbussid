@@ -2065,13 +2065,13 @@ function loadActivePanel(){
 }
 
 function closeModal(){$('detailModal').classList.add('hidden');document.body.classList.remove('overflow-hidden');currentOrder=null;}
-function logout(show=true){adminToken='';sessionStorage.removeItem(ADMIN_SESSION_KEY);refreshTimer=null;$('loginScreen').classList.remove('hidden');if(show)setLoginError('');}
+function logout(show=true){adminToken='';sessionStorage.removeItem(ADMIN_SESSION_KEY);clearInterval(refreshTimer);$('loginScreen').classList.remove('hidden');if(show)setLoginError('');}
 function startDashboard(){
   $('loginScreen').classList.add('hidden');
   setLoginError('');
-  // Tidak ada auto-refresh. Data hanya diperbarui saat admin menekan tombol Refresh.
-  refreshTimer=null;
   switchAdminTab(activeAdminTab,{force:true});
+  clearInterval(refreshTimer);
+  refreshTimer=setInterval(()=>{if(document.visibilityState==='visible')loadActivePanel();},20000);
 }
 
 $('loginForm').addEventListener('submit',async e=>{
@@ -2213,5 +2213,3 @@ if(adminToken)startDashboard();
 
 </body>
 </html>
-
-<!-- AUTO-REFRESH DISABLED: dashboard data is refreshed only by initial load or manual Refresh button. -->
